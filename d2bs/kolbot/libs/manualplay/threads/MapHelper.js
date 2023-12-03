@@ -281,7 +281,6 @@ function main () {
 
               break;
             case "gamble":
-              print(JSON.stringify(Config.GambleItems));
               Town.gamble();
  
               break;

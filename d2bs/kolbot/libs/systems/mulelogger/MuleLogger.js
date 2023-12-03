@@ -241,6 +241,7 @@ const MuleLogger = {
         for (let item of mercItems) {
           let parsedItem = this.logItem(item);
           parsedItem.title += " (merc)";
+          !parsedItem.header && (parsedItem.header = (me.account || "Single Player") + " / " + me.name);
           let string = JSON.stringify(parsedItem);
           finalString += (string + "\n");
           saveImg && D2Bot.saveItem(parsedItem);

@@ -252,11 +252,27 @@ function main () {
       me.inTown && (qolObj.action = "stashItems");
 
       break;
+    case "gamble":
+      me.inTown && (qolObj.action = "gamble");
+      break;
+ 
+    case "diablo":
+    case "clear":
+    case "clearlevel":
     case "pick":
     case "cowportal":
     case "uberportal":
     case "filltps":
       qolObj.action = cmd;
+
+      break;
+    case "goldie":
+      if (msgList.length < 2) {
+        print("ÿc1Missing arguments");
+        break;
+      }
+      qolObj.type = "goldie";
+      qolObj.action = msgList[1];
 
       break;
     case "drop":

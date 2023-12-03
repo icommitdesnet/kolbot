@@ -280,6 +280,18 @@ function main () {
               Town.stash(true, true);
 
               break;
+            case "gamble":
+              print(JSON.stringify(Config.GambleItems));
+              Town.gamble();
+ 
+              break;
+ 
+            case "diablo":
+              print("start Diablo..");
+              Loader.runScript("Diablo", () => {Config.Diablo.Fast = true; Config.PublicMode = false;} );
+   
+              break;
+ 
             case "makePortal":
               Pather.makePortal();
 
@@ -291,6 +303,10 @@ function main () {
             case "clear":
               Attack.clear(10);
 
+              break;
+            case "clearlevel":
+              Attack.clearLevel();
+                
               break;
             case "cowportal":
               Misc.openRedPortal(sdk.areas.MooMooFarm);

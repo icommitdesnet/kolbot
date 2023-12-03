@@ -33,6 +33,10 @@ const HelpMenu = new function () {
       "invo": "Drop all items in the inventory",
       "stash": "Drop all items in the stash excluding the cube"
     },
+    "Diablo": "start Diablo Script fast",
+    "clearlevel": "clear the current Level",
+    "gamble": "go gambling. make sure Config.Gamble is correct",
+    "goldie <n>": "drop 1 Gold <n> times",
     "stack": {
       "antidote": "Buy and Stack 10 antidote potions for 5 minutes of boosted poison resistance",
       "thawing": "Buy and Stack 10 thawing potions for 5 minutes of boosted cold resistance",

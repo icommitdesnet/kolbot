@@ -145,6 +145,7 @@ declare global {
     const MFSwitchPercent: number;
     const PrimarySlot: number;
     const LogExperience: boolean;
+    const LogEquipment: boolean;
     const TownCheck: boolean;
     const PingQuit: {
       Ping: number;

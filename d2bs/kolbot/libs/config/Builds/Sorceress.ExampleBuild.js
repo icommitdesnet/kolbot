@@ -35,6 +35,7 @@ const AutoBuildTemplate = {
 
 			Config.OpenChests		= true; 						// Open chests. Controls key buying.
 			Config.LogExperience	= false; 						// Print experience statistics in the manager.
+      Config.LogEquipment = false;            // Log Items on exit
 			Config.StashGold 		= 200;							// Minimum amount of gold to stash.
 			Config.AttackSkill		= [0, 36, -1, 36, 36, 0, 0];	// At level 1 we start with a +1 Fire Bolt staff
 			Config.LowManaSkill		= [0, 0];

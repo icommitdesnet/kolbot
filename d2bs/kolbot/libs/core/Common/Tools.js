@@ -121,6 +121,8 @@
       this.exit = function (chickenExit = false) {
         chickenExit && D2Bot.updateChickens();
         Config.LogExperience && Experience.log();
+        Config.LogEquipment && MuleLogger.logChar();
+
         // clearAllEvents();
         console.log("ÿc8Run duration ÿc2" + (Time.format(getTickCount() - me.gamestarttime)));
         this.stopDefault();

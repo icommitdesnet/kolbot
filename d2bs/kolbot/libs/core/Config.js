@@ -297,6 +297,7 @@ let Config = {
   MFSwitchPercent: 0,
   PrimarySlot: -1,
   LogExperience: false,
+  LogEquipment: false,
   TownCheck: false,
   PingQuit: [{ Ping: 0, Duration: 0 }],
   PacketShopping: false,

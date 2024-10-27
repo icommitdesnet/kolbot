@@ -228,6 +228,8 @@
     Control.LobbyLadder = new Control(sdk.controls.Button, 614, 490, 80, 20);
     Control.LobbyHelp = new Control(sdk.controls.Button, 146, 480, 120, 20);
     Control.LobbyQuit = new Control(sdk.controls.Button, 693, 490, 80, 20);
+    Control.LobbyNews = new Control(sdk.controls.LabelBox, 28, 410, 354, 298);
+    Control.LobbyWarning = new Control(sdk.controls.LabelBox, 447, 398, 290, 269);
   }
 
   // Ladder menu controls

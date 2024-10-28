@@ -188,11 +188,17 @@
       }
 
       Pather.usePortal(null, me.name);
-      log("a2");
       Town.goToTown(2);
+      for (let i = 0; i < 3; i++) {
+        log("a2");
+        
+        let playersMoved = Misc.poll(function () {
+          return !playersInAct(2);
+        }, Time.seconds(30), Time.seconds(1));
 
-      while (!playersInAct(2)) {
-        delay(250);
+        if (playersMoved) {
+          break;
+        }
       }
     }
 
@@ -642,13 +648,19 @@
     Pather.moveTo(10022, 5047);
 
     if (AutoRush.rushMode !== RushModes.chanter) {
-      log("a3");
+      for (let i = 0; i < 3; i++) {
+        log("a3");
+        
+        let playersMoved = Misc.poll(function () {
+          return !playersInAct(3);
+        }, Time.seconds(30), Time.seconds(1));
+
+        if (playersMoved) {
+          break;
+        }
+      }
       Town.goToTown(3);
       Town.doChores();
-
-      while (!playersInAct(3)) {
-        delay(250);
-      }
     }
 
     return true;
@@ -891,10 +903,19 @@
       delay(250);
     }
 
-    log("a4");
+    if (AutoRush.rushMode !== RushModes.chanter) {
+      // allow 3 attempts
+      for (let i = 0; i < 3; i++) {
+        log("a4");
+        
+        let playersMoved = Misc.poll(function () {
+          return !playersInAct(4);
+        }, Time.seconds(30), Time.seconds(1));
 
-    while (!playersInAct(4)) {
-      delay(250);
+        if (playersMoved) {
+          break;
+        }
+      }
     }
 
     delay(2000);
@@ -1029,10 +1050,17 @@
     log(AutoRush.playersOut);
 
     if (me.expansion && AutoRush.rushMode !== RushModes.chanter) {
-      log("a5");
+      // allow 3 attempts
+      for (let i = 0; i < 3; i++) {
+        log("a5");
+        
+        let playersMoved = Misc.poll(function () {
+          return !playersInAct(5);
+        }, Time.seconds(30), Time.seconds(1));
 
-      while (!playersInAct(5)) {
-        delay(250);
+        if (playersMoved) {
+          break;
+        }
       }
     }
 
@@ -1206,7 +1234,6 @@
         delay(500);
         quit();
       }
-      wpsToGive.remove(sdk.areas.WorldstoneLvl2);
 
       return false;
     }
@@ -1217,7 +1244,6 @@
         delay(500);
         quit();
       }
-      wpsToGive.remove(sdk.areas.WorldstoneLvl2);
 
       return false;
     }

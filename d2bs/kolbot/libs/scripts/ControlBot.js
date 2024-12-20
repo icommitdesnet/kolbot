@@ -340,7 +340,9 @@ const ControlBot = new Runnable(
         if (unit) {
           do {
             // merc or any other owned unit
-            if (unit.getParent() && unit.getParent().name === nick) {
+            let parent = unit.getParent();
+            if (!parent) continue;
+            if (parent.name === nick) {
               Packet.enchant(unit);
               delay(500);
             }
@@ -455,7 +457,7 @@ const ControlBot = new Runnable(
       if (unit) {
         do {
           if (unit.getParent()
-            && chanted.includes(unit.getParent().name)
+            && chantList.has(unit.getParent().name)
             && !unit.getState(sdk.states.Enchant)
             && unit.distance <= 40) {
             Packet.enchant(unit);

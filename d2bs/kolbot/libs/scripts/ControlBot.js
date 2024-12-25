@@ -639,10 +639,17 @@ const ControlBot = new Runnable(
     */
     const giveWps = function (nick) {
       let next = false;
+      let stop = false;
+      /**
+       * @param {string} who 
+       * @param {string} msg 
+       */
       const nextWatcher = function (who, msg) {
         if (who !== nick) return;
         if (msg === "next") {
           next = true;
+        } else if (msg === "stop") {
+          stop = true;
         }
       };
 
@@ -671,7 +678,7 @@ const ControlBot = new Runnable(
         addEventListener("chatmsg", nextWatcher);
 
         for (let wp of wps.get(act)) {
-          if (checkHostiles()) {
+          if (stop || checkHostiles()) {
             break;
           }
 

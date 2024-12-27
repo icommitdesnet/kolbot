@@ -195,10 +195,10 @@
             // Add new hostile players to temp shitlist, leader should have Config.ShitList set to true to update the permanent list.
             if (getPlayerFlag(me.gid, party.gid, sdk.player.flag.Hostile)
               && shitList.includes(party.name)) {
-              shitList.push(player.name);
+              shitList.push(party.name);
             }
 
-            if (shitList.includes(player.name)
+            if (shitList.includes(party.name)
               && myPartyId !== NO_PARTY
               && party.partyid === myPartyId) {
               console.log("Unpartying shitlisted player: " + party.name);

@@ -90,6 +90,20 @@
   SimpleParty.timer = 0;
 
   if (new RegExp(/[default.dbj|main.js]/gi).test(getScript(true).name)) {
+    addEventListener("scriptmsg", function (msg) {
+      if (!isType(msg, "string")) return;
+      if (msg === "hostileEventEnded" && Config.ShitList) {
+        let updatedList = ShitList.read();
+        if (updatedList.length) {
+          for (let name of updatedList) {
+            if (!shitList.includes(name)) {
+              shitList.push(name);
+            }
+          }
+        }
+      }
+    });
+
     // For now, we gonna do this in game with a single party
     (Worker.runInBackground.party = (function () {
       console.log("ÿc2Kolbotÿc0 :: Simple party running");

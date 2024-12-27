@@ -681,6 +681,12 @@ declare global {
      */
     readonly maxgold: number;
     waypoints: boolean[];
+    /**
+     * @private
+     * Don't use directly, use `me.shitList`
+     */
+    _shitList: Set<string>;
+    shitList: Set<string>;
 
     // d2bs functions
     overhead(msg: string): void;

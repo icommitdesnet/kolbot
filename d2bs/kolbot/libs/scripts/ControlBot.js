@@ -40,7 +40,7 @@ const ControlBot = new Runnable(
       RushModes,
     } = require("../systems/autorush/RushConfig");
     const Worker = require("../modules/Worker");
-
+    
     /** @param {string} [nick] */
     const mephisto = function (nick) {
       log("starting mephisto");
@@ -131,6 +131,7 @@ const ControlBot = new Runnable(
     const givenGold = new Set();
 
     const Chat = {
+      overheadTick: 0,
       /** @type {string[]} */
       queue: [],
 
@@ -177,8 +178,8 @@ const ControlBot = new Runnable(
         // should check if next msg is going to be a whisper and if so
         // check if the player is in the game and if not, don't send the whisper
         if (getTickCount() - tick < 0) return true;
-        // allow say messages every ~1.5 seconds
-        tick = getTickCount() + Time.seconds(1) + rand(250, 750);
+        // allow say messages every ~1.7 seconds
+        tick = getTickCount() + Time.seconds(1) + rand(500, 950);
         console.debug("(" + Chat.queue[0] + ")");
         if (Chat.queue[0].length > MAX_CHAT_LENGTH) {
           console.debug("Message too long, splitting.");
@@ -238,8 +239,6 @@ const ControlBot = new Runnable(
     const cmdNicks = new Map();
     /** @type {Map<string, WpTracker>} */
     const wpNicks = new Map();
-    /** @type {Set<string>} */
-    const shitList = new Set();
     /** @type {Array<string>} */
     const greet = [];
     /** @type {Map<string, ChantTracker} */
@@ -436,7 +435,7 @@ const ControlBot = new Runnable(
       if (unit) {
         do {
           if (unit === me.name || unit.dead) continue;
-          if (shitList.has(unit.name)) continue;
+          if (me.shitList.has(unit.name)) continue;
           if (!Misc.inMyParty(unit.name) || unit.distance > 40) continue;
           // allow rechanting someone if it's going to run out soon for them
           if (!unit.getState(sdk.states.Enchant)
@@ -687,6 +686,7 @@ const ControlBot = new Runnable(
               next = false;
               continue;
             }
+
             Pather.useWaypoint(wp, true);
             if (Config.ControlBot.Wps.SecurePortal) {
               Attack.securePosition(me.x, me.y, 20, 1000);
@@ -737,8 +737,8 @@ const ControlBot = new Runnable(
           if (party.name !== me.name && getPlayerFlag(me.gid, party.gid, 8)) {
             rval = true;
 
-            if (Config.ShitList && !shitList.has(party.name)) {
-              shitList.add(party.name);
+            if (Config.ShitList && !me.shitList.has(party.name)) {
+              me.shitList.add(party.name);
             }
           }
         } while (party.getNext());
@@ -898,8 +898,10 @@ const ControlBot = new Runnable(
       if (commandAliases.has(msg)) {
         msg = commandAliases.get(msg);
       }
-      if (!actions.has(msg)) return;
-      if (shitList.has(nick)) {
+      if (!actions.has(msg)) {
+        return;
+      }
+      if (me.shitList.has(nick)) {
         Chat.say("No commands for the shitlisted.");
       } else {
         if (running.nick === nick && running.command === msg) {
@@ -978,7 +980,8 @@ const ControlBot = new Runnable(
       const _actions = new Map();
 
       _actions.set("help", {
-        desc: "Display commands",
+        // desc: "Display commands",
+        desc: "",
         hostileCheck: false,
         /** @param {string} nick */
         run: function (nick) {
@@ -988,7 +991,8 @@ const ControlBot = new Runnable(
             if (!value.desc.length) return;
             if (value.complete) return;
             if (value.desc.includes("Rush")) return;
-            let desc = (key + " (" + value.desc + "), ");
+            // let desc = (key + " (" + value.desc + "), ");
+            let desc = (key + ", ");
             if (str.length + desc.length > MAX_CHAT_LENGTH - (nick.length + 2)) {
               msg.push(str);
               str = "";
@@ -996,7 +1000,7 @@ const ControlBot = new Runnable(
             str += desc;
           });
           str.length && msg.push(str);
-          str = "Rush commands (example: rush andy): ";
+          str = "Rush cmds (ex: rush andy): ";
           _actions.forEach((value, key) => {
             if (!value.desc.length) return;
             if (value.complete) return;
@@ -1041,7 +1045,7 @@ const ControlBot = new Runnable(
             return;
           }
           ngVote.begin();
-          Chat.say(nick + " voted for next game. Votes Needed: " + ngVote.votesNeeded + ". Type ngyes to vote.");
+          Chat.say(nick + " voted for next game. Votes Needed: " + ngVote.votesNeeded() + ". Type ngyes to vote.");
         }
       });
       _actions.set("ngyes", {
@@ -1220,7 +1224,7 @@ const ControlBot = new Runnable(
     // START
     let gameEndWarningAnnounced = false;
     include("oog/ShitList.js");
-    Config.ShitList && shitList.add(ShitList.read());
+    Config.ShitList && ShitList.read().forEach((name) => me.shitList.add(name));
 
     try {
       addEventListener("chatmsg", chatEvent);
@@ -1243,8 +1247,9 @@ const ControlBot = new Runnable(
         while (greet.length > 0) {
           let nick = greet.shift();
 
-          if (!shitList.has(nick)) {
-            Chat.say("Welcome, " + nick + "! For a list of commands say 'help'");
+          if (!me.shitList.has(nick)) {
+            // Chat.say("Welcome, " + nick + "! For a list of commands say 'help'");
+            Chat.overhead("Welcome, " + nick + "! For a list of commands say 'help'");
           }
         }
 
@@ -1309,6 +1314,6 @@ const ControlBot = new Runnable(
   },
   {
     startArea: sdk.areas.RogueEncampment,
-    preAction: null
+    preAction: null,
   }
 );

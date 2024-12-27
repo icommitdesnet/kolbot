@@ -1347,6 +1347,6 @@ declare global {
    * @param type - The expected type as a string.
    * @returns {boolean} - Returns true if the value matches the expected type, otherwise false.
    */
-  function isType(val: any, type: PrimitiveType): boolean;
+  function isType<T extends PrimitiveType>(val: any, type: T): val is PrimitiveTypeMap[T];
 }
 export {};

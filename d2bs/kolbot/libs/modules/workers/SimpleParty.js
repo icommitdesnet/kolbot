@@ -145,7 +145,7 @@
                 ShitList.add(party.name);
               }
 
-              if (player.partyflag === sdk.party.flag.Cancel) {
+              if (party.partyflag === sdk.party.flag.Cancel) {
                 clickParty(party, BUTTON_INVITE_ACCEPT_CANCEL); // cancel invitation
               }
 

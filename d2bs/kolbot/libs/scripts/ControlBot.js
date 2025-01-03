@@ -9,6 +9,8 @@
 
 const ControlBot = new Runnable(
   function ControlBot () {
+    /** @type {string[]} */
+    const shitlistedAccounts = [];
     // Quests
     const {
       log,
@@ -91,28 +93,34 @@ const ControlBot = new Runnable(
     const ngVote = new function () {
       /** @type {Set<string>} */
       this.votes = new Set();
-      this.watch = false;
+      this.active = false;
       this.tick = 0;
       this.nextGame = false;
 
       this.votesNeeded = function () {
-        return Math.max(1, (Misc.getPlayerCount() - 2) / 2);
+        return Math.max(1, Math.floor((Misc.getPlayerCount() - 2) / 2));
       };
       this.reset = function () {
         this.votes.clear();
         this.tick = 0;
-        this.watch = false;
+        this.active = false;
       };
       this.begin = function () {
-        this.watch = true;
+        this.active = true;
         this.votes.clear();
         this.tick = getTickCount();
       };
       this.checkCount = function () {
-        return this.votes.size >= this.votesNeeded;
+        const reqMet = this.votes.size >= this.votesNeeded();
+        if (reqMet) {
+          Chat.say("Enough votes to start next game.");
+          ngVote.nextGame = true;
+          this.reset();
+        }
+        return reqMet;
       };
       this.vote = function (nick) {
-        if (this.watch) {
+        if (this.active) {
           this.votes.add(nick);
         }
       };
@@ -168,6 +176,15 @@ const ControlBot = new Runnable(
         let who = players.get(nick) || nick;
         Chat.queue.push("/w " + who + " " + msg);
       },
+
+      /**
+      * Private message a chat to a user
+      * @param {string} nick 
+      * @param {string} msg 
+      */
+      message: function (nick, msg) {
+        Chat.queue.push("/m " + nick + " " + msg);
+      },
     };
 
     Worker.runInBackground.chat = (function () {
@@ -175,9 +192,11 @@ const ControlBot = new Runnable(
 
       return function () {
         if (!Chat.queue.length) return true;
-        // should check if next msg is going to be a whisper and if so
-        // check if the player is in the game and if not, don't send the whisper
         if (getTickCount() - tick < 0) return true;
+        // check if next msg is going to be a whisper
+        if (Chat.queue[0].startsWith("/w")) {
+          // check if the player is in the game and if not, don't send the whisper
+        }
         // allow say messages every ~1.7 seconds
         tick = getTickCount() + Time.seconds(1) + rand(500, 950);
         console.debug("(" + Chat.queue[0] + ")");
@@ -195,6 +214,7 @@ const ControlBot = new Runnable(
       this.firstCmd = getTickCount();
       this.commands = 0;
       this.ignored = false;
+      this.seenHelpMsg = false;
     }
 
     PlayerTracker.prototype.resetCmds = function () {
@@ -934,6 +954,9 @@ const ControlBot = new Runnable(
         // idle in town
         me.inTown && me.mode === sdk.player.mode.StandingInTown && greet.push(name1);
         if (name2) {
+          if (shitlistedAccounts.includes(name2) && !me.shitList.has(name1)) {
+            ShitList.add(name1);
+          }
           players.set(name1, "*" + name2);
         } else {
           players.set(name1, "");
@@ -944,7 +967,7 @@ const ControlBot = new Runnable(
       case 0x01: // "%Name1(%Name2) dropped due to errors."
       case 0x03: // "%Name1(%Name2) left our world. Diablo's minions weaken."
         players.delete(name1);
-        if (ngVote.watch) {
+        if (ngVote.active) {
           ngVote.votes.delete(name1);
         }
 
@@ -1000,7 +1023,7 @@ const ControlBot = new Runnable(
             str += desc;
           });
           str.length && msg.push(str);
-          str = "Rush cmds (ex: rush andy): ";
+          str = "Rush cmds: ";
           _actions.forEach((value, key) => {
             if (!value.desc.length) return;
             if (value.complete) return;
@@ -1013,9 +1036,17 @@ const ControlBot = new Runnable(
             str += desc;
           });
           str.length && msg.push(str);
-          msg.forEach(function (m) {
-            Chat.whisper(nick, m);
-          });
+          
+          !cmdNicks.has(nick) && cmdNicks.set(nick, new PlayerTracker());
+          if (cmdNicks.has(nick) && cmdNicks.get(nick).seenHelpMsg) {
+            Chat.message(nick, "You have seen the help menu before this game please refer to message log");
+          } else {
+            msg.forEach(function (m) {
+              // Chat.whisper(nick, m);
+              Chat.say(m);
+            });
+          }
+          cmdNicks.get(nick).seenHelpMsg = true;
         }
       });
       _actions.set("timeleft", {
@@ -1037,14 +1068,19 @@ const ControlBot = new Runnable(
         desc: "Vote for next game",
         hostileCheck: false,
         run: function (nick) {
+          if (ngVote.active) {
+            Chat.say("NGVote is already active. Current count: " + ngVote.votes.size);
+            return;
+          }
           if (getTickCount() - startTime < Time.minutes(3)) {
             Chat.say(
-              "Can't vote for next game yet. Must be in game for at least 3 minutes. Remaining: "
+              "Can't vote for ng yet. Must be in game for at least 3 minutes. Remaining: "
               + Math.round((Time.minutes(3) - (getTickCount() - startTime)) / 1000) + " seconds."
             );
             return;
           }
           ngVote.begin();
+          ngVote.vote(nick);
           Chat.say(nick + " voted for next game. Votes Needed: " + ngVote.votesNeeded() + ". Type ngyes to vote.");
         }
       });
@@ -1052,12 +1088,9 @@ const ControlBot = new Runnable(
         desc: "",
         hostileCheck: false,
         run: function (nick) {
-          if (!ngVote.watch) return;
+          if (!ngVote.active) return;
           ngVote.vote(nick);
-          if (ngVote.checkCount()) {
-            Chat.say("Enough votes to start next game.");
-            ngVote.nextGame = true;
-          }
+          ngVote.checkCount();
         }
       });
 
@@ -1285,9 +1318,13 @@ const ControlBot = new Runnable(
         }
         pickGoldPiles();
 
-        if (ngVote.watch && ngVote.elapsed() > Time.minutes(2) && !ngVote.nextGame) {
-          Chat.say("Not enough votes to start next game.");
-          ngVote.reset();
+        if (ngVote.active) {
+          if (ngVote.elapsed() > Time.minutes(2) && !ngVote.nextGame) {
+            Chat.say("Not enough votes to start next game. Votes gathered " + ngVote.votes.size);
+            ngVote.reset();
+          } else {
+            ngVote.checkCount();
+          }
         }
 
         if (getTickCount() - startTime >= maxTime || ngVote.nextGame) {

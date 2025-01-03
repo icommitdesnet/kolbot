@@ -644,7 +644,8 @@ const Misc = (function () {
         case sdk.shrines.Gem:
           // for now we ignore if we are gem hunting later on
           // TODO: add gem hunting logic, get gem from stash if we have one
-          return !Scripts.GemHunter;
+          console.debug("shriner: gem shrine. try my best.");
+          return Town.prepareForGemShrine();
         }
         return false;
       };
@@ -703,6 +704,7 @@ const Misc = (function () {
               }
             }
             this.getShrine(shrine);
+            Pickit.pickItems();
           }
         }
       }
@@ -794,6 +796,11 @@ const Misc = (function () {
                 shrine.objtype === Config.ScanShrines[i]
                 || (Config.ScanShrines[i] === "well" && shrine.name.toLowerCase().includes("well") && needWell())
               ) && (Pather.useTeleport() || !checkCollision(me, shrine, sdk.collision.WallOrRanged))) {
+                // Gem shrine - prepare and pick anyways
+                if (Config.ScanShrines[i] === sdk.shrines.Gem) {
+                  console.debug("scanshrines: gem shine. try my best.");
+                  Town.prepareForGemShrine();
+                }
                 this.getShrine(shrine);
 
                 // Gem shrine - pick gem

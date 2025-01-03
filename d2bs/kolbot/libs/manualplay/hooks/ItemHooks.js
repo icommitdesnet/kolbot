@@ -345,7 +345,6 @@ const ItemHooks = (function () {
         default:
           {
             let check = codeByIdAndQuality.get(item.classid);
-            if(item.classid == sdk.items.BattleBoots) print(check);
             code += ((check && check.get(item.quality)) || item.name);
           }
           

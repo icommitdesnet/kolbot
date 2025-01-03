@@ -2206,7 +2206,7 @@ const Town = {
       .filter(function (p) {
         return p.isInInventory && isUpgradePossible(p) && !pickitWantsUpgrade(p);
       })
-      .length == 0;
+      .length === 0;
 
       // we have gems that can be upgraded in inventory
     const isInventoryValid =  me.getItemsEx()

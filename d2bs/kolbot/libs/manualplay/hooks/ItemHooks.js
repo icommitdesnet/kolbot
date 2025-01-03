@@ -275,7 +275,7 @@ const ItemHooks = (function () {
         abbrName += abbr[0] + "-";
 
         for (let i = 1; i < abbr.length; i++) {
-          abbrName += abbr[i].substring(0, 1);
+          abbrName += abbr[i].substring(0, 2);
         }
       }
 

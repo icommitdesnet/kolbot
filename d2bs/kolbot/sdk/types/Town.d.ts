@@ -74,6 +74,7 @@ declare global {
     function moveToSpot(spot?: string, allowTK?: boolean): boolean;
     function goToTown(act?: 2 | 1 | 4 | 3 | 5, wpmenu?: boolean): boolean;
     function visitTown(repair?: boolean): boolean;
+    function prepareForGemShrine(): boolean;
   }
 }
 export {};

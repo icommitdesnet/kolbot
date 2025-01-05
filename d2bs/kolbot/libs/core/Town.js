@@ -2174,24 +2174,28 @@ const Town = {
     function pickitWantsUpgrade(unit) {
       // Stub Object to let Pickit Check
       function GemUnit(gem) {
-        this.itemType = gem["itemType"];
-        this.classid = gem["classid"];
-        this.type = gem["type"];
-        this.mode = gem["mode"];
-        this.gid = gem["gid"];
+        this.itemType = gem.itemType;
+        this.classid = gem.classid;
+        this.type = gem.type;
+        this.mode = gem.mode;
+        this.gid = gem.gid;
       }
+      // eslint-disable-next-line no-unused-vars
       GemUnit.prototype.getFlag = function (flag) {
         return true;
-      }
+      };
 
       let gem = new GemUnit(unit);
       // lets upgrade the gem
       gem.classid += 1;
-      return [Pickit.Result.WANTED, Pickit.Result.CUBING, Pickit.Result.RUNEWORD, Pickit.Result.CRAFTING].includes(Pickit.checkItem(gem).result)
+      return [
+        Pickit.Result.WANTED, Pickit.Result.CUBING,
+        Pickit.Result.RUNEWORD, Pickit.Result.CRAFTING
+      ].includes(Pickit.checkItem(gem).result);
     }
 
     // do i have any gem worth upgrading
-    const haveUpGems =  me.getItemsEx()
+    const haveUpGems = me.getItemsEx()
       .filter(function (p) {
         return isUpgradePossible(p) && pickitWantsUpgrade(p);
       })
@@ -2202,22 +2206,21 @@ const Town = {
       return false;
     }
     // we have gems that must not be upgraded in inventory
-    const isInventoryClean =  me.getItemsEx()
+    const isInventoryClean = me.getItemsEx()
       .filter(function (p) {
         return p.isInInventory && isUpgradePossible(p) && !pickitWantsUpgrade(p);
       })
       .length === 0;
 
-      // we have gems that can be upgraded in inventory
-    const isInventoryValid =  me.getItemsEx()
+    // we have gems that can be upgraded in inventory
+    const isInventoryValid = me.getItemsEx()
       .filter(function (p) {
         return p.isInInventory && isUpgradePossible(p) && pickitWantsUpgrade(p);
       })
       .length > 0;
 
-      // we already got good gems in inv and no bad games -> take shrine
-    if (isInventoryClean && isInventoryValid)
-    {
+    // we already got good gems in inv and no bad games -> take shrine
+    if (isInventoryClean && isInventoryValid) {
       console.debug("Inventory looks good. lets take the shrine.");
       return true;
     }
@@ -2225,27 +2228,27 @@ const Town = {
     const preArea = me.area;
     const preAct = me.act;
     if (!me.inTown) {
-        // not an essential function -> handle thrown errors
-        try {
-          Town.goToTown();
-        } catch (e) {
-          return false;
-        }
+      // not an essential function -> handle thrown errors
+      try {
+        Town.goToTown();
+      } catch (e) {
+        return false;
+      }
     }
 
     // stash the bad gems first
     !isInventoryClean && Town.stash();
 
     // get any good gem. flawless first (by lvlreq)
-    let goodGems =  me.getItemsEx()
+    let goodGems = me.getItemsEx()
       .filter(function (p) {
-        return  isUpgradePossible(p) && pickitWantsUpgrade(p);
+        return isUpgradePossible(p) && pickitWantsUpgrade(p);
       })
       .sort (function(a, b) {
         return b.lvlreq - a.lvlreq;
       });
     if (goodGems.length) {
-      console.debug("get Gem: "+goodGems[0].fname);
+      console.debug("get Gem: " + goodGems[0].fname);
       Town.openStash();
       Storage.Inventory.MoveTo(goodGems.first()) && Item.logger("Inventoried", goodGems[0]);
     }

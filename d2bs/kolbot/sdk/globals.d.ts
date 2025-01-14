@@ -278,7 +278,8 @@ declare global {
     readText(filename: string)
     writeText(filename: string, data: string)
     appendText(filename: string, data: string)
-    exists(filename: string): Boolean;
+    exists(filename: string): boolean;
+    remove(filename: string): boolean;
   }
 
   function getCollision(area: number, x: number, y: number, x2: number, y2: number)

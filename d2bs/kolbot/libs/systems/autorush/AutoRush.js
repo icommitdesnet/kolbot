@@ -661,6 +661,9 @@
       }
       Town.goToTown(3);
       Town.doChores();
+    } else if (AutoRush.rushMode === RushModes.chanter) {
+      Pather.moveToExit([sdk.areas.HaremLvl1, sdk.areas.LutGholein], true);
+      Pather.useWaypoint(sdk.areas.RogueEncampment);
     }
 
     return true;

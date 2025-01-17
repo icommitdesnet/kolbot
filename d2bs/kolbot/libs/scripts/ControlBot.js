@@ -1165,7 +1165,7 @@ const ControlBot = new Runnable(
         hostileCheck: false,
         run: function (nick) {
           if (ngVote.active) {
-            Chat.say("NGVote is already active. Current count: " + ngVote.votes.size);
+            Chat.say("NGVote is already active. Current count: " + ngVote.votesYes.size);
             return;
           }
           if (getTickCount() - startTime < Time.minutes(3)) {

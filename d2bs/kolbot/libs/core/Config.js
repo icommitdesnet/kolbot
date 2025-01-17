@@ -617,6 +617,7 @@ let Config = {
       Staff: false,
       Summoner: false,
       Duriel: false,
+      Gidbinn: false,
       LamEsen: false,
       Eye: false,
       Heart: false,

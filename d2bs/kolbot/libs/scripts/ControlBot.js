@@ -22,6 +22,7 @@ const ControlBot = new Runnable(
       staff,
       summoner,
       duriel,
+      gidbinn,
       lamesen,
       brain,
       heart,
@@ -1277,6 +1278,9 @@ const ControlBot = new Runnable(
         }
         if (Config.ControlBot.Rush.Duriel) {
           _actions.set("duri", new RushAction("Rush Duriel", duriel));
+        }
+        if (Config.ControlBot.Rush.Gidbinn) {
+          _actions.set("gidbinn", new RushAction("Rush Gidbinn", gidbinn));
         }
         if (Config.ControlBot.Rush.LamEsen) {
           _actions.set("lamesen", new RushAction("Rush Lamesen", lamesen));

@@ -400,6 +400,7 @@ declare global {
         Staff: boolean;
         Summoner: boolean;
         Duriel: boolean;
+        Gidbinn: boolean;
         LamEsen: boolean;
         Eye: boolean;
         Heart: boolean;

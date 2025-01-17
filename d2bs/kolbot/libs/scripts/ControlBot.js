@@ -1346,6 +1346,10 @@ const ControlBot = new Runnable(
       if (!command || command.length < 2) return false;
       console.debug("Checking command: " + command);
       let [cmd, nick, full] = command;
+      if (!Misc.inMyParty(nick)) {
+        Chat.say("Accept party invite, noob. Cmds only allowed for party members.");
+        return false;
+      }
       if (cmd.match(/^rush /gi)) {
         cmd = cmd.split(" ")[1];
       }

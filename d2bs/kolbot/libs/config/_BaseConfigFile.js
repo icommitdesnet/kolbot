@@ -240,6 +240,7 @@
     Config.ControlBot.Rush.Amulet = true; // Get amulet on command
     Config.ControlBot.Rush.Summoner = true; // Kill Summoner on command
     Config.ControlBot.Rush.Duriel = true; // Kill Duriel on command
+    Config.ControlBot.Rush.Gidbinn = true; // Clear Gidbinn altar on command
     Config.ControlBot.Rush.LamEsen = true; // Get LamEsen's tome on command
     Config.ControlBot.Rush.Eye = true; // Get Khalim's eye on command
     Config.ControlBot.Rush.Heart = true; // Get Khalim's heart on command

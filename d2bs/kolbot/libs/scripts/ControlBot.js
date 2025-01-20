@@ -1460,7 +1460,7 @@ const ControlBot = new Runnable(
 
         if (ngVote.active) {
           if (ngVote.elapsed() > Time.minutes(2) && !ngVote.nextGame) {
-            Chat.say("Not enough votes to start next game. Votes gathered " + ngVote.votes.size);
+            Chat.say("Not enough votes to start next game. Votes gathered " + ngVote.votesYes.size);
             ngVote.reset();
           } else if (ngVote.elapsed() > Time.seconds(30) && !ngVote.nextGame) {
             ngVote.checkCount();

@@ -497,6 +497,7 @@ function LoadConfig () {
   Config.ShitList = false; // Blacklist hostile players so they don't get invited to party.
   Config.UnpartyShitlisted = false; // Leave party if someone invited a blacklisted player.
   Config.LastMessage = ""; // Message or array of messages to say at the end of the run. Use $nextgame to say next game - "Next game: $nextgame" (works with lead entry point)
+  Config.AnnounceGameTimeRemaing = false; // Announce time remaing in game if MinGameTime is set and hasn't been reached
 
   // Shrine Scanner - scan for shrines while moving.
   // Put the shrine types in order of priority (from highest to lowest). For a list of types, see sdk/txt/shrines.txt

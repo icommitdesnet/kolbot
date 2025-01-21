@@ -220,6 +220,7 @@ let Config = {
   Silence: false,
   PublicMode: false,
   PartyAfterScript: false,
+  AnnounceGameTimeRemaing: false,
 
   /** @type {string[]} */
   Greetings: [],

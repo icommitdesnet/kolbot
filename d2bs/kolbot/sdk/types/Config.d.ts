@@ -83,6 +83,7 @@ declare global {
     Greetings: any[];
     DeathMessages: any[];
     Congratulations: any[];
+    AnnounceGameTimeRemaing: boolean;
     ShitList: boolean;
     UnpartyShitlisted: boolean;
     Leader: string;

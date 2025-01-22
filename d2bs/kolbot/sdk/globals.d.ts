@@ -81,6 +81,15 @@ declare global {
      * @returns {Array<T>} A new array with the removed elements and optionally added elements.
      */
     toSpliced(start: number, deleteCount?: number, ...items: T[]): T[];
+    /**
+     * @description The with() method of Array instances is the copying version of using the bracket notation to change the value of a given index.
+     * It returns a new array with the element at the given index replaced with the given value.
+     * @param {number} index - Zero-based index at which to change the array, converted to an integer.
+     * @param {*} value - Any value to be assigned to the given index.
+     * @returns {Array} A new array with the element at index replaced with value.
+     * @throws {RangeError} If index >= array.length or index < -array.length.
+     */
+    with(index: number, value: T): T[];
   }
 
   interface String {

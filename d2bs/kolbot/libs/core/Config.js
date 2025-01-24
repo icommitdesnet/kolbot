@@ -360,6 +360,8 @@ let Config = {
   CustomAttack: {},
   /** @type {Record<string | number, [number, number]>} */
   CustomPreAttack: {},
+  /** @type {{ check: (unit: Monster) => boolean, attack: [number, number] }[]} */
+  AdvancedCustomAttack: [],
   TeleStomp: false,
   NoTele: false,
   ClearType: false,

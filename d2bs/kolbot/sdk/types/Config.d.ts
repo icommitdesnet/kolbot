@@ -177,7 +177,9 @@ declare global {
     DodgeHP: number;
     AttackSkill: any[];
     LowManaSkill: any[];
-    CustomAttack: {};
+    CustomAttack: Record<string | number, [number, number]>;
+    CustomPreAttack: Record<string | number, [number, number]>,
+    AdvancedCustomAttack: { check: (unit: Monster) => boolean, attack: [number, number] }[],
     TeleStomp: boolean;
     NoTele: boolean;
     ClearType: boolean;

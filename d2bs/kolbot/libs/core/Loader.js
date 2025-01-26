@@ -183,7 +183,7 @@ const Loader = {
       if (isIncluded("scripts/" + script + ".js")) {
         try {
           if (Loader.currentScript instanceof Runnable) {
-            const { startArea, bossid, preAction } = Loader.currentScript;
+            const { startArea, bossid, preAction, setup } = Loader.currentScript;
             
             if (startArea && Loader.scriptIndex === 0) {
               Loader.firstScriptAct = sdk.areas.actOf(startArea);
@@ -194,6 +194,10 @@ const Loader = {
               continue;
             }
 
+            if (setup && typeof setup === "function") {
+              setup(ctx);
+            }
+            
             if (preAction && typeof preAction === "function") {
               preAction(ctx);
             }
@@ -251,6 +255,14 @@ const Loader = {
                 + "ÿc7 - Exp/minute: ÿc0" + (gain / (duration / 60000)).toFixed(2)
               );
               this.doneScripts.add(script);
+
+              if (Loader.currentScript instanceof Runnable) {
+                const { postAction } = Loader.currentScript;
+              
+                if (postAction && typeof postAction === "function") {
+                  postAction(ctx);
+                }
+              }
             }
           }
         } catch (error) {
@@ -337,6 +349,10 @@ const Loader = {
             return true;
           }
 
+          if (setup && typeof setup === "function") {
+            setup(ctx);
+          }
+          
           if (preAction && typeof preAction === "function") {
             preAction(ctx);
           }
@@ -383,6 +399,14 @@ const Loader = {
               + "ÿc7 - Exp/minute: ÿc0" + (gain / (duration / 60000)).toFixed(2)
             );
             this.doneScripts.add(script);
+
+            if (Loader.currentScript instanceof Runnable) {
+              const { postAction } = Loader.currentScript;
+              
+              if (postAction && typeof postAction === "function") {
+                postAction(ctx);
+              }
+            }
           }
         }
       } catch (error) {

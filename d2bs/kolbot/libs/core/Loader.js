@@ -332,10 +332,13 @@ const Loader = {
       return false;
     }
 
-    Loader.currentScript = global[script];
 
     if (isIncluded("scripts/" + script + ".js")) {
-      const ctx = {};
+      const ctx = {
+        _parent: Loader.currentScript
+      };
+      Loader.currentScript = global[script];
+      
       try {
         if (Loader.currentScript instanceof Runnable) {
           const { startArea, bossid, preAction } = Loader.currentScript;
@@ -429,7 +432,7 @@ const Loader = {
             Loader.currentScript.cleanup(ctx);
           }
         }
-        Loader.currentScript = null;
+        Loader.currentScript = ctx._parent;
         Loader.tempList.pop();
         
         if (reconfiguration) {

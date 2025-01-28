@@ -116,6 +116,7 @@ declare global {
     values(source: object): any[];
     entries(source: object): any[][];
     is(o1: any, o2: any): boolean;
+    hasOwn(obj: object, prop: string): boolean;
   }
 
   interface Object {

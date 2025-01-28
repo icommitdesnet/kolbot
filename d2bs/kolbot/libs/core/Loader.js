@@ -341,7 +341,7 @@ const Loader = {
       
       try {
         if (Loader.currentScript instanceof Runnable) {
-          const { startArea, bossid, preAction } = Loader.currentScript;
+          const { startArea, bossid, preAction, setup } = Loader.currentScript;
 
           if (startArea && me.inArea(startArea)) {
             Loader.skipTown.push(script);

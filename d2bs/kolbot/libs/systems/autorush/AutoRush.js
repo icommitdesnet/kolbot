@@ -78,7 +78,8 @@
     return true;
   };
 
-  const cain = function () {
+  /** @param {string} [nick] */
+  const cain = function (nick) {
     log("starting cain");
     Town.doChores();
     Pather.useWaypoint(sdk.areas.DarkWood, true) && Precast.doPrecast(true);
@@ -118,8 +119,17 @@
     tick = getTickCount();
 
     while (getTickCount() - tick < Time.minutes(2)) {
-      if (Pather.getPortal(sdk.areas.Tristram) && Pather.usePortal(sdk.areas.Tristram)) {
-        break;
+      if (Pather.getPortal(sdk.areas.Tristram)) {
+        let playersleftStony = Misc.poll(function () {
+          if (playerIn(me.area, nick)) {
+            return true;
+          }
+          return false;
+        }, AutoRush.playerWaitTimeout, 1000);
+        
+        if (playersleftStony && Pather.usePortal(sdk.areas.Tristram)) {
+          break;
+        }
       }
       Attack.securePosition(StoneAlpha.x, StoneAlpha.y, 35, 1000);
     }
@@ -144,6 +154,19 @@
             break;
           }
           Attack.securePosition(me.x, me.y, 15, 1000);
+        }
+
+        const playersLeftTrist = Misc.poll(function () {
+          if (playerIn(me.area, nick)) {
+            return true;
+          }
+          Pather.move(gibbet);
+          return false;
+        }, AutoRush.playerWaitTimeout, 1000);
+        
+        if (!playersLeftTrist) {
+          log("timed out");
+          return false;
         }
       }
     }
@@ -188,7 +211,6 @@
       }
 
       Pather.usePortal(null, me.name);
-      Town.goToTown(2);
       for (let i = 0; i < 3; i++) {
         log("a2");
         
@@ -200,6 +222,7 @@
           break;
         }
       }
+      Town.goToTown(2);
     }
 
     return true;
@@ -577,8 +600,6 @@
     if (me.inTown) {
       Town.doChores();
       Pather.useWaypoint(sdk.areas.CanyonofMagic, true);
-    } else {
-      giveWP();
     }
 
     Precast.doPrecast(true);
@@ -621,12 +642,7 @@
     Attack.kill(sdk.monsters.Duriel);
     Pickit.pickItems();
 
-    Pather.teleport = false;
-
-    Pather.moveTo(22579, 15706);
-
-    Pather.teleport = true;
-
+    Pather.moveToEx(22579, 15706, { allowTeleport: false });
     Pather.moveTo(22577, 15649, 10);
     Pather.moveTo(22577, 15609, 10);
     Pather.makePortal();
@@ -662,6 +678,7 @@
       Town.goToTown(3);
       Town.doChores();
     } else if (AutoRush.rushMode === RushModes.chanter) {
+      Pather.makePortal();
       Pather.moveToExit([sdk.areas.HaremLvl1, sdk.areas.LutGholein], true);
       Pather.useWaypoint(sdk.areas.RogueEncampment);
     }
@@ -856,22 +873,21 @@
     const portalSpot = new PathNode(wpCoords.x + 23, wpCoords.y - 102);
 
     [
-      new PathNode(4742, 2179),
-      new PathNode(4738, 2133),
-      new PathNode(4768, 2150),
-      new PathNode(4762, 2106),
+      new PathNode(wpCoords.x + 4, wpCoords.y - 47),
+      new PathNode(wpCoords.x - 4, wpCoords.y - 92),
+      new PathNode(wpCoords.x + 25, wpCoords.y - 70),
+      new PathNode(wpCoords.x + 20, wpCoords.y - 123),
     ].forEach((node) => {
-      Pather.move(node);
-      Attack.securePosition(node.x, node.y, 25, 2500);
+      Pather.move(node) && Attack.securePosition(node.x, node.y, 25, 2500);
     });
 
     Pather.move(portalSpot);
-    console.debug("Mob Count? " + me.mobCount({ range: 40 }));
     Attack.securePosition(portalSpot.x, portalSpot.y, 40, 4000);
     Pather.makePortal();
     log(AutoRush.playersIn);
 
     if (!Misc.poll(function () {
+      Attack.securePosition(portalSpot.x, portalSpot.y, 25, 1000);
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
       log("timed out");
@@ -1282,6 +1298,12 @@
         quit();
       }
 
+      return false;
+    }
+
+    if (AutoRush.rushMode === RushModes.chanter && !bumperCheck(nick)) {
+      log(nick + " you are not eligible for baal. You need to be at least level " + bumperLvlReq());
+        
       return false;
     }
 

@@ -48,7 +48,6 @@
 *      <charname> tp - make a TP. Needs a TP tome if not using custom libs.
 *      quiet - stop announcing in chat
 *      cow - enter red cow portal
-       ubers - enter red uber tristram portal
 *      wp - all players activate a nearby wp
 *      bo - barbarian precast
 *      move - move in a random direction (use if you're stuck by followers)
@@ -176,15 +175,6 @@ const Follower = new Runnable(
           Town.move("portalspot");
           if (!Pather.usePortal(sdk.areas.MooMooFarm)) {
             announce("Failed to enter red cow portal.");
-          }
-        }));
-      ["ubers", (me.name + " ubers")]
-        .forEach(key => _actions.set(key, () => {
-          if (me.inArea(sdk.areas.UberTristram)) return;
-          Town.goToTown(5);
-          Town.move("portalspot");
-          if (!Pather.usePortal(sdk.areas.UberTristram)) {
-            announce("Failed to enter red uber tristram portal.");
           }
         }));
       ["wp", (me.name + " wp")]
@@ -563,7 +553,18 @@ const Follower = new Runnable(
           return Pather.usePortal(null, null, wsp);
         }
       }
-
+      // Uber portals 
+      const uberPortals = [
+        sdk.areas.MatronsDen, sdk.areas.ForgottenSands, sdk.areas.FurnaceofPain, sdk.areas.UberTristram
+      ];
+      if (me.inArea(sdk.areas.Harrogath) && uberPortals.includes(area)) {
+        Town.moveToSpot("stash");
+        let uberPortal = Pather.getPortal(area);
+        if (uberPortal) {
+          announce("Special transit to " + getAreaName(area));
+          return Pather.usePortal(null, null, uberPortal);
+        }
+      }
       return false;
     };
 

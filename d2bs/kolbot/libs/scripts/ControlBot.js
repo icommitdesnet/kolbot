@@ -90,70 +90,97 @@ const ControlBot = new Runnable(
     AutoRush.playersOut = "out";
     AutoRush.allIn = "all in";
 
-    const ngVote = new function () {
-      /** @type {Set<string>} */
-      this.votesYes = new Set();
-      /** @type {Set<string>} */
-      this.votesNo = new Set();
-      this.active = false;
-      this.tick = 0;
-      this.nextGame = false;
+    const ngVote = {
+      /** @type {Map<string, "yes" | "no">} */
+      votes: new Map(),
+      active: false,
+      tick: 0,
+      nextGame: false,
 
-      this.votesNeeded = function () {
+      /**
+       * Calculate the number of votes needed for a decision
+       * @returns {number}
+       */
+      votesNeeded: function () {
         return Math.max(1, Math.floor((Misc.getPlayerCount() - 2) / 2));
-      };
-      this.reset = function () {
-        this.votesYes.clear();
-        this.votesNo.clear();
+      },
+
+      /**
+       * Reset the voting state
+       */
+      reset: function () {
+        this.votes.clear();
         this.tick = 0;
         this.active = false;
-      };
-      this.begin = function () {
+      },
+
+      /**
+       * Begin a new voting session
+       */
+      begin: function() {
         this.active = true;
-        this.votesYes.clear();
-        this.votesNo.clear();
+        this.votes.clear();
         this.tick = getTickCount();
-      };
-      this.checkCount = function () {
-        // ensure we've counted everyones votes when checking for a draw
-        if (Misc.getPartyCount() === this.votesYes.size + this.votesNo.size) {
-          if (this.votesYes.size === this.votesNo.size) {
-            Chat.say("Not enough votes to start ng we have a draw.");
-            this.reset();
-            return false;
-          }
-        }
+      },
+
+      /**
+       * Check current count
+       * @param {"yes" | "no"} type 
+       */
+      count: function (type) {
+        return type === "yes"
+          ? Array.from(this.votes.values()).filter(vote => vote === "yes").length
+          : Array.from(this.votes.values()).filter(vote => vote === "no").length;
+      },
+
+      /**
+       * Check the current vote count and determine the outcome
+       * @returns {boolean}
+       */
+      checkCount: function() {
         const votesNeeded = this.votesNeeded();
-        if (this.votesNo.size >= votesNeeded) {
+        const yesVotes = Array.from(this.votes.values()).filter(vote => vote === "yes").length;
+        const noVotes = Array.from(this.votes.values()).filter(vote => vote === "no").length;
+
+        if (Misc.getPartyCount() === yesVotes + noVotes && yesVotes === noVotes) {
+          Chat.say("Not enough votes to start ng we have a draw.");
+          this.reset();
+          return false;
+        }
+
+        if (noVotes >= votesNeeded) {
           Chat.say("ng rejected by majority.");
           this.reset();
           return false;
         }
-        const reqMet = this.votesYes.size >= votesNeeded;
-        if (reqMet) {
+
+        if (yesVotes >= votesNeeded) {
           Chat.say("ng approved by majority.");
-          ngVote.nextGame = true;
+          this.nextGame = true;
           this.reset();
+          return true;
         }
-        return reqMet;
-      };
+
+        return false;
+      },
+
       /**
+       * Register a vote
        * @param {string} nick 
        * @param {"yes" | "no"} type 
        */
-      this.vote = function (nick, type) {
+      vote: function(nick, type) {
         if (!this.active) return;
-        if (type === "yes") {
-          this.votesNo.delete(nick);
-          this.votesYes.add(nick);
-        } else if (type === "no") {
-          this.votesYes.delete(nick);
-          this.votesNo.add(nick);
-        }
-      };
-      this.elapsed = function () {
+        this.votes.set(nick, type);
+      },
+
+      /**
+       * Get the elapsed time since the vote started
+       * @returns {number}
+       */
+      elapsed: function() {
         return getTickCount() - this.tick;
-      };
+      }
     };
     const MAX_CHAT_LENGTH = 180;
     const MIN_GOLD = 500000;
@@ -391,6 +418,10 @@ const ControlBot = new Runnable(
 
         if (unit) {
           do {
+            if (unit.classid === sdk.summons.Poppy) {
+              console.log(unit);
+              continue;
+            }
             // merc or any other owned unit
             let parent = unit.getParent();
             if (!parent) continue;
@@ -724,7 +755,7 @@ const ControlBot = new Runnable(
         Chat.say(getAreaName(me.area) + " TP up");
 
         if (!Misc.poll(() => (Game.getPlayer(nick)), Time.seconds(30), Time.seconds(1))) {
-          Chat.say("Aborting wp giving.");
+          Chat.say(nick + " didn't show up. Aborting wp giving.");
         }
 
         Town.doChores();
@@ -761,7 +792,7 @@ const ControlBot = new Runnable(
         if (who !== nick) return;
         if (msg === "next") {
           next = true;
-        } else if (msg === "stop") {
+        } else if (msg === "stop" || msg === "abort") {
           stop = true;
         }
       };
@@ -788,6 +819,8 @@ const ControlBot = new Runnable(
 
         let act = Misc.getPlayerAct(nick);
         if (!wps.has(act)) return false;
+        Chat.say("Giving wps for act " + act);
+        
         addEventListener("chatmsg", nextWatcher);
 
         for (let wp of wps.get(act)) {
@@ -808,14 +841,14 @@ const ControlBot = new Runnable(
             Pather.makePortal();
             Chat.say(getAreaName(me.area) + " TP up");
 
-            if (!Misc.poll(() => (Game.getPlayer(nick) || next), Time.seconds(30), Time.seconds(1))) {
-              Chat.say("Aborting wp giving.");
+            if (!Misc.poll(() => (Game.getPlayer(nick) || next || stop), Time.seconds(30), Time.seconds(1))) {
+              Chat.say(nick + " didn't show up. Aborting wp giving.");
 
               break;
             }
             next = false;
 
-            delay(5000);
+            Misc.poll(() => next || stop, Time.seconds(5), 500);
           } catch (error) {
             continue;
           }
@@ -1064,8 +1097,7 @@ const ControlBot = new Runnable(
       case 0x03: // "%Name1(%Name2) left our world. Diablo's minions weaken."
         players.delete(name1);
         if (ngVote.active) {
-          ngVote.votesYes.delete(name1);
-          ngVote.votesNo.delete(name1);
+          ngVote.votes.delete(name1);
         }
 
         break;
@@ -1166,7 +1198,7 @@ const ControlBot = new Runnable(
         hostileCheck: false,
         run: function (nick) {
           if (ngVote.active) {
-            Chat.say("NGVote is already active. Current count: " + ngVote.votesYes.size);
+            Chat.say("NGVote is already active. Current count: " + ngVote.count("yes"));
             return;
           }
           if (getTickCount() - startTime < Time.minutes(3)) {
@@ -1178,8 +1210,15 @@ const ControlBot = new Runnable(
           }
           ngVote.begin();
           ngVote.vote(nick, "yes");
+          const partyCount = Misc.getPartyCount();
           const votesNeeded = ngVote.votesNeeded();
-          Chat.say(nick + " voted for next game. Votes Needed: " + votesNeeded + ". Type ngyes/ngno");
+
+          if (partyCount === 1) {
+            Chat.say(nick + " since you're the only player in party, skipping wait period. NG");
+            ngVote.nextGame = true;
+          } else {
+            Chat.say(nick + " voted for next game. Votes Needed: " + votesNeeded + ". Type ngyes/ngno");
+          }
         }
       });
       _actions.set("ngyes", {
@@ -1346,6 +1385,10 @@ const ControlBot = new Runnable(
       if (!command || command.length < 2) return false;
       console.debug("Checking command: " + command);
       let [cmd, nick, full] = command;
+      if (!Misc.findPlayer(nick)) {
+        Chat.say("Seems " + nick + " left? Skipping " + cmd);
+        return false;
+      }
       if (!Misc.inMyParty(nick)) {
         Chat.say("Accept party invite, noob. Cmds only allowed for party members.");
         return false;
@@ -1460,7 +1503,7 @@ const ControlBot = new Runnable(
 
         if (ngVote.active) {
           if (ngVote.elapsed() > Time.minutes(2) && !ngVote.nextGame) {
-            Chat.say("Not enough votes to start next game. Votes gathered " + ngVote.votesYes.size);
+            Chat.say("Not enough votes to start next game. Votes gathered " + ngVote.count("yes"));
             ngVote.reset();
           } else if (ngVote.elapsed() > Time.seconds(30) && !ngVote.nextGame) {
             ngVote.checkCount();

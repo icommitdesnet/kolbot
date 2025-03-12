@@ -21,6 +21,7 @@ declare global {
     PickDelay: number;
     AreaDelay: number;
     MinGameTime: number;
+    UnpartyForMinGameTimeWait: boolean;
     MaxGameTime: number;
     LifeChicken: number;
     ManaChicken: number;

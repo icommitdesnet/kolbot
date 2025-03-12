@@ -210,6 +210,30 @@ const Misc = (function () {
     },
 
     /**
+     * Get players in game and in my party
+     * @returns {Party[]}
+     */
+    getPartyMembers: function () {
+      /** @type {Party[]} */
+      const members = [];
+      let party = getParty();
+
+      if (party) {
+        let myPartyId = party.partyid;
+        
+        do {
+          if (party.partyid !== sdk.party.NoParty
+            && party.partyid === myPartyId
+            && party.name !== me.name) {
+            members.push(copyObj(party));
+          }
+        } while (party.getNext());
+      }
+
+      return members;
+    },
+
+    /**
      * Check if any member of our party meets a certain level req
      * @param {number} levelCheck 
      * @param {string | string[]} exclude 

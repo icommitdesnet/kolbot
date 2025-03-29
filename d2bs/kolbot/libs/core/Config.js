@@ -126,6 +126,7 @@ let Config = {
   AreaDelay: 0,
   MinGameTime: 0,
   MaxGameTime: 0,
+  UnpartyForMinGameTimeWait: false,
 
   // Healing and chicken
   LifeChicken: 0,
@@ -220,6 +221,7 @@ let Config = {
   Silence: false,
   PublicMode: false,
   PartyAfterScript: false,
+  AnnounceGameTimeRemaing: false,
 
   /** @type {string[]} */
   Greetings: [],
@@ -359,6 +361,8 @@ let Config = {
   CustomAttack: {},
   /** @type {Record<string | number, [number, number]>} */
   CustomPreAttack: {},
+  /** @type {{ check: (unit: Monster) => boolean, attack: [number, number] }[]} */
+  AdvancedCustomAttack: [],
   TeleStomp: false,
   NoTele: false,
   ClearType: false,
@@ -617,6 +621,7 @@ let Config = {
       Staff: false,
       Summoner: false,
       Duriel: false,
+      Gidbinn: false,
       LamEsen: false,
       Eye: false,
       Heart: false,

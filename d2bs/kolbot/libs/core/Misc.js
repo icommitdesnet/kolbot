@@ -210,6 +210,30 @@ const Misc = (function () {
     },
 
     /**
+     * Get players in game and in my party
+     * @returns {Party[]}
+     */
+    getPartyMembers: function () {
+      /** @type {Party[]} */
+      const members = [];
+      let party = getParty();
+
+      if (party) {
+        let myPartyId = party.partyid;
+        
+        do {
+          if (party.partyid !== sdk.party.NoParty
+            && party.partyid === myPartyId
+            && party.name !== me.name) {
+            members.push(copyObj(party));
+          }
+        } while (party.getNext());
+      }
+
+      return members;
+    },
+
+    /**
      * Check if any member of our party meets a certain level req
      * @param {number} levelCheck 
      * @param {string | string[]} exclude 
@@ -667,6 +691,9 @@ const Misc = (function () {
       if (shrine) {
         do {
           if (!shrine.name) continue;
+          // don't leave our area to grab shrines
+          // TODO: better fix for this as it'd be okay for small detours but orginally found this at halls of vaught stairs attempting to get shrine that was on next level
+          if (!me.inArea(shrine.area)) continue;
           let _name = shrine.name.toLowerCase();
           if ((_name.includes("shrine") && ShrineData.has(shrine.objtype) || (_name.includes("well")))
             && ShrineData.has(shrine.objtype)

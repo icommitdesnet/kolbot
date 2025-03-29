@@ -240,6 +240,7 @@
     Config.ControlBot.Rush.Amulet = true; // Get amulet on command
     Config.ControlBot.Rush.Summoner = true; // Kill Summoner on command
     Config.ControlBot.Rush.Duriel = true; // Kill Duriel on command
+    Config.ControlBot.Rush.Gidbinn = true; // Clear Gidbinn altar on command
     Config.ControlBot.Rush.LamEsen = true; // Get LamEsen's tome on command
     Config.ControlBot.Rush.Eye = true; // Get Khalim's eye on command
     Config.ControlBot.Rush.Heart = true; // Get Khalim's heart on command
@@ -365,6 +366,7 @@
   Config.MinGameTime = 60; // Min game time in seconds. Bot will TP to town and stay in game if the run is completed before.
   Config.MaxGameTime = 0; // Maximum game time in minutes. Quit game when limit is reached.
   Config.LogExperience = false; // Print experience statistics in the manager.
+  Config.UnpartyForMinGameTimeWait = false; // Unparty for MinGameTime wait - can prevent players from completing q's in your game you don't want completed
 
   // Chicken settings
   Config.LifeChicken = 30; // Exit game if life is less or equal to designated percent.
@@ -481,6 +483,7 @@
   Config.ShitList = false; // Blacklist hostile players so they don't get invited to party.
   Config.UnpartyShitlisted = false; // Leave party if someone invited a blacklisted player.
   Config.LastMessage = ""; // Message or array of messages to say at the end of the run. Use $nextgame to say next game - "Next game: $nextgame" (works with lead entry point)
+  Config.AnnounceGameTimeRemaing = false; // Announce time remaing in game if MinGameTime is set and hasn't been reached
 
   // Shrine Scanner - scan for shrines while moving.
   // Put the shrine types in order of priority (from highest to lowest). For a list of types, see sdk/txt/shrines.txt
@@ -560,6 +563,34 @@
   Config.CustomAttack = {
     // "Monster Name": [-1, -1]
   };
+
+  /**
+   * @type {{ check: (unit: Monster) => boolean, attack: [number, number] }[]}
+   * Advanced Attack config. Allows custom skills to be used on custom conditions.
+   * Each entry in the array should be an object with a `check` function and an `attack` array.
+   * The `check` function determines whether the custom attack should be used on a given monster.
+   * The `attack` array specifies the skills to use: [timed skill id, untimed skill id].
+   * 
+   * Example:
+   * [
+   *   {
+   *     check: function (unit) {
+   *       return unit.getEnchant(sdk.enchant.LightningEnchanted);
+   *     },
+   *     attack: [sdk.skills.Zeal, sdk.skills.Salvation]
+   *   },
+   * ]
+   * 
+   * Multiple entries are separated by commas.
+   */
+  Config.AdvancedCustomAttack = [
+    // {
+    //   check: function (unit) {
+    //     return unit.getEnchant(sdk.enchant.LightningEnchanted);
+    //   },
+    //   attack: [sdk.skills.Zeal, sdk.skills.Salvation]
+    // },
+  ];
 
   /**
    * Advanced PreAttack config. Allows custom skills to be used on custom monsters.
@@ -902,11 +933,21 @@
    * List can either be set as string in pickit format and/or as number referring to item classids. Each entries are separated by commas.
    * Example :
    *  Config.AutoMule.Trigger = [639, 640, "[type] == ring && [quality] == unique # [maxmana] == 20"];
-   *  	This will initiate muling when your character finds Ber, Jah, or SOJ.
+   *  	- This will initiate muling when your character finds Ber, Jah, or SOJ.
+   *  ADVANCED USAGE OF TRIGGER:
+   *  Config.AutoMule.Trigger = [
+   *    function (item) {
+   *      return (
+   *       item.classid === sdk.items.quest.KeyofTerror
+   *       && me.getOwned({ classid: sdk.items.quest.KeyofTerror }).length === 3
+   *      );
+   *    },
+   *  ];
+   *   - This will initiate muling if the item being checked is the Key of Terror and we own 3 of them
    *  Config.AutoMule.Force = [561, 566, 571, 576, 581, 586, 601];
-   *  	This will mule perfect gems/skull during muling.
+   *   - This will mule perfect gems/skull during muling.
    *  Config.AutoMule.Exclude = ["[name] >= talrune && [name] <= solrune", "[name] >= 654 && [name] <= 657"];
-   *  	This will exclude muling of runes from tal through sol, and any essences.
+   *   - This will exclude muling of runes from tal through sol, and any essences.
    */
   Config.AutoMule.Trigger = [];
   Config.AutoMule.Force = [];

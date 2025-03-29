@@ -81,6 +81,15 @@ declare global {
      * @returns {Array<T>} A new array with the removed elements and optionally added elements.
      */
     toSpliced(start: number, deleteCount?: number, ...items: T[]): T[];
+    /**
+     * @description The with() method of Array instances is the copying version of using the bracket notation to change the value of a given index.
+     * It returns a new array with the element at the given index replaced with the given value.
+     * @param {number} index - Zero-based index at which to change the array, converted to an integer.
+     * @param {*} value - Any value to be assigned to the given index.
+     * @returns {Array} A new array with the element at index replaced with value.
+     * @throws {RangeError} If index >= array.length or index < -array.length.
+     */
+    with(index: number, value: T): T[];
   }
 
   interface String {
@@ -107,6 +116,7 @@ declare global {
     values(source: object): any[];
     entries(source: object): any[][];
     is(o1: any, o2: any): boolean;
+    hasOwn(obj: object, prop: string): boolean;
   }
 
   interface Object {
@@ -278,7 +288,8 @@ declare global {
     readText(filename: string)
     writeText(filename: string, data: string)
     appendText(filename: string, data: string)
-    exists(filename: string): Boolean;
+    exists(filename: string): boolean;
+    remove(filename: string): boolean;
   }
 
   function getCollision(area: number, x: number, y: number, x2: number, y2: number)
@@ -553,6 +564,17 @@ declare global {
     useUnit(targetArea?: number): boolean;
   }
 
+  type GetOwnedSettings = {
+    itemType?: number,
+    classid?: number,
+    mode?: number,
+    quality?: number,
+    sockets?: number,
+    location?: number,
+    ethereal?: boolean,
+    cb?: (item: ItemUnit) => boolean,
+  };
+
   interface MeType extends Unit {
     public type: PlayerType;
     readonly account: string;
@@ -714,6 +736,7 @@ declare global {
     getItemsForRepair(repairPercent: number, chargedItems: boolean): ItemUnit[];
     castingFrames(skillId: number, fcr?: number, charClass?: number): number;
     castingDuration(skillId: number, fcr?: number, charClass?: number): number;
+    getOwned(itemInfo: ItemUnit | GetOwnedSettings): ItemUnit[];
 
     // #checkers?
     needBeltPots(): boolean;

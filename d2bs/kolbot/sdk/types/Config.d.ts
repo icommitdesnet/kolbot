@@ -21,6 +21,7 @@ declare global {
     PickDelay: number;
     AreaDelay: number;
     MinGameTime: number;
+    UnpartyForMinGameTimeWait: boolean;
     MaxGameTime: number;
     LifeChicken: number;
     ManaChicken: number;
@@ -83,6 +84,7 @@ declare global {
     Greetings: any[];
     DeathMessages: any[];
     Congratulations: any[];
+    AnnounceGameTimeRemaing: boolean;
     ShitList: boolean;
     UnpartyShitlisted: boolean;
     Leader: string;
@@ -114,7 +116,7 @@ declare global {
     ScanShrines: any[];
     Debug: boolean;
     AutoMule: {
-      Trigger: any[];
+      Trigger: (number | string | ((item: ItemUnit) => boolean))[];
       Force: any[];
       Exclude: any[];
     };
@@ -176,7 +178,9 @@ declare global {
     DodgeHP: number;
     AttackSkill: any[];
     LowManaSkill: any[];
-    CustomAttack: {};
+    CustomAttack: Record<string | number, [number, number]>;
+    CustomPreAttack: Record<string | number, [number, number]>,
+    AdvancedCustomAttack: { check: (unit: Monster) => boolean, attack: [number, number] }[],
     TeleStomp: boolean;
     NoTele: boolean;
     ClearType: boolean;
@@ -400,6 +404,7 @@ declare global {
         Staff: boolean;
         Summoner: boolean;
         Duriel: boolean;
+        Gidbinn: boolean;
         LamEsen: boolean;
         Eye: boolean;
         Heart: boolean;

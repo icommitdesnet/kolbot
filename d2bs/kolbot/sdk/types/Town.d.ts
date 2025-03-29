@@ -4,6 +4,7 @@ declare global {
     let telekinesis: boolean;
     let sellTimer: number;
     let lastChores: number;
+    const dontStashGids: Set<number>;
 
     const tasks: Map<Act, {
       Heal: NPC;

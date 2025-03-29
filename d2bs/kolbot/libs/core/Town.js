@@ -9,6 +9,8 @@ const Town = {
   telekinesis: true,
   sellTimer: getTickCount(), // shop speedup test
   lastChores: 0,
+  /** @type {Set<number>} */
+  dontStashGids: new Set(),
 
   act: {
     1: {
@@ -1424,8 +1426,13 @@ const Town = {
    * @param {ItemUnit} item 
    */
   canStash: function (item) {
-    if (Town.ignoreType(item.itemType)
-      || [sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)) {
+    if (Town.dontStashGids.has(item.gid)) {
+      return false;
+    }
+    if (Town.ignoreType(item.itemType)) {
+      return false;
+    }
+    if ([sdk.items.quest.HoradricStaff, sdk.items.quest.KhalimsWill].includes(item.classid)) {
       return false;
     }
     /**
@@ -2162,7 +2169,10 @@ const Town = {
    * @returns {boolean} If a gem to upgrade is in inventory
    */
   prepareForGemShrine: function () {
-
+    /**
+     * @param {ItemUnit} unit 
+     * @returns {boolean}
+     */
     function isUpgradePossible(unit) {
       return (
         unit.itemType >= sdk.items.type.Amethyst
@@ -2171,20 +2181,28 @@ const Town = {
       );
     }
 
+    /**
+     * @class
+     * @param {ItemUnit} gem 
+     */
+    function GemUnit(gem) {
+      this.itemType = gem.itemType;
+      this.classid = gem.classid;
+      this.type = gem.type;
+      this.mode = gem.mode;
+      this.gid = gem.gid;
+    }
+    // eslint-disable-next-line no-unused-vars
+    GemUnit.prototype.getFlag = function (flag) {
+      return true;
+    };
+    
+    /**
+     * @param {ItemUnit} unit 
+     * @returns {boolean}
+     */
     function pickitWantsUpgrade(unit) {
       // Stub Object to let Pickit Check
-      function GemUnit(gem) {
-        this.itemType = gem.itemType;
-        this.classid = gem.classid;
-        this.type = gem.type;
-        this.mode = gem.mode;
-        this.gid = gem.gid;
-      }
-      // eslint-disable-next-line no-unused-vars
-      GemUnit.prototype.getFlag = function (flag) {
-        return true;
-      };
-
       let gem = new GemUnit(unit);
       // lets upgrade the gem
       gem.classid += 1;
@@ -2196,34 +2214,33 @@ const Town = {
 
     // do i have any gem worth upgrading
     const haveUpGems = me.getItemsEx()
-      .filter(function (p) {
+      .some(function (p) {
         return isUpgradePossible(p) && pickitWantsUpgrade(p);
-      })
-      .length > 0;
+      });
 
     if (!haveUpGems) {
       console.debug("I dont have any gems worth upgrading");
       return false;
     }
     // we have gems that must not be upgraded in inventory
-    const isInventoryClean = me.getItemsEx()
-      .filter(function (p) {
+    const isInventoryClean = !me.getItemsEx()
+      .some(function (p) {
         return p.isInInventory && isUpgradePossible(p) && !pickitWantsUpgrade(p);
-      })
-      .length === 0;
+      });
 
     // we have gems that can be upgraded in inventory
-    const isInventoryValid = me.getItemsEx()
-      .filter(function (p) {
+    const validGem = me.getItemsEx()
+      .find(function (p) {
         return p.isInInventory && isUpgradePossible(p) && pickitWantsUpgrade(p);
-      })
-      .length > 0;
+      });
 
     // we already got good gems in inv and no bad games -> take shrine
-    if (isInventoryClean && isInventoryValid) {
+    if (isInventoryClean && validGem) {
       console.debug("Inventory looks good. lets take the shrine.");
+      Town.dontStashGids.add(validGem.gid);
       return true;
     }
+
     // go to town
     const preArea = me.area;
     const preAct = me.act;
@@ -2240,32 +2257,42 @@ const Town = {
     !isInventoryClean && Town.stash();
 
     // get any good gem. flawless first (by lvlreq)
-    let goodGems = me.getItemsEx()
+    const goodGem = me.getItemsEx()
       .filter(function (p) {
         return isUpgradePossible(p) && pickitWantsUpgrade(p);
       })
       .sort (function(a, b) {
         return b.lvlreq - a.lvlreq;
-      });
-    if (goodGems.length) {
-      console.debug("get Gem: " + goodGems[0].fname);
-      Town.openStash();
-      Storage.Inventory.MoveTo(goodGems.first()) && Item.logger("Inventoried", goodGems[0]);
-    }
-
-    // leave town
-    me.act !== preAct && Town.goToTown(preAct);
-    Town.move("portalspot");
-
-    if (!Pather.usePortal(null, me.name)) {
-      try {
-        Pather.usePortal(preArea, me.name);
-      } catch (e) {
-        throw new Error("Town.visitTown: Failed to go back from town");
+      })
+      .first();
+    
+    let sucess = false;
+    
+    if (goodGem) {
+      console.debug("get Gem: " + goodGem.fname);
+      Town.stash(false);
+      if (Storage.Inventory.MoveTo(goodGem)) {
+        sucess = true;
+        Town.dontStashGids.add(goodGem.gid);
+        Item.logger("Inventoried", goodGem);
       }
     }
 
-    Config.PublicMode && Pather.makePortal();
-    return (goodGems.length);
+    if (me.area !== preArea) {
+      // leave town
+      me.act !== preAct && Town.goToTown(preAct);
+      Town.move("portalspot");
+
+      if (!Pather.usePortal(null, me.name)) {
+        try {
+          Pather.usePortal(preArea, me.name);
+        } catch (e) {
+          throw new Error("Town.visitTown: Failed to go back from town");
+        }
+      }
+
+      Config.PublicMode && Pather.makePortal();
+    }
+    return sucess;
   }
 };

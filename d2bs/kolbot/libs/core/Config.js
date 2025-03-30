@@ -126,6 +126,7 @@ let Config = {
   AreaDelay: 0,
   MinGameTime: 0,
   MaxGameTime: 0,
+  UnpartyForMinGameTimeWait: false,
 
   // Healing and chicken
   LifeChicken: 0,

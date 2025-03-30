@@ -384,6 +384,7 @@ function LoadConfig () {
   Config.MinGameTime = 60; // Min game time in seconds. Bot will TP to town and stay in game if the run is completed before.
   Config.MaxGameTime = 0; // Maximum game time in minutes. Quit game when limit is reached.
   Config.LogExperience = false; // Print experience statistics in the manager.
+  Config.UnpartyForMinGameTimeWait = false; // Unparty for MinGameTime wait - can prevent players from completing q's in your game you don't want completed
 
   // Chicken settings
   Config.LifeChicken = 30; // Exit game if life is less or equal to designated percent.

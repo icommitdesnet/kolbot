@@ -32,3 +32,4 @@ logs/
 
 # Do not track install packages
 node_modules/
+d2bs/kolbot/env.json

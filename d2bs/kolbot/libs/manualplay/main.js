@@ -236,7 +236,7 @@ function main () {
     msg = msg.toLowerCase();
     let cmd = msg.split(" ")[0].split(".")[1];
     let msgList = msg.split(" ");
-    let qolObj = { type: "qol", dest: false, action: false };
+    let qolObj = { type: "qol", dest: false, action: false, params: [] };
 
     switch (cmd) {
     case "useraddon":
@@ -262,6 +262,10 @@ function main () {
     case "filltps":
       qolObj.action = cmd;
 
+      if (msgList.length > 1) {
+        qolObj.params.push(msgList.at(1));
+      }
+
       break;
     case "drop":
       if (msgList.length < 2) {
@@ -281,6 +285,10 @@ function main () {
 
       qolObj.type = "stack";
       qolObj.action = msgList[1];
+
+      if (msgList.length > 2) {
+        qolObj.params.push(msgList.at(2));
+      }
 
       break;
     case "help":

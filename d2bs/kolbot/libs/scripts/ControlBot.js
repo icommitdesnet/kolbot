@@ -1580,8 +1580,13 @@ const ControlBot = new Runnable(
       if (full.match(/^givewp /gi)) {
         let [, areaName] = full.split("givewp ");
         if (areaName) {
+          let cleanedAreaName = areaName.replace(/[<>\[\]{}()]/g, "").trim();
+          /** @param {AreaDataObj} area */
+          const areaFilter = function (area) {
+            return area.Waypoint !== 255 && area.Index !== sdk.areas.HallsofPain;
+          };
           /** @type {AreaDataObj} */
-          let area = AreaData.findByName(areaName);
+          let area = AreaData.findByName(cleanedAreaName, areaFilter);
           if (area.Waypoint === 255) {
             Chat.say(area.LocaleString + " isn't a valid wp area to ask for");
 

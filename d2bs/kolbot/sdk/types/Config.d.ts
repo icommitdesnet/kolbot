@@ -7,6 +7,12 @@
 
 declare global {
   // interface Scripts { [data: string]: Partial<Config> | boolean }
+  type ExtendedCubingOpts = { Ethereal: number, MaxQuantity: number, condition: () => boolean };
+  type CubingRecipe =
+    | [number, string]
+    | [number, string, number]
+    | [number, string, ExtendedCubingOpts];
+
   interface Config {
     init(notify: any): void;
     Loaded: boolean;
@@ -17,12 +23,21 @@ declare global {
       Skill: boolean,
       Town: boolean,
     };
+
+    // Experimental
+    FastParty: boolean;
+    AutoEquip: boolean;
+    UseExperimentalAvoid: boolean;
+
+    Experimental: {
+    }
+
     StartDelay: number;
     PickDelay: number;
     AreaDelay: number;
     MinGameTime: number;
-    UnpartyForMinGameTimeWait: boolean;
     MaxGameTime: number;
+    UnpartyForMinGameTimeWait: boolean;
     LifeChicken: number;
     ManaChicken: number;
     UseHP: number;
@@ -73,6 +88,16 @@ declare global {
       MinUnids: number;
     };
     Inventory: number[][];
+    SortSettings: {
+      SortInventory: boolean,
+      SortStash: boolean,
+      PlugYStash: boolean,
+      ItemsSortedFromLeft: number[],
+      ItemsSortedFromRight: number[],
+      PrioritySorting: boolean,
+      ItemsSortedFromLeftPriority: number[],
+      ItemsSortedFromRightPriority: number[],
+    },
     LocalChat: {
       Enabled: boolean;
       Toggle: boolean;
@@ -134,7 +159,7 @@ declare global {
     Cubing: boolean;
     CubeRepair: boolean;
     RepairPercent: number;
-    Recipes: any[];
+    Recipes: CubingRecipe[];
     MakeRunewords: boolean;
     Runewords: any[][];
     KeepRunewords: any[];
@@ -169,8 +194,6 @@ declare global {
     KillDclone: boolean;
     DCloneQuit: boolean;
     DCloneWaitTime: number;
-    FastParty: boolean;
-    AutoEquip: boolean;
     ChampionBias: number;
     UseCta: boolean;
     Dodge: boolean;
@@ -325,6 +348,7 @@ declare global {
       KillNihlathak: boolean;
       FastChaos: boolean;
       DollQuit: boolean;
+      SoulQuit: boolean;
       KillBaal: boolean;
       SkipTP: boolean;
     };
@@ -361,6 +385,7 @@ declare global {
     };
     MFHelper: {
       BreakClearLevel: boolean;
+      BreakOnDiaBaal: boolean;
     };
     Wakka: {
       Wait: number;
@@ -379,6 +404,11 @@ declare global {
     BoBarbHelper: {
       Mode: number;
       Wp: number;
+    };
+    Idle: {
+      Advertise: boolean;
+      AdvertiseMessage: string;
+      MaxGameLength: number;
     };
     ControlBot: {
       Bo: boolean;
@@ -404,7 +434,6 @@ declare global {
         Staff: boolean;
         Summoner: boolean;
         Duriel: boolean;
-        Gidbinn: boolean;
         LamEsen: boolean;
         Eye: boolean;
         Heart: boolean;
@@ -420,6 +449,9 @@ declare global {
       };
       EndMessage: string;
       GameLength: number;
+      MinGameLength: number;
+      NGVoting: boolean;
+      NGVoteCooldown: number;
     };
     IPHunter: {
       IPList: any[];

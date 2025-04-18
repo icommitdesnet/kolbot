@@ -253,6 +253,7 @@ function LoadConfig () {
     Config.ControlBot.Rush.Andy = true; // Kill Andy on command
     Config.ControlBot.Rush.Bloodraven = true; // Kill Bloodraven on command
     Config.ControlBot.Rush.Smith = true; // Kill Smith on command
+    Config.ControlBot.Rush.Cain = true; // Rescue cain on command
     Config.ControlBot.Rush.Cube = true; // Get cube on command
     Config.ControlBot.Rush.Radament = true; // Kill Radament on command
     Config.ControlBot.Rush.Staff = true; // Get staff on command
@@ -274,6 +275,9 @@ function LoadConfig () {
     Config.ControlBot.Rush.Baal = true; // Kill Baal on command
     Config.ControlBot.EndMessage = ""; // Message before quitting
     Config.ControlBot.GameLength = 20; // Game length in minutes
+    Config.ControlBot.NGVoting = true; // Allow players to vote on new game
+    Config.ControlBot.NGVoteCooldown = 3; // Time in minutes after a vote period a players has to wait to start a new vote
+    Config.ControlBot.MinGameLength = 3; // Minimum time in minutes before a ng vote can be called
 
   // ##### ORG/TORCH ##### //
   Scripts.GetKeys = false; // Hunt for T/H/D keys

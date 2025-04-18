@@ -21,6 +21,10 @@
     sayMsg && say(msg);
   };
 
+  const timedOut = function (nick = "") {
+    return nick ? "timed out waiting for " + nick : "timed out";
+  };
+
   /**
    * @param {number} area 
    * @param {string} [nick] 
@@ -165,7 +169,7 @@
         }, AutoRush.playerWaitTimeout, 1000);
         
         if (!playersLeftTrist) {
-          log("timed out");
+          log(timedOut(nick));
           return false;
         }
       }
@@ -197,7 +201,7 @@
       Pather.move(safeNode);
       return false;
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -249,7 +253,7 @@
       Pather.moveTo(22582, 9612);
       return false;
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -289,7 +293,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
     if (AutoRush.rushMode !== RushModes.chanter) {
@@ -305,6 +309,11 @@
   const radament = function (nick) {
     log("starting radament");
 
+    /**
+     * @param {Monster} unit 
+     * @param {number} range 
+     * @returns {boolean}
+     */
     const	moveIntoPos = function (unit, range) {
       let coords = [];
       let angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
@@ -358,7 +367,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -377,7 +386,7 @@
     if (!Misc.poll(function () {
       return !playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -386,9 +395,13 @@
     log(AutoRush.allIn);
 
     if (!Misc.poll(function () {
+      // often happens with chanter mode where users don't listen to the commands
+      if (!Game.getItem(sdk.quest.item.BookofSkill)) {
+        return true;
+      }
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -424,7 +437,7 @@
       if (!Misc.poll(function () {
         return playerIn(me.area, nick);
       }, AutoRush.playerWaitTimeout, 1000)) {
-        log("timed out");
+        log(timedOut(nick));
         return false;
       }
 
@@ -459,7 +472,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -491,7 +504,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -556,7 +569,7 @@
       Attack.securePosition(me.x, me.y, 25, 500);
       return false;
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -616,7 +629,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -627,7 +640,7 @@
     if (!Misc.poll(function () {
       return !playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -651,7 +664,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -665,7 +678,7 @@
 
     if (AutoRush.rushMode !== RushModes.chanter) {
       for (let i = 0; i < 3; i++) {
-        log("a3");
+        log("changeact 3");
         
         let playersMoved = Misc.poll(function () {
           return !playersInAct(3);
@@ -708,7 +721,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
     if (AutoRush.rushMode !== RushModes.chanter) {
@@ -741,7 +754,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -749,7 +762,7 @@
       if (!Misc.poll(function () {
         return !playerIn(me.area, nick);
       }, AutoRush.playerWaitTimeout, 1000)) {
-        log("timed out");
+        log(timedOut(nick));
         return false;
       }
     }
@@ -782,7 +795,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -815,7 +828,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -848,7 +861,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -877,7 +890,7 @@
       new PathNode(wpCoords.x - 4, wpCoords.y - 92),
       new PathNode(wpCoords.x + 25, wpCoords.y - 70),
       new PathNode(wpCoords.x + 20, wpCoords.y - 123),
-    ].forEach((node) => {
+    ].forEach(function (node) {
       Pather.move(node) && Attack.securePosition(node.x, node.y, 25, 2500);
     });
 
@@ -890,7 +903,7 @@
       Attack.securePosition(portalSpot.x, portalSpot.y, 25, 1000);
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -922,7 +935,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -980,6 +993,11 @@
   const izual = function (nick) {
     log("starting izual");
 
+    /**
+     * @param {Monster} unit 
+     * @param {number} range 
+     * @returns {boolean}
+     */
     const	moveIntoPos = function (unit, range) {
       let coords = [];
       let angle = Math.round(Math.atan2(me.y - unit.y, me.x - unit.x) * 180 / Math.PI);
@@ -1038,7 +1056,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -1071,7 +1089,7 @@
       if (!Misc.poll(function () {
         return playerIn(me.area, nick);
       }, AutoRush.playerWaitTimeout, 1000)) {
-        log("timed out");
+        log(timedOut(nick));
         return false;
       }
 
@@ -1135,7 +1153,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -1184,8 +1202,13 @@
     }
 
     if (AutoRush.rushMode === RushModes.chanter) {
+      let malahspotion = me.getItem(sdk.quest.item.MalahsPotion);
+      if (malahspotion) {
+        malahspotion.drop();
+      }
       log("Talk to Malah to get potion then come in");
     }
+
     Pather.makePortal();
     if (AutoRush.rushMode !== RushModes.chanter) {
       log(AutoRush.playersIn);
@@ -1194,7 +1217,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -1257,7 +1280,7 @@
     if (!Misc.poll(function () {
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
-      log("timed out");
+      log(timedOut(nick));
       return false;
     }
 
@@ -1287,6 +1310,7 @@
         delay(500);
         quit();
       }
+      scriptBroadcast("rush-removewp " + sdk.areas.WorldstoneLvl2);
 
       return false;
     }
@@ -1297,6 +1321,7 @@
         delay(500);
         quit();
       }
+      scriptBroadcast("rush-removewp " + sdk.areas.WorldstoneLvl2);
 
       return false;
     }
@@ -1374,6 +1399,7 @@
 
   module.exports = {
     log: log,
+    timedOut: timedOut,
     playerIn: playerIn,
     playersInAct: playersInAct,
     bumperCheck: bumperCheck,

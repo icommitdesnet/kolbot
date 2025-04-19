@@ -149,6 +149,7 @@ function main () {
 
   const Worker = require("../modules/Worker");
   const UnitInfo = new (require("../modules/UnitInfo"));
+  const HelpMenu = require("./modules/HelpMenu");
 
   Worker.runInBackground.unitInfo = function () {
     // always, maybe a timeout would be good though
@@ -213,16 +214,17 @@ function main () {
 
   /** @param {number} area */
   const revealArea = function (area) {
-    if (!revealedAreas.has(area)) {
-      delay(500);
-      
-      if (!getRoom()) {
-        return;
-      }
-      
-      revealLevel(true);
-      revealedAreas.add(area);
+    if (revealedAreas.has(area)) {
+      return;
     }
+    delay(500);
+    
+    if (!getRoom()) {
+      return;
+    }
+    
+    revealLevel(true);
+    revealedAreas.add(area);
   };
 
   /**
@@ -236,7 +238,7 @@ function main () {
     msg = msg.toLowerCase();
     let cmd = msg.split(" ")[0].split(".")[1];
     let msgList = msg.split(" ");
-    let qolObj = { type: "qol", dest: false, action: false, params: [] };
+    const qolObj = { type: "qol", dest: false, action: false, params: [] };
 
     switch (cmd) {
     case "useraddon":
@@ -369,7 +371,9 @@ function main () {
       }
     }
 
-    if (hideFlagFound) continue;
+    if (hideFlagFound) {
+      continue;
+    }
 
     getUIFlag(sdk.uiflags.AutoMap)
       ? Hooks.update()

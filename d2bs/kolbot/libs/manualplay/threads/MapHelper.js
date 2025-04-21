@@ -64,6 +64,7 @@ function main () {
   };
   portalMap[sdk.areas.InfernalPit] = {
     14: [12638, 9373],
+    15: [12638, 9063],
     20: [12708, 9063],
     25: [12948, 9128],
   };
@@ -242,9 +243,14 @@ function main () {
 
               break;
             case sdk.areas.ArcaneSanctuary:
-              Pather.moveTo(12692, 5195);
-              redPortal = Pather.getPortal(obj.dest);
-              !redPortal && Pather.useWaypoint(obj.dest);
+              if (me.inArea(sdk.areas.CanyonofMagic)) {
+                Pather.moveTo(12692, 5195);
+                redPortal = Pather.getPortal(obj.dest);
+                !redPortal && Pather.useWaypoint(obj.dest);
+              } else if (me.inArea(sdk.areas.PalaceCellarLvl3)) {
+                Pather.moveTo(10073, 8670);
+                Pather.usePortal(null);
+              }
 
               break;
             case sdk.areas.Harrogath:

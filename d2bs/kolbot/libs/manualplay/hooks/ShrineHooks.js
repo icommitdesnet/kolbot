@@ -7,8 +7,32 @@
 
 const ShrineHooks = {
   enabled: true,
+  /** @type {{ shrine: ObjectUnit, hook: Text }[]} */
   hooks: [],
-  shrines: new Map(),
+  shrines: new Map([
+    [sdk.shrines.Refilling, "Refilling"],
+    [sdk.shrines.Health, "Health"],
+    [sdk.shrines.Mana, "Mana"],
+    [sdk.shrines.HealthExchange, "Health Exchange"],
+    [sdk.shrines.ManaExchange, "Mana Exchange"],
+    [sdk.shrines.Armor, "Armor"],
+    [sdk.shrines.Combat, "Combat"],
+    [sdk.shrines.ResistFire, "Resist Fire"],
+    [sdk.shrines.ResistCold, "Resist Cold"],
+    [sdk.shrines.ResistLightning, "Resist Lightning"],
+    [sdk.shrines.ResistPoison, "Resist Poison"],
+    [sdk.shrines.Skill, "Skill"],
+    [sdk.shrines.ManaRecharge, "Mana Recharge"],
+    [sdk.shrines.Stamina, "Stamina"],
+    [sdk.shrines.Experience, "Experience"],
+    [sdk.shrines.Enirhs, "Enirhs"],
+    [sdk.shrines.Portal, "Portal"],
+    [sdk.shrines.Gem, "Gem"],
+    [sdk.shrines.Fire, "Fire"],
+    [sdk.shrines.Monster, "Monster"],
+    [sdk.shrines.Exploding, "Exploding"],
+    [sdk.shrines.Poison, "Poison"]
+  ]),
 
   check: function () {
     if (!this.enabled || me.inTown) {
@@ -30,7 +54,10 @@ const ShrineHooks = {
 
     if (shrine) {
       do {
-        if (this.shrines.has(shrine.objtype) && shrine.name.toLowerCase().includes("shrine")) {
+        if (!ShrineHooks.shrines.has(shrine.objtype)) {
+          continue;
+        }
+        if (shrine.name.toLowerCase().includes("shrine")) {
           if (shrine.mode === sdk.objects.mode.Inactive) {
             if (!this.getHook(shrine)) {
               this.add(shrine);
@@ -43,11 +70,13 @@ const ShrineHooks = {
     }
   },
 
+  /** @param {ObjectUnit} shrine */
   newHook: function (shrine) {
     let typeName = this.shrines.get(shrine.objtype);
     return typeName ? [new Text(typeName, shrine.x, shrine.y, 4, 6, 2, true)] : [];
   },
 
+  /** @param {ObjectUnit} shrine */
   add: function (shrine) {
     if (!shrine.objtype) return;
 
@@ -57,6 +86,7 @@ const ShrineHooks = {
     });
   },
 
+  /** @param {ObjectUnit} shrine */
   getHook: function (shrine) {
     for (let i = 0; i < this.hooks.length; i++) {
       if (this.hooks[i].shrine.gid === shrine.gid) {
@@ -67,6 +97,7 @@ const ShrineHooks = {
     return false;
   },
 
+  /** @param {ObjectUnit} shrine */
   remove: function (shrine) {
     for (let i = 0; i < this.hooks.length; i++) {
       if (this.hooks[i].shrine.gid === shrine.gid) {
@@ -82,31 +113,7 @@ const ShrineHooks = {
 
   flush: function () {
     while (this.hooks.length) {
-      this.hooks[0].hook[0].remove();
-      this.hooks.shift();
+      this.hooks.pop().hook.remove();
     }
   }
 };
-
-ShrineHooks.shrines.set(sdk.shrines.Refilling, "Refilling");
-ShrineHooks.shrines.set(sdk.shrines.Health, "Health");
-ShrineHooks.shrines.set(sdk.shrines.Mana, "Mana");
-ShrineHooks.shrines.set(sdk.shrines.HealthExchange, "Health Exchange");
-ShrineHooks.shrines.set(sdk.shrines.ManaExchange, "Mana Exchange");
-ShrineHooks.shrines.set(sdk.shrines.Armor, "Armor");
-ShrineHooks.shrines.set(sdk.shrines.Combat, "Combat");
-ShrineHooks.shrines.set(sdk.shrines.ResistFire, "Resist Fire");
-ShrineHooks.shrines.set(sdk.shrines.ResistCold, "Resist Cold");
-ShrineHooks.shrines.set(sdk.shrines.ResistLightning, "Resist Lightning");
-ShrineHooks.shrines.set(sdk.shrines.ResistPoison, "Resist Poison");
-ShrineHooks.shrines.set(sdk.shrines.Skill, "Skill");
-ShrineHooks.shrines.set(sdk.shrines.ManaRecharge, "Mana Recharge");
-ShrineHooks.shrines.set(sdk.shrines.Stamina, "Stamina");
-ShrineHooks.shrines.set(sdk.shrines.Experience, "Experience");
-ShrineHooks.shrines.set(sdk.shrines.Enirhs, "Enirhs");
-ShrineHooks.shrines.set(sdk.shrines.Portal, "Portal");
-ShrineHooks.shrines.set(sdk.shrines.Gem, "Gem");
-ShrineHooks.shrines.set(sdk.shrines.Fire, "Fire");
-ShrineHooks.shrines.set(sdk.shrines.Monster, "Monster");
-ShrineHooks.shrines.set(sdk.shrines.Exploding, "Exploding");
-ShrineHooks.shrines.set(sdk.shrines.Poison, "Poison");

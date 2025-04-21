@@ -43,7 +43,7 @@ const ShrineHooks = {
 
     for (let i = 0; i < this.hooks.length; i++) {
       if (!copyUnit(this.hooks[i].shrine).objtype) {
-        this.hooks[i].hook[0].remove();
+        this.hooks[i].hook.remove();
         this.hooks.splice(i, 1);
 
         i -= 1;
@@ -72,8 +72,8 @@ const ShrineHooks = {
 
   /** @param {ObjectUnit} shrine */
   newHook: function (shrine) {
-    let typeName = this.shrines.get(shrine.objtype);
-    return typeName ? [new Text(typeName, shrine.x, shrine.y, 4, 6, 2, true)] : [];
+    let typeName = ShrineHooks.shrines.get(shrine.objtype);
+    return typeName ? new Text(typeName, shrine.x, shrine.y, 4, 6, 2, true) : null;
   },
 
   /** @param {ObjectUnit} shrine */
@@ -88,9 +88,9 @@ const ShrineHooks = {
 
   /** @param {ObjectUnit} shrine */
   getHook: function (shrine) {
-    for (let i = 0; i < this.hooks.length; i++) {
-      if (this.hooks[i].shrine.gid === shrine.gid) {
-        return this.hooks[i].hook;
+    for (let entry of ShrineHooks.hooks) {
+      if (entry.shrine.gid === shrine.gid) {
+        return entry.hook;
       }
     }
 
@@ -101,7 +101,7 @@ const ShrineHooks = {
   remove: function (shrine) {
     for (let i = 0; i < this.hooks.length; i++) {
       if (this.hooks[i].shrine.gid === shrine.gid) {
-        this.hooks[i].hook[0].remove();
+        this.hooks[i].hook.remove();
         this.hooks.splice(i, 1);
 
         return true;

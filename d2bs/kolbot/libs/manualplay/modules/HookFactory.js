@@ -56,19 +56,19 @@
        * @returns {HookEntry} The created hook entry
        */
       box: function(options = {}) {
-        const { name, x, y, width, height, color, transparency, click } = Object.assign({
+        const { name, x, y, width, height, color, opacity, click } = Object.assign({
           name: "",
           x: 0,
           y: 0,
           width: 0,
           height: 0,
           color: 0x0,
-          transparency: 1,
+          opacity: 1,
           click: null
         }, options);
         return {
           name: name,
-          hook: new Box(x, y, width, height, color, transparency, click)
+          hook: new Box(x, y, width, height, color, opacity, click)
         };
       },
 
@@ -101,9 +101,10 @@
      * @param {number} y - Y coordinate position
      * @param {number} width - Width of the container
      * @param {number} height - Height of the container
+     * @param {number} opcacity - Opacity of the box
      * @returns {Array<HookEntry>} Array containing the box and frame hooks
      */
-    createContainer: function(boxName, frameName, x, y, width, height) {
+    createContainer: function(boxName, frameName, x, y, width, height, opcacity) {
       const container = [];
       
       container.push(this.createHooks.box({
@@ -111,7 +112,8 @@
         x: x,
         y: y,
         width: width,
-        height: height
+        height: height,
+        opacity: opcacity,
       }));
       container[container.length - 1].hook.zorder = 0;
       container.push(this.createHooks.frame({

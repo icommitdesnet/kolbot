@@ -266,7 +266,8 @@ const TextHooks = (function () {
         5,
         503 - TextHooks.settingsModifer * 10 - statusHookNames.length * 12 + Hooks.resfix.y,
         170,
-        TextHooks.statusFrameYSize
+        TextHooks.statusFrameYSize,
+        4
       );
 
       containers.forEach(function (container) {

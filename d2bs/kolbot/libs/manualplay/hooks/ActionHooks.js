@@ -210,6 +210,7 @@ const ActionHooks = (function () {
     ]],
 
     [sdk.areas.ThroneofDestruction, [
+      { name: "Previous Area", type: "area", dest: sdk.areas.WorldstoneLvl3 },
       { name: "Next Area", type: "area", dest: sdk.areas.WorldstoneChamber },
     ]],
   ]);
@@ -960,7 +961,11 @@ const ActionHooks = (function () {
         }
       }
 
-      if (me.inArea(sdk.areas.DuranceofHateLvl3) || me.inArea(sdk.areas.PalaceCellarLvl3)) {
+      if (
+        me.inArea(sdk.areas.DuranceofHateLvl3)
+        || me.inArea(sdk.areas.PalaceCellarLvl3)
+        || me.inArea(sdk.areas.ThroneofDestruction)
+      ) {
         // hacky but this is the only way to get the correct ordering
         return;
       }

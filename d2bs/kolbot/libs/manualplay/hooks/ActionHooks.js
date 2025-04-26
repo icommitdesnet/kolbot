@@ -480,14 +480,14 @@ const ActionHooks = (function () {
       return seal.realCoords();
     });
 
-    const infSeal = seals.find(function () {
-      return this.id === sdk.objects.DiabloSealInfector;
+    const infSeal = seals.find(function (seal) {
+      return seal.id === sdk.objects.DiabloSealInfector;
     });
-    const seisSeal = seals.find(function () {
-      return this.id === sdk.objects.DiabloSealSeis;
+    const seisSeal = seals.find(function (seal) {
+      return seal.id === sdk.objects.DiabloSealSeis;
     });
-    const vizSeal = seals.find(function () {
-      return this.id === sdk.objects.DiabloSealVizier;
+    const vizSeal = seals.find(function (seal) {
+      return seal.id === sdk.objects.DiabloSealVizier;
     });
     
     if (infSeal) {

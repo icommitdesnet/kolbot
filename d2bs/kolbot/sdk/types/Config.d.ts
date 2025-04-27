@@ -133,11 +133,12 @@ declare global {
     PickitFiles: string[];
     BeltColumn: any[];
     MinColumn: any[];
-    SkipId: any[];
-    SkipEnchant: any[];
-    SkipImmune: any[];
-    SkipAura: any[];
-    SkipException: any[];
+    SkipId: number[];
+    SkipEnchant: string[];
+    SkipImmune: string[];
+    SkipAura: string[];
+    SkipException: (number | string)[];
+    ImmunityException: DamageType[];
     ScanShrines: any[];
     Debug: boolean;
     AutoMule: {

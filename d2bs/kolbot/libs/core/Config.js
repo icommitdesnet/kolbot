@@ -270,6 +270,8 @@ let Config = {
   SkipImmune: [],
   SkipAura: [],
   SkipException: [],
+  /** @type {DamageType[]} */
+  ImmunityException: [],
   /** @type {number[]} */
   ScanShrines: [],
   AutoShriner: false,

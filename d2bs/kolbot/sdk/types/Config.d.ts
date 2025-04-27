@@ -204,7 +204,7 @@ declare global {
     LowManaSkill: any[];
     CustomAttack: Record<string | number, [number, number]>;
     CustomPreAttack: Record<string | number, [number, number]>,
-    AdvancedCustomAttack: { check: (unit: Monster) => boolean, attack: [number, number] }[],
+    AdvancedCustomAttack: { check: (unit: Monster) => boolean, attack: [number, number], preAttack: number }[],
     TeleStomp: boolean;
     NoTele: boolean;
     ClearType: boolean;

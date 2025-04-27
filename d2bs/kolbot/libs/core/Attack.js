@@ -186,6 +186,14 @@ const Attack = {
   getCustomPreAttack: function (unit) {
     // Check if unit got invalidated
     if (!unit || !unit.name || !copyUnit(unit).x) return false;
+
+    for (let el of Config.AdvancedCustomAttack) {
+      if (el.hasOwnProperty("check") && el.hasOwnProperty("preAttack")) {
+        if (typeof el.check === "function" && el.check(unit)) {
+          return el.preAttack;
+        }
+      }
+    }
     
     for (let i in Config.CustomPreAttack) {
       if (Config.CustomPreAttack.hasOwnProperty(i)) {

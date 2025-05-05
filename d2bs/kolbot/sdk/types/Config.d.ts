@@ -500,6 +500,13 @@ declare global {
         };
       };
     };
+    OrgTorchHelper: {
+      Taxi: boolean;
+      Helper: boolean;
+      SkipTp: boolean;
+      GetFade: boolean;
+      UseWalkPath: boolean;
+    };
     Synch: {
       WaitFor: any[];
     };

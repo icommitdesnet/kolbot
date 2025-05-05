@@ -686,6 +686,13 @@ let Config = {
       Antidote: { Drink: 0, At: [] },
     }
   },
+  OrgTorchHelper: {
+    Taxi: false,
+    Helper: false,
+    SkipTp: false,
+    GetFade: false,
+    UseWalkPath: false,
+  },
   Synch: {
     WaitFor: []
   },

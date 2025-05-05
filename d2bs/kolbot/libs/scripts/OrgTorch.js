@@ -19,44 +19,31 @@
 
 const OrgTorch = new Runnable(
   function OrgTorch () {
+    Config.MFLeader = true;
     let currentGameInfo = null;
+    /** @type {Player | null} */
+    let taxiPlayer = null;
+    let taxiUp = false;
 
+    const OrgTorchData = require("../systems/torch/OrgTorchData");
     const portalMode = {
       MiniUbers: 0,
       UberTristram: 1
     };
 
-    const OrgTorchData = {
-      filePath: "logs/OrgTorch-" + me.profile + ".json",
-      _default: { gamename: me.gamename, doneAreas: [] },
+    function chatEvent (nick, msg) {
+      if (!nick || !msg) return;
+      if (msg !== "up") return;
 
-      create: function () {
-        FileTools.writeText(this.filePath, JSON.stringify(this._default));
-        return this._default;
-      },
-
-      read: function () {
-        let obj = {};
-        try {
-          let string = FileTools.readText(this.filePath);
-          obj = JSON.parse(string);
-        } catch (e) {
-          return this._default;
-        }
-
-        return obj;
-      },
-
-      update: function (newData) {
-        let data = this.read();
-        Object.assign(data, newData);
-        FileTools.writeText(this.filePath, JSON.stringify(data));
-      },
-
-      remove: function () {
-        return FileTools.remove(this.filePath);
+      if (!taxiPlayer && String.isEqual(Config.OrgTorch.TaxiChar, nick)) {
+        taxiPlayer = Misc.findPlayer(nick);
       }
-    };
+
+      if (taxiPlayer && taxiPlayer.name === nick) {
+        taxiUp = true;
+        console.log("ÿc7OrgTorch :: Taxi is up");
+      }
+    }
 
     /**
     * @param {ItemUnit} item 
@@ -111,7 +98,10 @@ const OrgTorch = new Runnable(
     const lure = function (bossId) {
       let unit = Game.getMonster(bossId);
 
-      if (unit) {
+      // 25121/5157 - bottom left corner of top left building
+      // 25141/5175 - top left corner of bottom left building
+      // 25131/5187 - area we want to lure meph to
+      if (unit && !unit.dead) {
         let tick = getTickCount();
 
         while (getTickCount() - tick < 2000) {
@@ -131,21 +121,29 @@ const OrgTorch = new Runnable(
     * @returns {boolean}
     */
     const completeSetCheck = function () {
-      let [horns, brains, eyes] = [0, 0, 0];
+      const organs = new Map([
+        [sdk.items.quest.DiablosHorn, 0],
+        [sdk.items.quest.MephistosBrain, 0],
+        [sdk.items.quest.BaalsEye, 0]
+      ]);
+      /** @param {ItemUnit} item */
+      const filterInvo = function (item) {
+        return item.isInStorage && organs.has(item.classid) && item.normal;
+      };
+      /** @param {ItemUnit} item */
+      const countOrgans = function (item) {
+        if (organs.has(item.classid)) {
+          organs.set(item.classid, organs.get(item.classid) + 1);
+        }
+      };
       me.getItemsEx()
-        .filter(i => i.isInInventory && !Town.ignoreType(i.itemType) && i.quality === sdk.items.quality.Normal)
-        .forEach(i => {
-          switch (i.classid) {
-          case sdk.items.quest.DiablosHorn:
-            return (horns++);
-          case sdk.items.quest.MephistosBrain:
-            return (brains++);
-          case sdk.items.quest.BaalsEye:
-            return (eyes++);
-          default: return 0;
-          }
-        });
+        .filter(filterInvo)
+        .forEach(countOrgans);
 
+      const horns = organs.get(sdk.items.quest.DiablosHorn);
+      const brains = organs.get(sdk.items.quest.MephistosBrain);
+      const eyes = organs.get(sdk.items.quest.BaalsEye);
+      
       if (!horns || !brains || !eyes) {
         return false;
       }
@@ -164,19 +162,18 @@ const OrgTorch = new Runnable(
     * @todo equipping an item from storage if we have it
     */
     const getFade = function () {
-      if (Config.OrgTorch.GetFade && !me.getState(sdk.states.Fade)
-        && me.haveSome([
-          { name: sdk.locale.items.Treachery, equipped: true },
-          { name: sdk.locale.items.LastWish, equipped: true },
-          { name: sdk.locale.items.SpiritWard, equipped: true }
-        ])) {
+      if (!Config.OrgTorch.GetFade) return true;
+      if (me.getState(sdk.states.Fade)) return true;
+
+      // lets figure out what fade item we have before we leave town
+      const fadeItem = me.findFirst([
+        { name: sdk.locale.items.Treachery, equipped: true },
+        { name: sdk.locale.items.LastWish, equipped: true },
+        { name: sdk.locale.items.SpiritWard, equipped: true }
+      ]);
+      
+      if (fadeItem.have) {
         console.log(sdk.colors.Orange + "OrgTorch :: " + sdk.colors.White + "Getting Fade");
-        // lets figure out what fade item we have before we leave town
-        let fadeItem = me.findFirst([
-          { name: sdk.locale.items.Treachery, equipped: true },
-          { name: sdk.locale.items.LastWish, equipped: true },
-          { name: sdk.locale.items.SpiritWard, equipped: true }
-        ]);
 
         Pather.useWaypoint(sdk.areas.RiverofFlame);
         Precast.doPrecast(true);
@@ -185,7 +182,7 @@ const OrgTorch = new Runnable(
 
         Pather.moveTo(7811, 5872);
           
-        if (fadeItem.have && fadeItem.item.isOnSwap && me.weaponswitch !== sdk.player.slot.Secondary) {
+        if (fadeItem.item.isOnSwap && me.weaponswitch !== sdk.player.slot.Secondary) {
           mainSlot = me.weaponswitch;
           me.switchWeapons(sdk.player.slot.Secondary);
         }
@@ -279,20 +276,24 @@ const OrgTorch = new Runnable(
 
       Precast.doPrecast(true);
 
-      let nodes = [
-        { x: 20196, y: 8694 },
-        { x: 20308, y: 8588 },
-        { x: 20187, y: 8639 },
-        { x: 20100, y: 8550 },
-        { x: 20103, y: 8688 },
-        { x: 20144, y: 8709 },
-        { x: 20263, y: 8811 },
-        { x: 20247, y: 8665 },
+      const nodes = [
+        new PathNode(20196, 8694),
+        new PathNode(20308, 8588),
+        new PathNode(20187, 8639),
+        new PathNode(20100, 8550),
+        new PathNode(20103, 8688),
+        new PathNode(20144, 8709),
+        new PathNode(20263, 8811),
+        new PathNode(20247, 8665),
       ];
 
+      const foundDuriel = function () {
+        return !!Game.getMonster(sdk.monsters.UberDuriel);
+      };
+
       try {
-        for (let i = 0; i < nodes.length; i++) {
-          Pather.moveTo(nodes[i].x, nodes[i].y);
+        for (let node of nodes) {
+          Pather.move(node, { callback: foundDuriel });
           delay(500);
 
           if (Game.getMonster(sdk.monsters.UberDuriel)) {
@@ -321,8 +322,15 @@ const OrgTorch = new Runnable(
     const furnance = function () {
       let mBrain = me.findItems(sdk.items.quest.MephistosBrain, sdk.items.mode.inStorage).length;
 
+      const foundIzual = function () {
+        return !!Game.getMonster(sdk.monsters.UberIzual);
+      };
       Precast.doPrecast(true);
-      Pather.moveToPreset(sdk.areas.FurnaceofPain, sdk.unittype.Object, sdk.objects.SmallSparklyChest, 2, 2);
+      Pather.moveToPresetObject(
+        sdk.areas.FurnaceofPain,
+        sdk.objects.SmallSparklyChest,
+        { offX: 2, offY: 2, callback: foundIzual }
+      );
       Attack.kill(sdk.monsters.UberIzual);
       Pickit.pickItems();
       getQuestItem(Game.getItem(sdk.items.quest.MephistosBrain));
@@ -337,19 +345,29 @@ const OrgTorch = new Runnable(
     */
     const uberTrist = function () {
       let skillBackup;
-      let useSalvation = Config.OrgTorch.UseSalvation && Skill.canUse(sdk.skills.Salvation);
+      const useSalvation = Config.OrgTorch.UseSalvation && Skill.canUse(sdk.skills.Salvation);
 
       Pather.moveTo(25068, 5078);
       Precast.doPrecast(true);
 
-      let nodes = [
-        { x: 25040, y: 5101 },
-        { x: 25040, y: 5166 },
-        { x: 25122, y: 5170 },
+      const nodes = [
+        new PathNode(25040, 5101),
+        new PathNode(25040, 5166),
+        new PathNode(25131, 5187),
+        new PathNode(25122, 5170),
       ];
 
-      for (let i = 0; i < nodes.length; i++) {
-        Pather.moveTo(nodes[i].x, nodes[i].y);
+      for (let node of nodes) {
+        Pather.move(node, { callback: function () {
+          let meph = Game.getMonster(sdk.monsters.UberMephisto);
+          let diablo = Game.getMonster(sdk.monsters.UberDiablo);
+          let baal = Game.getMonster(sdk.monsters.UberBaal);
+          return (
+            (meph && meph.distance < 10)
+            || (diablo && diablo.distance < 10)
+            || (baal && baal.distance < 10)
+          );
+        } });
       }
 
       useSalvation && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
@@ -431,19 +449,40 @@ const OrgTorch = new Runnable(
     * @param {ObjectUnit} portal 
     */
     const runEvent = function (portal) {
-      if (portal) {
-        const { Antidote, Thawing } = Config.OrgTorch.PreGame;
-        if (Antidote.At.includes(portal.objtype) && Antidote.Drink > 0) {
-          Town.buyPots(Antidote.Drink, "Antidote", true, true);
-        }
-        if (Thawing.At.includes(portal.objtype) && Thawing.Drink > 0) {
-          Town.buyPots(Thawing.Drink, "Thawing", true, true);
-        }
-        Town.move("stash");
-        console.log("taking portal: " + portal.objtype);
-        Pather.usePortal(null, null, portal);
-        pandemoniumRun(portal.objtype);
+      if (!portal) return;
+      const portalArea = portal.objtype;
+      const { Antidote, Thawing } = Config.OrgTorch.PreGame;
+      if (Antidote.At.includes(portal.objtype) && Antidote.Drink > 0) {
+        Town.buyPots(Antidote.Drink, "Antidote", true, true);
       }
+      if (Thawing.At.includes(portal.objtype) && Thawing.Drink > 0) {
+        Town.buyPots(Thawing.Drink, "Thawing", true, true);
+      }
+      say("Starting " + portal.objtype);
+      
+      if (Config.OrgTorch.TaxiChar) {
+        Town.move("portalspot");
+
+        const taxiReady = function () {
+          return taxiUp && Pather.usePortal(portalArea, taxiPlayer.name);
+        };
+
+        if (Misc.poll(taxiReady, Time.minutes(1), 1000)) {
+          taxiUp = false;
+          console.log("taking portal: " + portalArea);
+          pandemoniumRun(portalArea);
+
+          return;
+        } else {
+          console.log("OrgTorch :: Taxi not ready, taking red portal.");
+          Town.move("stash");
+        }
+      } else {
+        Town.move("stash");
+      }
+      console.log("taking portal: " + portal.objtype);
+      Pather.usePortal(null, null, portal);
+      pandemoniumRun(portal.objtype);
     };
 
     // ################# //
@@ -453,35 +492,42 @@ const OrgTorch = new Runnable(
     // make sure we are picking the organs
     Config.PickitFiles.length === 0 && NTIP.OpenFile("pickit/keyorg.nip", true);
 
-    FileTools.exists(OrgTorchData.filePath) && (currentGameInfo = OrgTorchData.read());
+    OrgTorchData.exists() && (currentGameInfo = OrgTorchData.read());
 
     if (!currentGameInfo || currentGameInfo.gamename !== me.gamename) {
       currentGameInfo = OrgTorchData.create();
     }
 
     let portal;
-    let [tkeys, hkeys, dkeys] = [0, 0, 0];
-    let [brains, eyes, horns] = [0, 0, 0];
-    
-    me.getItemsEx()
-      .filter(i => i.isInStorage && !Town.ignoreType(i.itemType) && i.quality === sdk.items.quality.Normal)
-      .forEach(i => {
-        switch (i.classid) {
-        case sdk.items.quest.KeyofTerror:
-          return (tkeys++);
-        case sdk.items.quest.KeyofHate:
-          return (hkeys++);
-        case sdk.items.quest.KeyofDestruction:
-          return (dkeys++);
-        case sdk.items.quest.DiablosHorn:
-          return (horns++);
-        case sdk.items.quest.MephistosBrain:
-          return (brains++);
-        case sdk.items.quest.BaalsEye:
-          return (eyes++);
-        default: return 0;
+
+    const ingredients = new Map([
+      [sdk.items.quest.KeyofTerror, 0],
+      [sdk.items.quest.KeyofHate, 0],
+      [sdk.items.quest.KeyofDestruction, 0],
+      [sdk.items.quest.DiablosHorn, 0],
+      [sdk.items.quest.MephistosBrain, 0],
+      [sdk.items.quest.BaalsEye, 0]
+    ]);
+
+    const checkIngredients = function () {
+      /** @param {ItemUnit} item */
+      const filterIngredients = function (item) {
+        return item.isInStorage && ingredients.has(item.classid) && item.normal;
+      };
+      /** @param {ItemUnit} item */
+      const countIngredients = function (item) {
+        if (ingredients.has(item.classid)) {
+          ingredients.set(item.classid, ingredients.get(item.classid) + 1);
         }
-      });
+      };
+
+      me.getItemsEx()
+        .filter(filterIngredients)
+        .forEach(countIngredients);
+    };
+
+    // Initialize our ingredients map
+    checkIngredients();
 
     // Do town chores and quit if MakeTorch is true and we have a torch.
     checkTorch();
@@ -492,11 +538,16 @@ const OrgTorch = new Runnable(
     Town.goToTown(5);
     Town.move("stash");
 
-    let redPortals = getUnits(sdk.unittype.Object, sdk.objects.RedPortal)
-      .filter(el => [
-        sdk.areas.MatronsDen, sdk.areas.ForgottenSands,
-        sdk.areas.FurnaceofPain, sdk.areas.UberTristram
-      ].includes(el.objtype));
+    const uberPortals = [
+      sdk.areas.MatronsDen,
+      sdk.areas.ForgottenSands,
+      sdk.areas.FurnaceofPain,
+      sdk.areas.UberTristram
+    ];
+    const redPortals = getUnits(sdk.unittype.Object, sdk.objects.RedPortal)
+      .filter(function (el) {
+        return uberPortals.includes(el.objtype);
+      });
     let miniPortals = 0;
     let keySetsReq = 3;
     let tristOpen = false;
@@ -515,9 +566,24 @@ const OrgTorch = new Runnable(
       currentGameInfo.doneAreas.length > 0 && (currentGameInfo = OrgTorchData.create());
     }
 
+    /**
+     * @param {number} req 
+     * @returns {boolean}
+     */
+    const validKeyCount = function (req) {
+      return ingredients.get(sdk.items.quest.KeyofTerror) >= req
+        && ingredients.get(sdk.items.quest.KeyofHate) >= req
+        && ingredients.get(sdk.items.quest.KeyofDestruction) >= req;
+    };
+
+    const validOrganCount = function () {
+      return ingredients.get(sdk.items.quest.DiablosHorn) >= 1
+        && ingredients.get(sdk.items.quest.MephistosBrain) >= 1
+        && ingredients.get(sdk.items.quest.BaalsEye) >= 1;
+    };
+
     // End the script if we don't have enough keys nor organs
-    if ((tkeys < keySetsReq || hkeys < keySetsReq || dkeys < keySetsReq)
-      && (brains < 1 || eyes < 1 || horns < 1) && !tristOpen) {
+    if (!validKeyCount(keySetsReq) && !validOrganCount() && !tristOpen) {
       console.log("Not enough keys or organs.");
       OrgTorchData.remove();
 
@@ -527,19 +593,28 @@ const OrgTorch = new Runnable(
     Config.UseMerc = false;
 
     // We have enough keys, do mini ubers
-    if (tkeys >= keySetsReq && hkeys >= keySetsReq && dkeys >= keySetsReq) {
+    if (validKeyCount(keySetsReq)) {
       getFade();
       Town.goToTown(5);
       console.log("Making organs.");
       D2Bot.printToConsole("OrgTorch: Making organs.", sdk.colors.D2Bot.DarkGold);
       Town.move("stash");
 
+      if (Config.OrgTorch.TaxiChar) {
+        addEventListener("chatmsg", chatEvent);
+
+        if (!taxiPlayer) {
+          taxiPlayer = Misc.findPlayer(Config.OrgTorch.TaxiChar);
+        }
+      }
+
       // there are already open portals lets check our info on them
       if (miniPortals > 0) {
         for (let i = 0; i < miniPortals; i++) {
           // mini-portal is up but its not in our done areas, probably chickend during it, lets try again
           if ([sdk.areas.MatronsDen, sdk.areas.ForgottenSands, sdk.areas.FurnaceofPain].includes(redPortals[i].objtype)
-            && !currentGameInfo.doneAreas.includes(redPortals[i].objtype)) {
+            && !currentGameInfo.doneAreas.includes(redPortals[i].objtype)
+          ) {
             portal = redPortals[i];
             runEvent(portal);
           }
@@ -566,13 +641,11 @@ const OrgTorch = new Runnable(
     }
 
     // Count organs
-    brains = me.findItems("mbr", sdk.items.mode.inStorage).length || 0;
-    eyes = me.findItems("bey", sdk.items.mode.inStorage).length || 0;
-    horns = me.findItems("dhn", sdk.items.mode.inStorage).length || 0;
+    checkIngredients();
 
     // We have enough organs, do Tristram - or trist is open we may have chickened and came back so check it
     // if trist was already open when we joined should we run that first?
-    if ((brains && eyes && horns) || tristOpen) {
+    if (validOrganCount() || tristOpen) {
       getFade();
       Town.goToTown(5);
       Town.move("stash");

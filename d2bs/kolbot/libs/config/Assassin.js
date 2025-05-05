@@ -292,6 +292,13 @@ function LoadConfig () {
     Config.OrgTorch.PreGame.Thawing.At = [sdk.areas.FurnaceofPain, sdk.areas.UberTristram]; // Chug x thawing pots before each area
     Config.OrgTorch.PreGame.Thawing.Drink = 10; // Chug x thawing pots. Each thawing pot gives +50 cold res and +10 max cold for 30 seconds. The duration stacks. 10 potions == 5 minutes
 
+  Scripts.OrgTorchHelper = false;
+    Config.OrgTorchHelper.Taxi = false; // Taxi the killer to the area
+    Config.OrgTorchHelper.Helper = true; // Set to true to help attack, set false to wait in town.
+    Config.OrgTorchHelper.UseWalkPath = false; // Use walk path to get to the area - helpful if leader is a walker and you have tele
+    Config.OrgTorchHelper.SkipTp = false; // Skip and go through the red portal
+    Config.OrgTorchHelper.GetFade = false; // Get fade by standing in a fire. You MUST have Last Wish, Treachery, or SpiritWard on your character being worn.
+  
   // ##### AUTO-RUSH ##### //
   // RUSHER USES FOLLOWER ENTRY SCRIPT
   Scripts.Rusher = false; // Rush bot. For a list of commands, see Rusher.js

@@ -287,6 +287,7 @@ function LoadConfig () {
     Config.OrgTorch.WaitTimeout = 15; // Time in minutes to wait for keys before moving on
     Config.OrgTorch.UseSalvation = true; // Use Salvation aura on Mephisto (if possible)
     Config.OrgTorch.GetFade = false; // Get fade by standing in a fire. You MUST have Last Wish, Treachery, or SpiritWard on your character being worn.
+    Config.OrgTorch.TaxiChar = ""; // Name of the taxi character running OrgTorchHelper.
     Config.OrgTorch.PreGame.Antidote.At = [sdk.areas.MatronsDen, sdk.areas.UberTristram]; // Chug x antidotes before each area
     Config.OrgTorch.PreGame.Antidote.Drink = 10; // Chug x antidotes. Each antidote gives +50 poison res and +10 max poison for 30 seconds. The duration stacks. 10 potions == 5 minutes
     Config.OrgTorch.PreGame.Thawing.At = [sdk.areas.FurnaceofPain, sdk.areas.UberTristram]; // Chug x thawing pots before each area

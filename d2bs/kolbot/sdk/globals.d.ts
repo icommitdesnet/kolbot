@@ -137,6 +137,30 @@ declare global {
     dateStamp(): string;
   }
 
+  /**
+   * Environment configuration
+   * @namespace
+   */
+  interface Env {
+    /**
+     * Updates environment settings with provided values
+     * @param settings Object containing settings to update
+     * @returns The updated env object for chaining
+     */
+    update(settings: Record<string, any>): Env;
+    
+    /**
+     * Any additional custom properties
+     */
+    [key: string]: any;
+  }
+  
+  /**
+   * Global environment object
+   * This object is lazily loaded when first accessed.
+   */
+  const env: Env;
+
   class ScriptError extends Error {
   }
 

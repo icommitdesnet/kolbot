@@ -186,6 +186,14 @@ const Attack = {
   getCustomPreAttack: function (unit) {
     // Check if unit got invalidated
     if (!unit || !unit.name || !copyUnit(unit).x) return false;
+
+    for (let el of Config.AdvancedCustomAttack) {
+      if (el.hasOwnProperty("check") && el.hasOwnProperty("preAttack")) {
+        if (typeof el.check === "function" && el.check(unit)) {
+          return el.preAttack;
+        }
+      }
+    }
     
     for (let i in Config.CustomPreAttack) {
       if (Config.CustomPreAttack.hasOwnProperty(i)) {
@@ -1839,7 +1847,7 @@ const Attack = {
   /**
    * @description Get element by skill number
    * @param {number} skillId 
-   * @returns {"physical" | "fire" | "lightning" | "magic" | "cold" | "poison" | "holybolt" | "none" | false}
+   * @returns {DamageType | "none" | false}
    */
   getSkillElement: function (skillId) {
     let elements = ["physical", "fire", "lightning", "magic", "cold", "poison", "none"];
@@ -1871,7 +1879,7 @@ const Attack = {
   /**
    * @description Get a monster's resistance to specified element
    * @param {Unit | Monster} unit 
-   * @param {"physical" | "fire" | "lightning" | "magic" | "cold" | "poison" | "holybolt" | "none"} type 
+   * @param {DamageType | "none"} type 
    * @returns {number}
    */
   getResist: function (unit, type) {
@@ -1933,6 +1941,10 @@ const Attack = {
     // Static handler
     if (val === sdk.skills.StaticField && this.getResist(unit, damageType) < 100) {
       return unit.hpPercent > Config.CastStatic;
+    }
+
+    if (Config.ImmunityException.includes(damageType)) {
+      return true;
     }
 
     // TODO: sometimes unit is out of range of conviction so need to check that

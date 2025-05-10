@@ -25,7 +25,7 @@ include("systems/gameaction/GameAction.js");
 
 const Overrides = require("./modules/Override");
 
-if (!FileTools.exists("data/" + me.profile + ".json") && DataFile.create()) {
+if (DataFile.init()) {
   Starter.firstRun = true;
 }
 

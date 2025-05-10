@@ -120,13 +120,17 @@ let Config = {
     Town: false,
   },
 
+  // Experimental
+  FastParty: false,
+  AutoEquip: false,
+  UseExperimentalAvoid: false,
+
   // Time
   StartDelay: 0,
   PickDelay: 0,
   AreaDelay: 0,
   MinGameTime: 0,
   MaxGameTime: 0,
-  UnpartyForMinGameTimeWait: false,
 
   // Healing and chicken
   LifeChicken: 0,
@@ -222,6 +226,7 @@ let Config = {
   PublicMode: false,
   PartyAfterScript: false,
   AnnounceGameTimeRemaing: false,
+  UnpartyForMinGameTimeWait: false,
 
   /** @type {string[]} */
   Greetings: [],
@@ -265,6 +270,8 @@ let Config = {
   SkipImmune: [],
   SkipAura: [],
   SkipException: [],
+  /** @type {DamageType[]} */
+  ImmunityException: [],
   /** @type {number[]} */
   ScanShrines: [],
   AutoShriner: false,
@@ -341,10 +348,6 @@ let Config = {
   DCloneQuit: false,
   DCloneWaitTime: 30,
 
-  // Experimental
-  FastParty: false,
-  AutoEquip: false,
-
   // GameData
   ChampionBias: 60,
 
@@ -361,7 +364,7 @@ let Config = {
   CustomAttack: {},
   /** @type {Record<string | number, [number, number]>} */
   CustomPreAttack: {},
-  /** @type {{ check: (unit: Monster) => boolean, attack: [number, number] }[]} */
+  /** @type {{ check: (unit: Monster) => boolean, attack: [number, number], preAttack: number }[]} */
   AdvancedCustomAttack: [],
   TeleStomp: false,
   NoTele: false,
@@ -406,6 +409,7 @@ let Config = {
   Redemption: [0, 0],
   Charge: false,
   Vigor: false,
+  UseVigorOnLowStam: false,
   RunningAura: -1,
   AvoidDolls: false,
 
@@ -571,7 +575,8 @@ let Config = {
     RecheckSeals: false
   },
   MFHelper: {
-    BreakClearLevel: false
+    BreakClearLevel: false,
+    BreakOnDiaBaal: true,
   },
   Wakka: {
     Wait: 1,
@@ -636,7 +641,10 @@ let Config = {
       Baal: false,
     },
     EndMessage: "",
-    GameLength: 20
+    GameLength: 20,
+    MinGameLength: 3,
+    NGVoting: false,
+    NGVoteCooldown: 3,
   },
   IPHunter: {
     IPList: [],
@@ -677,6 +685,13 @@ let Config = {
       Thawing: { Drink: 0, At: [] },
       Antidote: { Drink: 0, At: [] },
     }
+  },
+  OrgTorchHelper: {
+    Taxi: false,
+    Helper: false,
+    SkipTp: false,
+    GetFade: false,
+    UseWalkPath: false,
   },
   Synch: {
     WaitFor: []
@@ -733,7 +748,7 @@ let Config = {
   },
   Rushee: {
     Quester: false,
-    Bumper: false
+    Bumper: false,
   },
   Questing: {
     StopProfile: false
@@ -764,5 +779,5 @@ let Config = {
     Template: "",
     Verbose: false,
     DebugMode: false
-  }
+  },
 };

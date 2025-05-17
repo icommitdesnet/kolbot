@@ -20,21 +20,33 @@ const GameAction = {
   task: null,
   // don't edit
   init: function (task) {
-    GameAction.task = JSON.parse(task);
+    try {
+      GameAction.task = JSON.parse(task);
 
-    if (this.task["data"] && typeof this.task.data === "string") {
-      this.task.data = JSON.parse(this.task.data);
+      if (this.task["data"] && typeof this.task.data === "string") {
+        this.task.data = JSON.parse(this.task.data);
+      }
+
+      MuleLogger.LogNames = this.LogNames;
+      MuleLogger.LogItemLevel = this.LogItemLevel;
+      MuleLogger.LogEquipped = this.LogEquipped;
+      MuleLogger.LogMerc = this.LogMerc;
+      MuleLogger.SaveScreenShot = this.SaveScreenShot;
+
+      return true;
+    } catch (err) {
+      console.log("ÿc4GameActionÿc0: Error in init: " + err);
+      this.update("done", "Error in init: " + err);
+      D2Bot.stop();
+      
+      return false;
     }
-
-    MuleLogger.LogNames = this.LogNames;
-    MuleLogger.LogItemLevel = this.LogItemLevel;
-    MuleLogger.LogEquipped = this.LogEquipped;
-    MuleLogger.LogMerc = this.LogMerc;
-    MuleLogger.SaveScreenShot = this.SaveScreenShot;
-
-    return true;
   },
 
+  /**
+   * @param {string} action 
+   * @param {string | Object} data 
+   */
   update: function (action, data) {
     if (typeof action !== "string") throw new Error("Action must be a string!");
     
@@ -42,7 +54,14 @@ const GameAction = {
 
     D2Bot.printToConsole(data);
 
-    let tag = JSON.parse(JSON.stringify(this.task)); // deep copy
+    let tag = (function () {
+      try {
+        return JSON.parse(JSON.stringify(this.task)); // deep copy
+      } catch (err) {
+        console.log("ÿc4GameActionÿc0: Error in update: " + err);
+        return {};
+      }
+    })();
     tag.action = action;
     tag.data = data;
     D2Bot.setTag(tag);
@@ -113,42 +132,47 @@ const GameAction = {
   },
 
   inGameCheck: function () {
-    if (getScript("D2BotGameAction.dbj")) {
-      while (!this["task"]) {
-        D2Bot.getProfile();
-        delay(500);
-      }
-
-      switch (this.task.action) {
-      case "doMule":
-        MuleLogger.logChar();
-
-        break;
-      case "doDrop":
-        this.dropItems(this.task.data.items);
-        MuleLogger.logChar();
-
-        break;
-      default:
-        break;
-      }
-
-      while ((getTickCount() - me.gamestarttime) < this.IngameTime * 1000) {
-        delay(1000);
-      }
-
-      try {
-        quit();
-      } finally {
-        while (me.ingame) {
-          delay(100);
-        }
-      }
-
-      return true;
+    if (!getScript("D2BotGameAction.dbj")) {
+      return false;
+    }
+    
+    while (!this["task"]) {
+      D2Bot.getProfile();
+      delay(500);
     }
 
-    return false;
+    switch (this.task.action) {
+    case "doMule":
+      MuleLogger.logChar();
+
+      break;
+    case "doDrop":
+      this.dropItems(this.task.data.items);
+      MuleLogger.logChar();
+
+      break;
+    default:
+      break;
+    }
+
+    while ((getTickCount() - me.gamestarttime) < this.IngameTime * 1000) {
+      const elapsedMs = getTickCount() - me.gamestarttime;
+      const totalMs = this.IngameTime * 1000;
+      const remainingSeconds = Math.round((totalMs - elapsedMs) / 1000);
+  
+      me.overhead("Stalling for " + remainingSeconds + " Seconds");
+      delay(1000);
+    }
+
+    try {
+      quit();
+    } finally {
+      while (me.ingame) {
+        delay(100);
+      }
+    }
+
+    return true;
   },
 
   load: function (hash) {
@@ -185,7 +209,8 @@ const GameAction = {
         continue;
       }
 
-      let info = droplist[i].itemid.split(":"); //":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y;
+      //unit.gid ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y;
+      let info = droplist[i].itemid.split(":");
 
       let classid = info[1];
       let loc = info[2];
@@ -193,7 +218,7 @@ const GameAction = {
       let unitY = info[4];
 
       // for debug purposes
-      print("classid: " + classid + " location: " + loc + " X: " + unitX + " Y: " + unitY);
+      console.log("classid: " + classid + " location: " + loc + " X: " + unitX + " Y: " + unitY);
 
       for (let j = 0; j < items.length; j += 1) {
         if (items[j].classid.toString() === classid

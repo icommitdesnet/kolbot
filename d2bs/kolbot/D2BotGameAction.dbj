@@ -156,7 +156,9 @@ const locationAction = (function () {
 
       // last char in list
       if (!charList || !charList.length) {
-        GameAction.update("done", "GameAction has completed task");
+        const loginInfo = GameAction.getLogin();
+        const accountInfo = loginInfo.account ? "for account " + loginInfo.account : "";
+        GameAction.update("done", "GameAction has completed task " + accountInfo);
         D2Bot.stop(me.profile, true);
         delay(5000);
         return;
@@ -180,7 +182,9 @@ const locationAction = (function () {
 
       // last char in list
       if (!charList || !charList.length) {
-        GameAction.update("done", "GameAction has completed task");
+        const loginInfo = GameAction.getLogin();
+        const accountInfo = loginInfo.account ? "for account " + loginInfo.account : "";
+        GameAction.update("done", "GameAction has completed task " + accountInfo);
         D2Bot.stop(me.profile, true);
         delay(5000);
         return;

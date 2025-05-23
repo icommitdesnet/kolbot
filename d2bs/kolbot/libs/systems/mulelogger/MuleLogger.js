@@ -4,6 +4,7 @@
 *  @author      kolton, theBGuy
 *  @desc        Log items and perm accounts/characters, for setup @see LoggerConfig.js
 *
+*  @typedef {import("../../../sdk/globals")}
 */
 
 const MuleLogger = {
@@ -20,7 +21,7 @@ const MuleLogger = {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
   inGameCheck: function () {
     if (getScript("D2BotMuleLog.dbj") && this.LogGame[0] && me.gamename.match(this.LogGame[0], "i")) {
-      print("ÿc4MuleLoggerÿc0: Logging items on " + me.account + " - " + me.name + ".");
+      console.log("ÿc4MuleLoggerÿc0: Logging items on " + me.account + " - " + me.name + ".");
       D2Bot.printToConsole("MuleLogger: Logging items on " + me.account + " - " + me.name + ".", sdk.colors.D2Bot.DarkGold);
       this.logChar();
       let stayInGame = this.IngameTime;
@@ -134,8 +135,12 @@ const MuleLogger = {
       + unit.classid + ":"
       + unit.location + ":"
       + unit.x + ":"
-      + unit.y
-      + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "")
+      + unit.y + ":"
+      + (unit.getFlag(sdk.items.flags.Ethereal) ? "1" : "0") + ":"
+      + (unit.getFlag(sdk.items.flags.Runeword) ? "1" : "0") + ":"
+      + unit.itemType + ":"
+      + unit.quality + ":"
+      + unit.itemclass + ":"
     );
     let color = unit.getColor();
     let code = Item.getItemCode(unit);
@@ -174,6 +179,7 @@ const MuleLogger = {
     // Dropper handler, todo figure out another way to do this
     if (isIncluded("systems/dropper/ItemDB.js") || include("systems/dropper/ItemDB.js")) {
       /** @typedef {import("../dropper/ItemDB")} */
+      // @ts-ignore
       while (!ItemDB.init(false)) {
         delay(1000);
       }
@@ -182,7 +188,8 @@ const MuleLogger = {
     let items = me.getItemsEx();
     if (!items.length) return;
 
-    let folder, realm = me.realm || "Single Player";
+    const realm = me.realm || "Single Player";
+    let folder;
     let finalString = "";
 
     if (!FileTools.exists("mules/" + realm)) {

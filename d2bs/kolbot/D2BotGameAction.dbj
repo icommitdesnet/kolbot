@@ -329,6 +329,12 @@ function main () {
 
   GameAction.init(tag);
 
+  if (GameAction.task.action === "doConvertNL") {
+    GameAction.convertLadderFiles();
+
+    return;
+  }
+
   if (Starter.gameInfo.error) {
     if (!!DataFile.getStats().debugInfo) {
       Starter.gameInfo.crashInfo = DataFile.getStats().debugInfo;

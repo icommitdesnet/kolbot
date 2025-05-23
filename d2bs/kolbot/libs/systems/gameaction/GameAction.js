@@ -17,12 +17,14 @@ const GameAction = {
   SaveScreenShot: false, // Save pictures in jpg format (saved in 'Images' folder)
   IngameTime: 60, // Time to wait before leaving game
 
+  /** @type {{ action: string, data: any } | null} */
   task: null,
   // don't edit
   init: function (task) {
     try {
       GameAction.task = JSON.parse(task);
-
+      console.log("ÿc4GameActionÿc0: Task: ", GameAction.task);
+      
       if (this.task["data"] && typeof this.task.data === "string") {
         this.task.data = JSON.parse(this.task.data);
       }
@@ -56,7 +58,7 @@ const GameAction = {
 
     let tag = (function () {
       try {
-        return JSON.parse(JSON.stringify(this.task)); // deep copy
+        return JSON.parse(JSON.stringify(GameAction.task)); // deep copy
       } catch (err) {
         console.log("ÿc4GameActionÿc0: Error in update: " + err);
         return {};
@@ -229,5 +231,49 @@ const GameAction = {
         }
       }
     }
+  },
+
+  convertLadderFiles: function () {
+    console.log("ÿc4GameActionÿc0: Converting ladder files to non-ladder...");
+    if (!this.task || !this.task.data || this.task.action !== "doConvertNL") {
+      return;
+    }
+
+    /** @type {{ realm: string, account: string, character: string}[]} */
+    const data = this.task.data;
+    let converted = 0;
+
+    if (!data || !Array.isArray(data)) {
+      this.update("done", "Invalid data for conversion!");
+      D2Bot.stop();
+      delay(5000);
+    }
+
+    for (let i = 0; i < data.length; i++) {
+      const { realm, account, character } = data[i];
+
+      if (!realm || !account || !character) {
+        continue;
+      }
+
+      const fileName = "mules/" + realm + "/" + account + "/" + character + ".txt";
+      if (!FileTools.exists(fileName)) {
+        continue;
+      }
+
+      const fileContent = FileTools.readText(fileName);
+      if (!fileContent) {
+        continue;
+      }
+      const [charName, ext] = character.split(".");
+      const newFileName = "mules/" + realm + "/" + account + "/" + charName + "." + ext.replace("l", "n") + ".txt";
+      FileTools.writeText(newFileName, fileContent);
+      FileTools.remove(fileName);
+      console.log("Converted " + fileName + " to " + newFileName);
+      converted++;
+    }
+
+    this.update("done", "Conversion complete! Converted " + converted + " files.");
+    D2Bot.stop(me.profile, true);
   },
 };

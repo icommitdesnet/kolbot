@@ -9,6 +9,64 @@
 
 const ControlBot = new Runnable(
   function ControlBot () {
+    const thankYouMessages = [
+      "Ty {name}. Current count: {stats}",
+      "Got your vote, {name}! The tally is now {stats}",
+      "Vote recorded, {name}. Current standings: {stats}",
+      "Thanks {name}, I've counted your vote. Current count: {stats}",
+      "{name}'s vote has been tallied. Updated count: {stats}",
+      "Roger that {name}, vote recorded. Current status: {stats}"
+    ];
+
+    const voteCompletionMessages = [
+      "Thank you {name}, that settles it. Time to tally the votes.",
+      "And {name} makes it unanimous! Tallying votes now.",
+      "That's everyone! Thanks {name} for the final vote. Let's count them up.",
+      "With {name}'s vote, we're all accounted for. Time for the results.",
+      "Last vote in from {name}! Let's see where we stand.",
+      "Decision time! {name} has cast the final vote. Counting now."
+    ];
+
+    const alreadyCountedMessages = [
+      "Your vote has already been counted",
+      "I've already recorded your vote",
+      "You've voted already, no need to vote again",
+      "One vote per person, yours is already counted",
+      "Vote already registered, thanks!",
+      "I remember your vote, no need to repeat"
+    ];
+
+    const voteRequestMessages = [
+      "{players} please cast your vote. Voting ends in {time}s",
+      "Still waiting on votes from {players}. {time} seconds remaining",
+      "Don't forget to vote {players}! Time remaining: {time}s",
+      "{players}, we need your vote! {time} seconds left to decide",
+      "Hey {players}, make your voice heard! {time}s left to vote",
+      "{time} seconds left and we're still waiting on {players} to vote"
+    ];
+
+    const queuePositionMessages = [
+      "{command} has been added to the queue. Position: {position}",
+      "Added {command} to queue. You're #{position} in line",
+      "Request for {command} queued. Current position: {position}",
+      "I'll get to your {command} request soon. Queue position: {position}",
+      "You're #{position} in the queue for {command}",
+      "{command} added. There are {position} requests ahead of you"
+    ];
+
+    const currentlyRunningMessages = [
+      "Currently running {command} for {nick}",
+      "Right now I'm helping {nick} with {command}",
+      "Busy with {command} for {nick} at the moment",
+      "Working on {command} with {nick} now",
+      "{nick}'s {command} request is in progress"
+    ];
+
+    const stillRunningMessages = [
+      "Still processing your {command} request right now",
+      // come up with others
+    ];
+
     // Quests
     const {
       log,
@@ -138,6 +196,9 @@ const ControlBot = new Runnable(
     AutoRush.playersOut = "out";
     AutoRush.allIn = "all in";
 
+    // TODO: Handle multi's abusing the vote by having multiple accounts in the game
+    // most multi's use similar names so we can check for that then need to update votes needed based on that
+    // since their vote should only count as 1
     /** @typedef {"yes" | "no" | "undecided"} NgVote  */
     const ngVote = {
       /** @type {Map<string, NgVote>} */
@@ -225,7 +286,7 @@ const ControlBot = new Runnable(
        * @param {boolean} skipUndecided
        * @returns {boolean}
        */
-      checkCount: function(skipUndecided = false) {
+      checkCount: function (skipUndecided = false) {
         let undecided = [];
         
         if (!skipUndecided) {
@@ -238,7 +299,10 @@ const ControlBot = new Runnable(
           if (undecided.length) {
             if (getTickCount() - ngVote.undecidedAskTick > Time.seconds(30)) {
               let votingPeriodRemaining = Math.round(Time.toSeconds(Time.minutes(2) - ngVote.elapsed()));
-              Chat.say(undecided.join(", ") + " please cast your vote. Vote ends in " + votingPeriodRemaining + "s");
+              let message = voteRequestMessages.random()
+                .replace("{players}", undecided.join(", "))
+                .replace("{time}", votingPeriodRemaining);
+              Chat.say(message);
               ngVote.undecidedAskTick = getTickCount();
             }
             return false;
@@ -378,7 +442,7 @@ const ControlBot = new Runnable(
         // check every 1 second
         tick = getTickCount() + Time.seconds(1) + rand(500, 950);
 
-        for (let [key, player] of cmdNicks) {
+        for (let [key, player] of playerTracker) {
           if (getTickCount() - player.ignoredAt > Time.minutes(1)) {
             if (!player.ignored) continue;
             let party = getParty(key);
@@ -394,6 +458,29 @@ const ControlBot = new Runnable(
         return true;
       };
     })();
+
+    Worker.runInBackground.ngVote = (function () {
+      let tick = getTickCount();
+
+      return function () {
+        if (getTickCount() - tick < 0) return true;
+        // check every 1 second
+        tick = getTickCount() + Time.seconds(1);
+        if (!ngVote.active) return true;
+        
+        if (ngVote.elapsed() > Time.minutes(2)) {
+          ngVote.checkCount(true);
+          if (!ngVote.nextGame) {
+            Chat.say("Not enough votes to start ng." + ngVote.stats());
+            ngVote.reset();
+          }
+        } else if (ngVote.elapsed() > Time.seconds(30) && !ngVote.nextGame) {
+          ngVote.checkCount();
+        }
+
+        return true;
+      };
+    })();
     
     /** @constructor */
     function PlayerTracker () {
@@ -403,6 +490,7 @@ const ControlBot = new Runnable(
       this.ignoredAt = 0;
       this.toldToChill = false;
       this.seenHelpMsg = false;
+      this.lastChant = 0;
     }
 
     PlayerTracker.prototype.resetCmds = function () {
@@ -429,16 +517,11 @@ const ControlBot = new Runnable(
       this.commands = 0;
     };
 
-    /** @constructor */
-    function ChantTracker () {
-      this.lastChant = getTickCount();
-    }
-
-    ChantTracker.prototype.reChant = function () {
+    PlayerTracker.prototype.reChant = function () {
       return getTickCount() - this.lastChant >= chantDuration - Time.minutes(1);
     };
 
-    ChantTracker.prototype.update = function () {
+    PlayerTracker.prototype.updateChantTracker = function () {
       this.lastChant = getTickCount();
     };
 
@@ -464,13 +547,11 @@ const ControlBot = new Runnable(
     };
 
     /** @type {Map<string, PlayerTracker>} */
-    const cmdNicks = new Map();
+    const playerTracker = new Map();
     /** @type {Map<string, WpTracker>} */
     const wpNicks = new Map();
     /** @type {Array<string>} */
     const greet = [];
-    /** @type {Map<string, ChantTracker} */
-    const chantList = new Map();
 
     /** @type {Map<number, Array<number>} */
     const wps = new Map([
@@ -552,9 +633,10 @@ const ControlBot = new Runnable(
               }
               Packet.enchant(unit);
               if (Misc.poll(() => unit.getState(sdk.states.Enchant), 500, 50)) {
-                chantList.has(unit.name)
-                  ? chantList.get(unit.name).update()
-                  : chantList.set(unit.name, new ChantTracker());
+                if (!playerTracker.has(unit.name)) {
+                  playerTracker.set(unit.name, new PlayerTracker());
+                }
+                playerTracker.get(unit.name).updateChantTracker();
               }
             }
           } while (unit.getNext());
@@ -672,13 +754,15 @@ const ControlBot = new Runnable(
             if (!Misc.inMyParty(unit.name) || unit.distance > 40) continue;
             // allow rechanting someone if it's going to run out soon for them
             if (!unit.getState(sdk.states.Enchant)
-              || (chantList.has(unit.name) && chantList.get(unit.name).reChant())) {
+              || (playerTracker.has(unit.name) && playerTracker.get(unit.name).reChant())
+            ) {
               Packet.enchant(unit);
               if (Misc.poll(() => unit.getState(sdk.states.Enchant), 500, 50)) {
                 chanted.push(unit.name);
-                chantList.has(unit.name)
-                  ? chantList.get(unit.name).update()
-                  : chantList.set(unit.name, new ChantTracker());
+                if (!playerTracker.has(unit.name)) {
+                  playerTracker.set(unit.name, new PlayerTracker());
+                }
+                playerTracker.get(unit.name).updateChantTracker();
               }
             }
           } catch (err) {
@@ -693,7 +777,8 @@ const ControlBot = new Runnable(
         do {
           try {
             if (unit.getParent()
-              && chantList.has(unit.getParent().name)
+              && Misc.inMyParty(unit.getParent().name)
+              && playerTracker.has(unit.getParent().name)
               && !unit.getState(sdk.states.Enchant)
               && unit.distance <= 40) {
               Packet.enchant(unit);
@@ -750,9 +835,11 @@ const ControlBot = new Runnable(
 
       let wirt = Game.getObject(sdk.quest.chest.Wirt);
 
-      for (let i = 0; i < 8; i += 1) {
-        wirt.interact();
-        delay(500);
+      for (let i = 0; i < 8; i++) {
+        if (wirt) {
+          wirt.interact();
+          delay(500);
+        }
 
         leg = Game.getItem(sdk.quest.item.WirtsLeg);
 
@@ -1078,12 +1165,12 @@ const ControlBot = new Runnable(
       // ignore messages not related to our commands
       if (!actions.has(cmd.toLowerCase())) return false;
 
-      if (!cmdNicks.has(nick)) {
-        cmdNicks.set(nick, new PlayerTracker());
+      if (!playerTracker.has(nick)) {
+        playerTracker.set(nick, new PlayerTracker());
       }
-      const player = cmdNicks.get(nick);
+      const player = playerTracker.get(nick);
 
-      // with new flooder worker we shouldn't get here unless it failed but handle it anyway
+      // with new flooder worker we shouldn't get here unless it failed
       if (player.ignored) {
         return true;
       }
@@ -1355,13 +1442,13 @@ const ControlBot = new Runnable(
       } else {
         if (running.nick === nick && running.command === chatCmd) {
           console.debug("Command already running. active ", running);
-          if (cmdNicks.get(nick).toldToChill) return;
+          if (playerTracker.get(nick).toldToChill) return;
           if (running.command === "wps") {
             Chat.whisper(nick, "chill I'm already running wps if you want me to stop type stop");
           } else {
             Chat.whisper(nick, "chill I've already started. spamming doesn't make this go faster");
           }
-          cmdNicks.get(nick).toldToChill = true;
+          playerTracker.get(nick).toldToChill = true;
           return;
         }
         if (actions.get(chatCmd).desc.toLowerCase().includes("rush")) {
@@ -1377,6 +1464,12 @@ const ControlBot = new Runnable(
             return;
           }
         }
+        
+        if (ngVote.nextGame && running.command) {
+          Chat.say("Not accepting new commands, ngvote passed. ng will be made after I finish " + running.command);
+          
+          return;
+        }
         let index = queue.findIndex(function (cmd) {
           return cmd[0] === chatCmd && cmd[1] === nick;
         });
@@ -1384,11 +1477,16 @@ const ControlBot = new Runnable(
           Chat.whisper(nick, "You already requested this command. Queue position: " + (index + 1));
         } else {
           queue.push([chatCmd, nick, full]);
-          console.log(queue);
           if (queue.length > 1 || running.nick !== "") {
-            Chat.whisper(nick, chatCmd + " has been added to the queue. position: " + (queue.length + 1));
+            let queueMessage = queuePositionMessages.random()
+              .replace(/{command}/g, chatCmd)
+              .replace(/{position}/g, queue.length + 1);
+            Chat.whisper(nick, queueMessage);
             if (running.command) {
-              Chat.say("currently running " + running.command + " for " + running.nick);
+              let runningMessage = (nick === running.nick ? stillRunningMessages : currentlyRunningMessages).random()
+                .replace(/{command}/g, running.command)
+                .replace(/{nick}/g, running.nick);
+              Chat.say(runningMessage);
             }
           }
         }
@@ -1410,6 +1508,9 @@ const ControlBot = new Runnable(
         me.inTown && me.mode === sdk.player.mode.StandingInTown && greet.push(name1);
         if (name1 && ngVote.active) {
           ngVote.votes.set(name1, "undecided");
+        }
+        if (name1 && !playerTracker.has(name1)) {
+          playerTracker.set(name1, new PlayerTracker());
         }
         if (name2) {
           players.set(name1, "*" + name2);
@@ -1510,8 +1611,8 @@ const ControlBot = new Runnable(
           });
           str.length && msg.push(str);
           
-          !cmdNicks.has(nick) && cmdNicks.set(nick, new PlayerTracker());
-          if (cmdNicks.has(nick) && cmdNicks.get(nick).seenHelpMsg) {
+          !playerTracker.has(nick) && playerTracker.set(nick, new PlayerTracker());
+          if (playerTracker.has(nick) && playerTracker.get(nick).seenHelpMsg) {
             Chat.message(nick, "You have seen the help menu before this game please refer to message log");
           } else {
             msg.forEach(function (m) {
@@ -1519,7 +1620,7 @@ const ControlBot = new Runnable(
               Chat.say(m);
             });
           }
-          cmdNicks.get(nick).seenHelpMsg = true;
+          playerTracker.get(nick).seenHelpMsg = true;
         }
       });
       _actions.set("cancel", {
@@ -1586,11 +1687,20 @@ const ControlBot = new Runnable(
           run: function (nick) {
             if (!ngVote.active) return;
             if (ngVote.votes.get(nick) === "yes") {
-              Chat.say("Your vote has already been counted");
+              Chat.say(alreadyCountedMessages.random());
               return;
             }
             ngVote.vote(nick, "yes");
-            Chat.say("ty " + nick + ". New count " + ngVote.stats());
+            let undecided = ngVote.count("undecided");
+            if (undecided > 0) {
+              let message = thankYouMessages.random()
+                .replace("{name}", nick)
+                .replace("{stats}", ngVote.stats());
+              Chat.say(message);
+            } else {
+              let message = voteCompletionMessages.random().replace("{name}", nick);
+              Chat.say(message);
+            }
             ngVote.checkCount();
           }
         });
@@ -1600,11 +1710,20 @@ const ControlBot = new Runnable(
           run: function (nick) {
             if (!ngVote.active) return;
             if (ngVote.votes.get(nick) === "no") {
-              Chat.say("Your vote has already been counted");
+              Chat.say(alreadyCountedMessages.random());
               return;
             }
             ngVote.vote(nick, "no");
-            Chat.say("ty " + nick + ". New count " + ngVote.stats());
+            let undecided = ngVote.count("undecided");
+            if (undecided > 0) {
+              let message = thankYouMessages.random()
+                .replace("{name}", nick)
+                .replace("{stats}", ngVote.stats());
+              Chat.say(message);
+            } else {
+              let message = voteCompletionMessages.random().replace("{name}", nick);
+              Chat.say(message);
+            }
             ngVote.checkCount();
           }
         });
@@ -1745,6 +1864,7 @@ const ControlBot = new Runnable(
     const commandAliases = new Map([
       ["andariel", "andy"],
       ["bloodraven", "raven"],
+      ["malus", "smith"],
       ["radament", "rada"],
       ["amulet", "amu"],
       ["ammy", "amu"],
@@ -1872,7 +1992,7 @@ const ControlBot = new Runnable(
                   console.log("Disabling " + running.command + " from actions");
                   actions.get(running.command).markAsComplete(running.nick);
                 }
-                cmdNicks.get(running.nick).toldToChill = false;
+                playerTracker.get(running.nick).toldToChill = false;
               }
             }
           } catch (e) {
@@ -1893,28 +2013,11 @@ const ControlBot = new Runnable(
         }
         pickGoldPiles();
 
-        if (ngVote.active) {
-          if (ngVote.elapsed() > Time.minutes(2)) {
-            ngVote.checkCount(true);
-            if (!ngVote.nextGame) {
-              Chat.say(
-                "Not enough votes to start ng."
-                + " yes: " + ngVote.count("yes")
-                + " no: " + ngVote.count("no")
-                + " undecided: " + ngVote.count("undecided")
-              );
-              ngVote.reset();
-            }
-          } else if (ngVote.elapsed() > Time.seconds(30) && !ngVote.nextGame) {
-            ngVote.checkCount();
-          }
-        }
-
         if (getTickCount() - startTime >= maxTime || ngVote.nextGame) {
           if (Config.ControlBot.EndMessage) {
             Chat.say(Config.ControlBot.EndMessage);
           }
-          delay(1000);
+          delay(2000);
 
           break;
         } else if (!gameEndWarningAnnounced && getTickCount() - startTime >= maxTime - Time.seconds(30)) {

@@ -120,7 +120,7 @@ const MuleLogger = {
     includeIfNotIncluded("core/misc.js");
 
     let header = "";
-    let name = (
+    const name = (
       unit.itemType + "_"
       + unit.fname
         .split("\n")
@@ -129,6 +129,9 @@ const MuleLogger = {
         .replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "")
         .trim()
     );
+    const color = unit.getColor();
+    const code = Item.getItemCode(unit);
+    const sock = unit.getItemsEx();
     let desc = (
       Item.getItemDesc(unit, logIlvl) + "$"
       + unit.gid + ":"
@@ -141,10 +144,10 @@ const MuleLogger = {
       + unit.itemType + ":"
       + unit.quality + ":"
       + unit.itemclass + ":"
+      + sock.length + ":"
+      + unit.gfx + ":"
+      + color + ":"
     );
-    let color = unit.getColor();
-    let code = Item.getItemCode(unit);
-    let sock = unit.getItemsEx();
 
     if (sock.length) {
       for (let i = 0; i < sock.length; i += 1) {

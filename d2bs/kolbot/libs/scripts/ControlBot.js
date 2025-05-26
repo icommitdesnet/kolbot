@@ -1361,6 +1361,56 @@ const ControlBot = new Runnable(
     };
 
     /**
+     * Finds commands that closely match the input
+     * @param {string} input - User entered command
+     * @returns {string[]} - Array of matching command suggestions
+     */
+    function findSimilarCommands(input) {
+      if (!input || input.length < 2) return [];
+      
+      let matches = [];
+      
+      for (let [key, value] of actions) {
+        if (!value.desc) continue;
+        
+        if (key.startsWith(input)) {
+          matches.push(key);
+        }
+      }
+      
+      if (matches.length > 0) {
+        return matches;
+      }
+      
+      // check for typos (commands with at most 1 character different)
+      if (input.length >= 3) {
+        for (let [key, value] of actions) {
+          if (!value.desc) continue;
+          
+          // Check for similar commands with at most 1 character different
+          if (Math.abs(key.length - input.length) <= 1) {
+            let diffCount = 0;
+            
+            for (let j = 0; j < Math.min(key.length, input.length); j++) {
+              if (key[j] !== input[j]) diffCount += 1;
+              if (diffCount > 1) break;
+            }
+            
+            // Account for length difference as well
+            diffCount += Math.abs(key.length - input.length);
+            
+            // Match with at most 1 character different
+            if (diffCount <= 1) {
+              matches.push(key);
+            }
+          }
+        }
+      }
+      
+      return matches;
+    }
+
+    /**
     * @param {string} nick 
     * @param {string} msg
     * @returns {boolean}
@@ -1434,6 +1484,14 @@ const ControlBot = new Runnable(
       }
 
       if (!actions.has(chatCmd)) {
+        let similarCommands = findSimilarCommands(chatCmd);
+  
+        if (similarCommands.length === 1) {
+          Chat.whisper(nick, "Did you mean '" + similarCommands[0] + "'?");
+        } else if (similarCommands.length > 1 && similarCommands.length <= 5) {
+          Chat.whisper(nick, "Did you mean one of these: " + similarCommands.join(", ") + "?");
+        }
+  
         return;
       }
 

@@ -1444,6 +1444,11 @@ const ControlBot = new Runnable(
 
           return;
         }
+
+        if (chatCmd === "ngvote" && ngVote.active) {
+          Chat.say("Can't cancel ngvote, it is already active. Cast your vote instead with ngyes/ngno");
+          return;
+        }
         
         const cmdIndex = queue.findIndex(function (item) {
           const [cmd, commander] = item;

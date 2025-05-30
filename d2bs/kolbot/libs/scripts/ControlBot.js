@@ -1480,6 +1480,12 @@ const ControlBot = new Runnable(
         return;
       }
 
+      if (chatCmd === "givewp") {
+        Chat.say("givewp must be used with an area, i.e givewp cold plains");
+
+        return;
+      }
+
       if (commandAliases.has(chatCmd)) {
         chatCmd = commandAliases.get(chatCmd);
       }

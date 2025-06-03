@@ -454,6 +454,7 @@ declare global {
     readonly isUnraveler: boolean;
     readonly isFallen: boolean;
     readonly isBeetle: boolean;
+    readonly isDruidVine: boolean;
     readonly extraStrong: boolean;
     readonly extraFast: boolean;
     readonly cursed: boolean;

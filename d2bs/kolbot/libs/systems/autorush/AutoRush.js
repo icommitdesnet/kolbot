@@ -711,10 +711,7 @@
     if (!altar) {
       throw new Error("gidbinn failed - couldn't find altar");
     }
-    Misc.poll(function () {
-      altar.interact();
-      return altar.mode === sdk.objects.mode.Active;
-    }, Time.minutes(1), Time.seconds(1));
+
     Attack.securePosition(me.x, me.y, 30, 3000, true);
     Pather.makePortal();
     log(AutoRush.playersIn);
@@ -724,6 +721,25 @@
       log(timedOut(nick));
       return false;
     }
+
+    Misc.poll(function () {
+      Attack.clear(15);
+      altar.distance > 5 && Pather.moveToUnit(altar);
+      return altar.mode === sdk.objects.mode.Active;
+    }, Time.minutes(1), Time.seconds(1));
+    
+    Misc.poll(function () {
+      const gidbinn = Game.getItem(sdk.quest.item.TheGidbinn);
+      if (gidbinn) {
+        Attack.securePosition(gidbinn.x, gidbinn.y, 30, 3000, true);
+        Pather.moveToUnit(gidbinn);
+        return true;
+      }
+      Attack.clear(25);
+      altar.distance > 5 && Pather.moveToUnit(altar);
+      return false;
+    }, Time.minutes(1), Time.seconds(1));
+    
     if (AutoRush.rushMode !== RushModes.chanter) {
       while (playerIn(me.area, nick)) {
         delay(100);

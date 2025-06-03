@@ -362,10 +362,32 @@ const ControlBot = new Runnable(
     const players = new Map();
     /** @type {Set<string>} */
     const givenGold = new Set();
+    
+    const sendChatMessage = say;
+
+    /** @param {string} msg */
+    global.say = function (msg) {
+      if (typeof msg !== "string") {
+        throw new TypeError("Message must be a string");
+      }
+      Chat.say(msg);
+    };
+    
+    /**
+     * @constructor
+     * @param {string} msg 
+     */
+    function Message (msg) {
+      if (typeof msg !== "string") {
+        throw new TypeError("Message must be a string");
+      }
+      this.msg = msg;
+      this.createdAt = getTickCount();
+    }
 
     const Chat = {
       overheadTick: 0,
-      /** @type {string[]} */
+      /** @type {Message[]} */
       queue: [],
 
       /**
@@ -373,7 +395,7 @@ const ControlBot = new Runnable(
       * @param {string} msg 
       */
       say: function (msg) {
-        Chat.queue.push(msg);
+        Chat.queue.push(new Message(msg));
       },
 
       /**
@@ -385,7 +407,7 @@ const ControlBot = new Runnable(
         if (!force && getTickCount() - Chat.overheadTick < 0) return;
         // allow overhead messages every ~3-4 seconds
         Chat.overheadTick = getTickCount() + Time.seconds(3) + rand(250, 1500);
-        say("!" + msg);
+        sendChatMessage("!" + msg);
       },
 
       /**
@@ -399,7 +421,7 @@ const ControlBot = new Runnable(
           return;
         }
         let who = players.get(nick) || nick;
-        Chat.queue.push("/w " + who + " " + msg);
+        Chat.queue.push(new Message("/w " + who + " " + msg));
       },
 
       /**
@@ -408,28 +430,64 @@ const ControlBot = new Runnable(
       * @param {string} msg 
       */
       message: function (nick, msg) {
-        Chat.queue.push("/m " + nick + " " + msg);
+        Chat.queue.push(new Message("/m " + nick + " " + msg));
       },
     };
 
     Worker.runInBackground.chat = (function () {
       let tick = getTickCount();
+      let burstCount = 0;
+      let burstStartTime = 0;
+      const BURST_LIMIT = 4;
+      const BURST_WINDOW = Time.seconds(16);
+      const BURST_COOLDOWN = Time.seconds(10);
 
       return function () {
         if (!Chat.queue.length) return true;
         if (getTickCount() - tick < 0) return true;
         // check if next msg is going to be a whisper
-        if (Chat.queue[0].startsWith("/w")) {
+        if (Chat.queue[0].msg.startsWith("/w")) {
           // check if the player is in the game and if not, don't send the whisper
         }
+
+        // don't immediately respond, seems to trigger temp mutes more often
+        if (getTickCount() - Chat.queue[0].createdAt < 500) {
+          // don't send messages that are too new
+          return true;
+        }
+
+        // Burst protection (prevent too many messages in short time)
+        let currentTime = getTickCount();
+    
+        // Reset burst count if window has passed
+        if (currentTime - burstStartTime > BURST_WINDOW) {
+          burstCount = 0;
+          burstStartTime = currentTime;
+        }
+    
+        // If we've hit burst limit, enforce cooldown
+        if (burstCount >= BURST_LIMIT) {
+          if (currentTime - burstStartTime < BURST_COOLDOWN) {
+            return true; // Still in cooldown period
+          }
+          burstCount = 0;
+          burstStartTime = currentTime;
+        }
+    
+        if (burstCount === 0) {
+          burstStartTime = currentTime;
+        }
+
         // allow say messages every ~1.7 seconds
         tick = getTickCount() + Time.seconds(1) + rand(500, 950);
-        console.debug("(" + Chat.queue[0] + ")");
-        if (Chat.queue[0].length > MAX_CHAT_LENGTH) {
+        burstCount += 1;
+
+        console.debug("(" + Chat.queue[0].msg + ") [Burst: " + burstCount + "/" + BURST_LIMIT + "]");
+        if (Chat.queue[0].msg.length > MAX_CHAT_LENGTH) {
           console.debug("Message too long, splitting.");
-          Chat.queue[0] = Chat.queue[0].substring(0, MAX_CHAT_LENGTH);
+          Chat.queue[0].msg = Chat.queue[0].msg.substring(0, MAX_CHAT_LENGTH);
         }
-        say(Chat.queue.shift());
+        sendChatMessage(Chat.queue.shift().msg);
         return true;
       };
     })();
@@ -644,22 +702,21 @@ const ControlBot = new Runnable(
           Chat.say("I don't see you");
         }
 
-        unit = Game.getMonster();
+        let monster = Game.getMonster();
 
-        if (unit) {
+        if (monster) {
           do {
-            if (unit.classid === sdk.summons.Poppy) {
-              console.log(unit);
+            if (monster.isDruidVine) {
               continue;
             }
             // merc or any other owned unit
-            let parent = unit.getParent();
+            let parent = monster.getParent();
             if (!parent) continue;
             if (parent.name === nick) {
-              Packet.enchant(unit);
+              Packet.enchant(monster);
               delay(500);
             }
-          } while (unit.getNext());
+          } while (monster.getNext());
         }
 
         return true;
@@ -771,26 +828,27 @@ const ControlBot = new Runnable(
         } while (unit.getNext());
       }
 
-      unit = Game.getMonster();
+      let monster = Game.getMonster();
 
-      if (unit) {
+      if (monster) {
         do {
           try {
-            if (unit.getParent()
-              && Misc.inMyParty(unit.getParent().name)
-              && playerTracker.has(unit.getParent().name)
-              && !unit.getState(sdk.states.Enchant)
-              && unit.distance <= 40) {
-              Packet.enchant(unit);
+            if (monster.getParent()
+              && !monster.isDruidVine
+              && Misc.inMyParty(monster.getParent().name)
+              && playerTracker.has(monster.getParent().name)
+              && !monster.getState(sdk.states.Enchant)
+              && monster.distance <= 40) {
+              Packet.enchant(monster);
               // not going to re-enchant the minions for now though, will think on how best to handle that later
-              if (Misc.poll(() => unit.getState(sdk.states.Enchant), 500, 50)) {
-                chanted.push(unit.name);
+              if (Misc.poll(() => monster.getState(sdk.states.Enchant), 500, 50)) {
+                chanted.push(monster.name);
               }
             }
           } catch (err) {
             console.error(err);
           }
-        } while (unit.getNext());
+        } while (monster.getNext());
       }
 
       return true;
@@ -1545,6 +1603,26 @@ const ControlBot = new Runnable(
         if (index > -1) {
           Chat.whisper(nick, "You already requested this command. Queue position: " + (index + 1));
         } else {
+          if (queue.length > 1) {
+            let commandsToCheck = [];
+  
+            if (running.command && running.nick) {
+              commandsToCheck.push([running.command, running.nick]);
+            }
+  
+            commandsToCheck = commandsToCheck.concat(queue.slice(0, 2));
+            commandsToCheck.push([chatCmd, nick]);
+  
+            const isUserHoggingQueue = commandsToCheck.every(function (item) {
+              return item[1] === nick;
+            });
+  
+            if (isUserHoggingQueue && commandsToCheck.length >= 4) {
+              Chat.whisper(nick, "You are hogging the queue. Max 3 commands per user at a time.");
+              return;
+            }
+          }
+          
           queue.push([chatCmd, nick, full]);
           if (queue.length > 1 || running.nick !== "") {
             let queueMessage = queuePositionMessages.random()
@@ -1719,7 +1797,7 @@ const ControlBot = new Runnable(
           hostileCheck: false,
           run: function (nick) {
             if (ngVote.active) {
-              Chat.say("NGVote is already active. Current count: " + ngVote.stats());
+              Chat.say("NGVote is already active. Type ngyes/ngno to vote. Current count: " + ngVote.stats());
               return;
             }
             const { MinGameLength, NGVoteCooldown } = Config.ControlBot;

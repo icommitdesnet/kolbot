@@ -37,12 +37,12 @@ const ControlBot = new Runnable(
     ];
 
     const voteRequestMessages = [
-      "{players} please cast your vote. Voting ends in {time}s",
-      "Still waiting on votes from {players}. {time} seconds remaining",
-      "Don't forget to vote {players}! Time remaining: {time}s",
-      "{players}, we need your vote! {time} seconds left to decide",
-      "Hey {players}, make your voice heard! {time}s left to vote",
-      "{time} seconds left and we're still waiting on {players} to vote"
+      "{players} please cast your vote for ng. Voting ends in {time}s",
+      "Still waiting on ng votes from {players}. {time} seconds remaining",
+      "Don't forget to vote for ng {players}! Time remaining: {time}s",
+      "{players}, we need your vote for ng! {time} seconds left to decide",
+      "Hey {players}, make your voice heard! {time}s left to vote for ng",
+      "{time} seconds left and we're still waiting on {players} to vote for ng"
     ];
 
     const queuePositionMessages = [
@@ -1489,6 +1489,12 @@ const ControlBot = new Runnable(
       const denRegex = /^\b(den|den ?of ?evil)\b/;
       const forgeRegex = /^\b(forge|hell ?forge)\b/;
       let chatCmd = full;
+
+      if (chatCmd === "givewp") {
+        Chat.say("givewp must be used with an area, i.e givewp cold plains");
+
+        return;
+      }
       
       if (chatCmd.match(/^rush /gi)) {
         chatCmd = chatCmd.split(" ")[1];
@@ -1538,17 +1544,11 @@ const ControlBot = new Runnable(
         return;
       }
 
-      if (chatCmd === "givewp") {
-        Chat.say("givewp must be used with an area, i.e givewp cold plains");
-
-        return;
-      }
-
       if (commandAliases.has(chatCmd)) {
         chatCmd = commandAliases.get(chatCmd);
       }
 
-      if (chatCmd.match(/^drop /gi) && !Config.ControlBot.DropGold) {
+      if ((chatCmd.match(/^drop/gi) || chatCmd.match(/^give ?gold$/)) && !Config.ControlBot.DropGold) {
         chatCmd = "troll";
       }
 

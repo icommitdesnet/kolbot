@@ -706,7 +706,7 @@ const ControlBot = new Runnable(
 
         if (monster) {
           do {
-            if (monster.isDruidVine) {
+            if (!monster.isEnchantable) {
               continue;
             }
             // merc or any other owned unit
@@ -834,7 +834,7 @@ const ControlBot = new Runnable(
         do {
           try {
             if (monster.getParent()
-              && !monster.isDruidVine
+              && monster.isEnchantable
               && Misc.inMyParty(monster.getParent().name)
               && playerTracker.has(monster.getParent().name)
               && !monster.getState(sdk.states.Enchant)

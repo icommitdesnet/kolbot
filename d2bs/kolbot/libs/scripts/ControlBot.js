@@ -993,11 +993,31 @@ const ControlBot = new Runnable(
       let tome = getTome();
       if (!tome) return false;
 
-      if (!Town.openStash()
-        || !Cubing.emptyCube()
-        || !Storage.Cube.MoveTo(leg)
-        || !Storage.Cube.MoveTo(tome)
-        || !Cubing.openCube()) {
+      if (!Town.openStash()) {
+        log("Failed to open stash");
+        return false;
+      }
+
+      const cubeItems = me.getItemsEx(-1, sdk.items.mode.inStorage).filter(function (item) {
+        return (
+          item.isInCube
+          && item.classid !== sdk.items.quest.WirtsLeg
+          && item.classid !== sdk.items.TomeofTownPortal
+        );
+      });
+
+      if (cubeItems.length > 0 && !Cubing.emptyCube()) {
+        log("Failed to empty cube");
+        return false;
+      }
+
+      if (!Storage.Cube.MoveTo(leg) || !Storage.Cube.MoveTo(tome)) {
+        log("Failed to move items to cube");
+        return false;
+      }
+
+      if (!Cubing.openCube()) {
+        log("Failed to open cube");
         return false;
       }
 

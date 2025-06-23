@@ -7,8 +7,15 @@
 *
 */
 
+/**
+ * @typedef {ScriptContext & { cleanup: () => void }} ControlBotContext
+ */
+
 const ControlBot = new Runnable(
-  function ControlBot () {
+  /**
+   * @param {ControlBotContext} ctx
+   */
+  function ControlBot (ctx) {
     const thankYouMessages = [
       "Ty {name}. Current count: {stats}",
       "Got your vote, {name}! The tally is now {stats}",
@@ -319,7 +326,7 @@ const ControlBot = new Runnable(
           return false;
         }
 
-        if (noVotes >= votesNeeded) {
+        if (noVotes >= votesNeeded && noVotes > yesVotes) {
           Chat.say("ng rejected by majority.");
           this.reset();
           return false;
@@ -371,6 +378,11 @@ const ControlBot = new Runnable(
         throw new TypeError("Message must be a string");
       }
       Chat.say(msg);
+    };
+
+    ctx.cleanup = function () {
+      // restore the original say function
+      global.say = sendChatMessage;
     };
     
     /**
@@ -982,8 +994,11 @@ const ControlBot = new Runnable(
         return false;
       }
 
+      log("starting cows");
+      
       let leg = getLeg();
       if (!leg) return false;
+
       if (!Storage.Inventory.CanFit({ sizex: 1, sizey: 2 })) {
         // we don't have any space, put the leg in the stash to make room in invo
         Storage.Stash.MoveTo(leg);
@@ -991,9 +1006,22 @@ const ControlBot = new Runnable(
       }
 
       let tome = getTome();
-      if (!tome) return false;
+      if (!tome) {
+        log("Failed to get tome");
+        return false;
+      }
+    
+      let openedStash = false;
 
-      if (!Town.openStash()) {
+      for (let i = 0; i < 3; i++) {
+        if (Town.openStash()) {
+          openedStash = true;
+          
+          break;
+        }
+      }
+
+      if (!openedStash) {
         log("Failed to open stash");
         return false;
       }
@@ -1050,7 +1078,7 @@ const ControlBot = new Runnable(
        */
       const stopWatcher = function (who, msg) {
         if (who !== nick) return;
-        if (msg === "stop" || msg === "abort") {
+        if (msg === "stop" || msg === "abort" || msg === "cancel") {
           stop = true;
         }
       };
@@ -1128,7 +1156,7 @@ const ControlBot = new Runnable(
         if (who !== nick) return;
         if (msg === "next") {
           next = true;
-        } else if (msg === "stop" || msg === "abort") {
+        } else if (msg === "stop" || msg === "abort" || msg === "cancel") {
           stop = true;
         }
       };
@@ -1515,6 +1543,13 @@ const ControlBot = new Runnable(
 
         return;
       }
+
+      if (ngVote.active) {
+        if (chatCmd === "yes" || chatCmd === "no") {
+          Chat.say("Were you trying to vote? Type ngyes or ngno instead.");
+          return;
+        }
+      }
       
       if (chatCmd.match(/^rush /gi)) {
         chatCmd = chatCmd.split(" ")[1];
@@ -1543,7 +1578,7 @@ const ControlBot = new Runnable(
           return String.isEqual(chatCmd, cmd);
         });
         
-        if (cmdIndex !== 1) {
+        if (cmdIndex > 1) {
           Chat.say("Removing " + chatCmd + " from the queue");
           queue.splice(cmdIndex, 1);
 
@@ -1671,8 +1706,6 @@ const ControlBot = new Runnable(
     function gameEvent (mode, param1, param2, name1, name2) {
       switch (mode) {
       case 0x02: // "%Name1(%Name2) joined our world. Diablo's minions grow stronger."
-        // idle in town
-        me.inTown && me.mode === sdk.player.mode.StandingInTown && greet.push(name1);
         if (name1 && ngVote.active) {
           ngVote.votes.set(name1, "undecided");
         }
@@ -1689,6 +1722,9 @@ const ControlBot = new Runnable(
           // autosqelch shitlisted players
           if (me.shitList.has(name1)) {
             clickParty(getParty(name1), sdk.party.controls.Squelch);
+          } else {
+            // Handle greeting new players
+            Chat.say("Welcome, " + name1 + "! For a list of commands say 'help' or visit https://d2bggames.netlify.app/");
           }
         } catch (err) {
           console.error(err);
@@ -2037,6 +2073,7 @@ const ControlBot = new Runnable(
       ["ammy", "amu"],
       ["duriel", "duri"],
       ["dury", "duri"],
+      ["talrasha", "duri"],
       ["tome", "lamesen"],
       ["travincal", "trav"],
       ["mephisto", "meph"],
@@ -2138,15 +2175,6 @@ const ControlBot = new Runnable(
       }
 
       while (true) {
-        while (greet.length > 0) {
-          let nick = greet.shift();
-
-          if (!me.shitList.has(nick)) {
-            // Chat.say("Welcome, " + nick + "! For a list of commands say 'help'");
-            Chat.overhead("Welcome, " + nick + "! For a list of commands say 'help'");
-          }
-        }
-
         Town.getDistance("stash") > 8 && Town.move("stash");
 
         if (queue.length > 0) {
@@ -2205,5 +2233,11 @@ const ControlBot = new Runnable(
   {
     startArea: sdk.areas.RogueEncampment,
     preAction: null,
+    /**
+     * @param {ControlBotContext} ctx
+     */
+    cleanup: function (ctx) {
+      ctx.cleanup();
+    }
   }
 );

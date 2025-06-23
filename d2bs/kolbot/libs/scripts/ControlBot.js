@@ -1724,7 +1724,7 @@ const ControlBot = new Runnable(
             clickParty(getParty(name1), sdk.party.controls.Squelch);
           } else {
             // Handle greeting new players
-            Chat.say("Welcome, " + name1 + "! For a list of commands say 'help' or visit https://d2bggames.netlify.app/");
+            Chat.say("Welcome, " + name1 + "! For a list of commands say help");
           }
         } catch (err) {
           console.error(err);

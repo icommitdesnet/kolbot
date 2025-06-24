@@ -224,7 +224,7 @@ const ControlBot = new Runnable(
        * @returns {number}
        */
       votesNeeded: function () {
-        return Math.max(1, Math.floor((Misc.getPlayerCount() - 2) / 2));
+        return Math.max(1, Math.floor((Misc.getPartyCount()) / 2));
       },
 
       /**
@@ -261,21 +261,15 @@ const ControlBot = new Runnable(
 
       /**
        * Check current count
-       * @param {NgVote} type 
        */
-      count: function (type) {
-        if (type === "undecided") {
-          return Array.from(this.votes.values()).filter(vote => vote === "undecided").length;
-        }
-        return type === "yes"
-          ? Array.from(this.votes.values()).filter(vote => vote === "yes").length
-          : Array.from(this.votes.values()).filter(vote => vote === "no").length;
-      },
-
-      stats: function () {
+      count: function () {
         let [yes, no, undecided] = [0, 0, 0];
 
-        for (let [_name, vote] of this.votes) {
+        for (let [name, vote] of this.votes) {
+          if (!Misc.inMyParty(name)) {
+            continue;
+          }
+          
           if (vote === "yes") {
             yes++;
           } else if (vote === "no") {
@@ -284,6 +278,16 @@ const ControlBot = new Runnable(
             undecided++;
           }
         }
+
+        return {
+          yes: yes,
+          no: no,
+          undecided: undecided
+        };
+      },
+
+      stats: function () {
+        const { yes, no, undecided } = this.count();
 
         return ("yes: " + yes + " no: " + no + " undecided: " + undecided);
       },
@@ -298,7 +302,7 @@ const ControlBot = new Runnable(
         
         if (!skipUndecided) {
           for (let [playerName, vote] of this.votes) {
-            if (vote === "undecided") {
+            if (vote === "undecided" && Misc.inMyParty(playerName)) {
               undecided.push(playerName);
             }
           }
@@ -317,8 +321,7 @@ const ControlBot = new Runnable(
         }
         
         const votesNeeded = this.votesNeeded();
-        const yesVotes = Array.from(this.votes.values()).filter(vote => vote === "yes").length;
-        const noVotes = Array.from(this.votes.values()).filter(vote => vote === "no").length;
+        const { yes: yesVotes, no: noVotes } = this.count();
 
         if (Misc.getPartyCount() === yesVotes + noVotes && yesVotes === noVotes) {
           Chat.say("Not enough votes to start ng we have a draw.");
@@ -620,8 +623,6 @@ const ControlBot = new Runnable(
     const playerTracker = new Map();
     /** @type {Map<string, WpTracker>} */
     const wpNicks = new Map();
-    /** @type {Array<string>} */
-    const greet = [];
 
     /** @type {Map<number, Array<number>} */
     const wps = new Map([
@@ -1898,7 +1899,7 @@ const ControlBot = new Runnable(
               return;
             }
             ngVote.vote(nick, "yes");
-            let undecided = ngVote.count("undecided");
+            let { undecided } = ngVote.count();
             if (undecided > 0) {
               let message = thankYouMessages.random()
                 .replace("{name}", nick)
@@ -1921,7 +1922,7 @@ const ControlBot = new Runnable(
               return;
             }
             ngVote.vote(nick, "no");
-            let undecided = ngVote.count("undecided");
+            let { undecided } = ngVote.count();
             if (undecided > 0) {
               let message = thankYouMessages.random()
                 .replace("{name}", nick)

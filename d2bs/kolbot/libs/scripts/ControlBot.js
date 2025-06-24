@@ -1568,6 +1568,10 @@ const ControlBot = new Runnable(
           Chat.say("Can't cancel ngvote, it is already active. Cast your vote instead with ngyes/ngno");
           return;
         }
+
+        if (commandAliases.has(chatCmd)) {
+          chatCmd = commandAliases.get(chatCmd);
+        }
         
         const cmdIndex = queue.findIndex(function (item) {
           const [cmd, commander] = item;
@@ -1578,7 +1582,7 @@ const ControlBot = new Runnable(
           return String.isEqual(chatCmd, cmd);
         });
         
-        if (cmdIndex > 1) {
+        if (cmdIndex !== -1) {
           Chat.say("Removing " + chatCmd + " from the queue");
           queue.splice(cmdIndex, 1);
 

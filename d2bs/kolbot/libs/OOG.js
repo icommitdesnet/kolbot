@@ -240,6 +240,11 @@ includeIfNotIncluded("core/Me.js");
      * @returns {Control | false}
      */
     findCharacter: function (info, startFromTop = true) {
+      const ladderString = getLocaleString(sdk.locale.text.Ladder);
+      /** @param {string} text */
+      const matchLadderString = function (text) {
+        return text.includes(ladderString);
+      };
       const singlePlayer = ![sdk.game.gametype.OpenBattlenet, sdk.game.gametype.BattleNet].includes(Profile().type);
       // offline doesn't have a character limit cap
       const cap = singlePlayer ? 999 : 24;
@@ -270,7 +275,7 @@ includeIfNotIncluded("core/Me.js");
               count++;
 
               if (String.isEqual(text[1], info.charName)) {
-                if (info.ladder && !text.some(el => el.includes("LADDER"))) continue;
+                if (info.ladder && !text.some(matchLadderString)) continue;
                 // how to check hardcore?
                 return control;
               }

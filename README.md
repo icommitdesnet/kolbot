@@ -31,6 +31,18 @@ If you want to contribute to d2bs/d2bot#, come to irc.synirc.net/d2bs and ask ar
 - [Microsoft Visual C++ 2010 Redistributable Package (x86)](https://www.microsoft.com/en-us/download/details.aspx?id=26999)
 - [Microsoft .NET Framework 4.0 (or higher)](https://dotnet.microsoft.com/download/dotnet-framework)
 
+## Set up 
+
+**IMPORTANT: Run the setup script first!**
+
+After downloading kolbot, you must run the setup script to configure the necessary files:
+
+1. Run `setup.bat` to copy configuration files to their correct locations
+2. The script will also initialize Git submodules if Git is available
+3. This step is required for kolbot to function properly
+
+To keep your installation updated, you can run `update.bat` at any time to pull the latest changes from the repository and update all submodules.
+
 ## Getting Started
 - [download kolbot](https://github.com/blizzhackers/documentation/blob/restructure/d2bot/Download.md#download)
 - [d2bot manager setup](https://github.com/blizzhackers/documentation/blob/restructure/d2bot/ManagerSetup.md/#manager-setup)

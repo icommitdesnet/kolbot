@@ -8,7 +8,8 @@
 */
 
 // No touchy!
+include("critical.js"); // required
 if (!include("SoloPlay/OOG/SoloEntry.js")) {
-  D2Bot.print("SoloPlay: Failed to include SoloEntry.js");
+  D2Bot.printToConsole("SoloPlay: Failed to include SoloEntry.js");
   D2Bot.stop();
 }

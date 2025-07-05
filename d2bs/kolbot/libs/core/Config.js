@@ -5,7 +5,7 @@
 *
 */
 
-/** @type {Record<string, boolean | Object>} */
+/** @type {Record<KolbotScript, boolean | Object>} */
 const Scripts = {};
 
 let Config = {

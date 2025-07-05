@@ -47,7 +47,7 @@ declare global {
   }
 
   type Scripts = {
-    [key: string]: boolean;
+    [key in KolbotScript]: boolean;
   };
 
   const Scripts: Scripts;

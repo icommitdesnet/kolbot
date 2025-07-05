@@ -19,8 +19,9 @@
 /// <reference path="./types/Config.d.ts" />
 
 declare global {
-  type IncludePath = import('./types/include-types').IncludePath;
-  
+  type IncludePath = import('./types/include-paths').IncludePath;
+  type KolbotScript = import('./types/kolbot-scripts').KolbotScript;
+
   interface Error {
     fileName: string;
     lineNumber: number;

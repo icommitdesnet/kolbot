@@ -12,9 +12,6 @@ include("critical.js"); // required
 const { StarterConfig } = require("./libs/systems/automule/config/StarterConfig");
 Object.assign(Starter.Config, StarterConfig);
 
-// Override default values for StarterConfig under here by following format
-// Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 // system libs
 includeSystemLibs();
 include("systems/automule/Mule.js");

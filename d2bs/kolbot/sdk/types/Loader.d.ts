@@ -12,6 +12,7 @@ declare global {
     startArea?: number;
   }
 
+  // @ts-ignore
   class Runnable {
     constructor(action: () => boolean, options: Partial<RunnableOptions>);
 

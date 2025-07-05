@@ -7,6 +7,7 @@
 */
 include("systems/mulelogger/MuleLogger.js");
 
+/** @type {import("./GameAction").GameActionType} */
 const GameAction = {
   /** @type {{ action: string, data: any } | null} */
   task: null,

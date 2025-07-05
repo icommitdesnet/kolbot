@@ -19,6 +19,8 @@
 /// <reference path="./types/Config.d.ts" />
 
 declare global {
+  type IncludePath = import('./types/include-types').IncludePath;
+  
   interface Error {
     fileName: string;
     lineNumber: number;
@@ -1098,8 +1100,8 @@ declare global {
   function utf8ToEuc(arg: any): []
   function delay(ms: number): void
   function load(file: string): boolean
-  function isIncluded(file: string): boolean
-  function include(file: string): boolean
+  function isIncluded(file: IncludePath): boolean
+  function include(file: IncludePath): boolean
   function stacktrace(): true
   function rand(from: number, to: number): number
   function copy(what: string): void

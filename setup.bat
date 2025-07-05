@@ -79,6 +79,7 @@ call :CopyIfNotExists "%SETUP_DIR%\d2bs.ini" "%D2BS_DIR%\d2bs.ini" "d2bs.ini to 
 REM Copy system files to their respective directories
 call :CopyIfNotExists "%SETUP_DIR%\automule\MuleConfig.js" "%SYSTEMS_DIR%\automule\config\MuleConfig.js" "MuleConfig.js to automule config directory"
 call :CopyIfNotExists "%SETUP_DIR%\automule\TorchAnniMules.js" "%SYSTEMS_DIR%\automule\config\TorchAnniMules.js" "TorchAnniMules.js to automule config directory"
+call :CopyIfNotExists "%SETUP_DIR%\automule\StarterConfig.js" "%SYSTEMS_DIR%\automule\config\StarterConfig.js" "StarterConfig.js to automule config directory"
 call :CopyIfNotExists "%SETUP_DIR%\channel\ChannelConfig.js" "%SYSTEMS_DIR%\channel\ChannelConfig.js" "ChannelConfig.js to channel directory"
 call :CopyIfNotExists "%SETUP_DIR%\cleaner\CleanerConfig.js" "%SYSTEMS_DIR%\cleaner\CleanerConfig.js" "CleanerConfig.js to cleaner directory"
 call :CopyIfNotExists "%SETUP_DIR%\crafting\TeamsConfig.js" "%SYSTEMS_DIR%\crafting\TeamsConfig.js" "TeamsConfig.js to crafting directory"

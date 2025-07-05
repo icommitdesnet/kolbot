@@ -49,3 +49,4 @@ d2bs/kolbot/libs/config/_CustomConfig.js
 d2bs/kolbot/libs/starter/AdvancedConfig.js
 d2bs/kolbot/libs/starter/StarterConfig.js
 d2bs/kolbot/libs/systems/gameaction/GameActionConfig.js
+d2bs/kolbot/libs/systems/automule/config/StarterConfig.js

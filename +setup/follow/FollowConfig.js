@@ -6,6 +6,11 @@
 */
 
 (function (module) {
+  // D2BotFollow specific settings - for global settings see libs/starter/StarterConfig.js
+  const StarterConfig = {
+    JoinRetryDelay: 5, // Time in seconds to wait before next join attempt
+  };
+
   /**
    * @description Join game settings
    * - Format: "leader's profile": ["leecher 1 profile", "leecher 2 profile", ...]
@@ -24,5 +29,6 @@
 
   module.exports = {
     JoinSettings: JoinSettings,
+    StarterConfig: StarterConfig,
   };
 })(module);

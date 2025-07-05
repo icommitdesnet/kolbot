@@ -41,7 +41,7 @@ function giveWP () {
       addEventListener("chatmsg", wpEvent);
       let playerCount = Misc.getPartyCount();
       let mobCount = getUnits(sdk.unittype.Monster).filter(mon => mon.distance <= 15 && mon.attackable).length;
-      mobCount > 0 && Attack.securePosition(me.x, me.y, 15, Time.seconds(30), true);
+      mobCount > 0 && Attack.securePosition(me.x, me.y, { range: 15, duration: Time.seconds(30), skipBlocked: true });
       wp.distance > 5 && Pather.moveToUnit(wp);
       Pather.makePortal();
       say("wp");
@@ -143,7 +143,7 @@ function main () {
     }
 
     Pather.makePortal();
-    Attack.securePosition(me.x, me.y, 40, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 40, duration: 3000, skipBlocked: true });
     this.log("1");
 
     while (!this.playerIn()) {
@@ -182,7 +182,7 @@ function main () {
       }
 
       Pather.makePortal();
-      Attack.securePosition(me.x, me.y, 30, 3000, true);
+      Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true });
       this.log("1");
 
       while (!this.playerIn()) {
@@ -210,7 +210,7 @@ function main () {
     }
 
     Pather.makePortal();
-    Attack.securePosition(me.x, me.y, 25, 3000, me.hell, me.hell);
+    Attack.securePosition(me.x, me.y, { range: 25, duration: 3000, skipBlocked: me.hell, useRedemption: me.hell });
 
     this.log("1");
 
@@ -238,7 +238,7 @@ function main () {
     }
 
     Pather.makePortal();
-    Attack.securePosition(me.x, me.y, 30, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true });
     this.log("1");
 
     while (!this.playerIn()) {
@@ -292,12 +292,12 @@ function main () {
     }
 
     Pather.makePortal();
-    Attack.securePosition(me.x, me.y, 25, 3000);
+    Attack.securePosition(me.x, me.y, { range: 25, duration: 3000 });
     this.log("1");
 
     while (!this.playerIn()) {
       Pather.moveToUnit(spot);
-      Attack.securePosition(me.x, me.y, 25, 500);
+      Attack.securePosition(me.x, me.y, { range: 25, duration: 500 });
       delay(250);
     }
 
@@ -350,7 +350,7 @@ function main () {
     }
 
     Pather.makePortal();
-    Attack.securePosition(me.x, me.y, 30, 3000, true, me.hell);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true, useRedemption: me.hell });
     this.log("1");
 
     while (!this.playerIn()) {
@@ -412,7 +412,7 @@ function main () {
 
     Pather.moveTo(coords[0] + 23, coords[1] - 102);
     Pather.makePortal();
-    Attack.securePosition(me.x, me.y, 40, 3000);
+    Attack.securePosition(me.x, me.y, { range: 40, duration: 3000 });
     this.log("1");
 
     while (!this.playerIn()) {
@@ -422,7 +422,7 @@ function main () {
     Pather.moveTo(coords[0] + 30, coords[1] - 134);
     Pather.moveTo(coords[0] + 86, coords[1] - 130);
     Pather.moveTo(coords[0] + 71, coords[1] - 94);
-    Attack.securePosition(me.x, me.y, 40, 3000);
+    Attack.securePosition(me.x, me.y, { range: 40, duration: 3000 });
 
     Pather.moveTo(coords[0] + 23, coords[1] - 102);
     Pather.makePortal();
@@ -455,7 +455,7 @@ function main () {
       delay(250);
     }
 
-    Pather.moveTo(17591, 8070) && Attack.securePosition(me.x, me.y, 40, 3000);
+    Pather.moveTo(17591, 8070) && Attack.securePosition(me.x, me.y, { range: 40, duration: 3000 });
 
     let hydra = Game.getMonster(getLocaleString(sdk.locale.monsters.Hydra));
 
@@ -690,7 +690,7 @@ function main () {
 
     let tree = Game.getObject(sdk.quest.chest.InifussTree);
     !!tree && tree.distance > 5 && Pather.moveToUnit(tree);
-    Attack.securePosition(me.x, me.y, 40, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 40, duration: 3000, skipBlocked: true });
     !!tree && tree.distance > 5 && Pather.moveToUnit(tree);
     Pather.makePortal();
     this.log("1");
@@ -700,14 +700,14 @@ function main () {
       if (tree.mode) {
         break;
       }
-      Attack.securePosition(me.x, me.y, 20, 1000);
+      Attack.securePosition(me.x, me.y, { range: 20, duration: 1000 });
     }
 
     Pather.usePortal(1) || Town.goToTown();
     Pather.useWaypoint(sdk.areas.StonyField, true);
     Precast.doPrecast(true);
     Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Monster, sdk.monsters.preset.Rakanishu, 10, 10, false, true);
-    Attack.securePosition(me.x, me.y, 40, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 40, duration: 3000, skipBlocked: true });
     Pather.moveToPreset(sdk.areas.StonyField, sdk.unittype.Object, sdk.quest.chest.StoneAlpha, null, null, true);
     Pather.makePortal();
     this.log("1");
@@ -718,7 +718,7 @@ function main () {
       if (Pather.usePortal(sdk.areas.Tristram)) {
         break;
       }
-      Attack.securePosition(me.x, me.y, 35, 1000);
+      Attack.securePosition(me.x, me.y, { range: 35, duration: 1000 });
     }
 
     if (me.inArea(sdk.areas.Tristram)) {
@@ -730,7 +730,7 @@ function main () {
           throw new Error("Failed to move to Cain's Jail");
         }
 
-        Attack.securePosition(gibbet.x, gibbet.y, 20, 3000);
+        Attack.securePosition(gibbet.x, gibbet.y, { range: 20, duration: 3000 });
         Pather.makePortal();
         this.log("1");
 
@@ -740,7 +740,7 @@ function main () {
           if (gibbet.mode) {
             break;
           }
-          Attack.securePosition(me.x, me.y, 10, 1000);
+          Attack.securePosition(me.x, me.y, { range: 10, duration: 1000 });
         }
       }
     }
@@ -797,7 +797,7 @@ function main () {
     let rada = Misc.poll(() => Game.getMonster(sdk.monsters.Radament), 1500, 500);
 
     rada ? moveIntoPos(rada, 60) : print("radament unit not found");
-    Attack.securePosition(me.x, me.y, 35, 3000);
+    Attack.securePosition(me.x, me.y, { range: 35, duration: 3000 });
     Pather.makePortal();
     this.log("1");
 
@@ -814,7 +814,7 @@ function main () {
 
     this.log("2");
     Pickit.pickItems();
-    Attack.securePosition(me.x, me.y, 30, 3000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
 
     while (this.playerIn()) {
       delay(200);
@@ -855,7 +855,7 @@ function main () {
       throw new Error("Lam Essen quest failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 2000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 2000 });
     Pather.makePortal();
     this.log("1");
 
@@ -927,7 +927,7 @@ function main () {
       y: me.y
     };
 
-    Attack.securePosition(me.x, me.y, 30, 3000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
     Pather.makePortal();
     this.log("1");
 
@@ -956,7 +956,7 @@ function main () {
 
     Pather.useWaypoint(sdk.areas.FrigidHighlands, true) && Precast.doPrecast(false);
     Pather.moveTo(3846, 5120);
-    Attack.securePosition(me.x, me.y, 30, 3000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
     Pather.makePortal();
     this.log("1");
 
@@ -996,7 +996,7 @@ function main () {
       throw new Error("Anya quest failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 2000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 2000 });
 
     let anya = Game.getObject(sdk.objects.FrozenAnya);
 

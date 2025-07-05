@@ -76,7 +76,7 @@
               sdk.monsters.preset.Rakanishu,
               { offX: 10, offY: 10, pop: true }
             );
-            Attack.securePosition(me.x, me.y, 40, 3000, true);
+            Attack.securePosition(me.x, me.y, { range: 40, duration: 3000, skipBlocked: true });
             Pather.moveToPresetObject(
               sdk.areas.StonyField,
               sdk.quest.chest.StoneAlpha,

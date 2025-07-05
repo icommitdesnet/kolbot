@@ -137,12 +137,12 @@ const ControlBot = new Runnable(
             throw new Error("Failed to move to Cain's Jail");
           }
 
-          Attack.securePosition(gibbet.x, gibbet.y, 25, 3000);
+          Attack.securePosition(gibbet.x, gibbet.y, { range: 25, duration: 3000 });
           Pather.makePortal();
           log(AutoRush.playersIn);
 
           const cainRescued = Misc.poll(function () {
-            Attack.securePosition(me.x, me.y, 15, 1000);
+            Attack.securePosition(me.x, me.y, { range: 15, duration: 1000 });
             return gibbet.mode;
           }, Time.minutes(2));
         
@@ -166,8 +166,8 @@ const ControlBot = new Runnable(
         throw new Error("Failed to move to durance 3");
       }
       Pather.moveTo(17617, 8069);
-      Attack.securePosition(me.x, me.y, 30, 3000);
-      Pather.moveTo(17591, 8070) && Attack.securePosition(me.x, me.y, 20, 3000);
+      Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
+      Pather.moveTo(17591, 8070) && Attack.securePosition(me.x, me.y, { range: 20, duration: 3000 });
       let hydra = Game.getMonster(getLocaleString(sdk.locale.monsters.Hydra));
 
       if (hydra) {
@@ -1112,7 +1112,7 @@ const ControlBot = new Runnable(
         addEventListener("chatmsg", stopWatcher);
         Pather.useWaypoint(areaId, true);
         if (Config.ControlBot.Wps.SecurePortal) {
-          Attack.securePosition(me.x, me.y, 20, 1000);
+          Attack.securePosition(me.x, me.y, { range: 20, duration: 1000 });
         }
         Pather.makePortal();
         Chat.say(getAreaName(me.area) + " TP up");
@@ -1201,7 +1201,7 @@ const ControlBot = new Runnable(
 
             Pather.useWaypoint(wp, true);
             if (Config.ControlBot.Wps.SecurePortal) {
-              Attack.securePosition(me.x, me.y, 20, 1000);
+              Attack.securePosition(me.x, me.y, { range: 20, duration: 1000 });
             }
             Pather.makePortal();
             Chat.say(getAreaName(me.area) + " TP up");

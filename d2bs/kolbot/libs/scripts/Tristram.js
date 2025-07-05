@@ -42,7 +42,7 @@ const Tristram = new Runnable(
         }
 
         while (!Pather.usePortal(sdk.areas.Tristram)) {
-          Attack.securePosition(me.x, me.y, 10, 1000);
+          Attack.securePosition(me.x, me.y, { range: 10, duration: 1000 });
         }
 
         break;

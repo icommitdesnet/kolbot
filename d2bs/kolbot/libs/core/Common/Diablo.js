@@ -322,7 +322,7 @@
 
         if (Config.Diablo.SealLeader || Config.Diablo.Fast) {
           Common.Diablo.vizLayout === 1 ? Pather.moveTo(7708, 5269) : Pather.moveTo(7647, 5267);
-          Config.Diablo.SealLeader && Attack.securePosition(me.x, me.y, 35, 3000, true);
+          Config.Diablo.SealLeader && Attack.securePosition(me.x, me.y, { range: 35, duration: 3000, skipBlocked: true });
           Config.Diablo.SealLeader && Pather.makePortal() && say("in");
         }
 
@@ -366,7 +366,7 @@
 
         if (Config.Diablo.SealLeader || Config.Diablo.Fast) {
           Common.Diablo.seisLayout === 1 ? Pather.moveTo(7767, 5147) : Pather.moveTo(7820, 5147);
-          Config.Diablo.SealLeader && Attack.securePosition(me.x, me.y, 35, 3000, true);
+          Config.Diablo.SealLeader && Attack.securePosition(me.x, me.y, { range: 35, duration: 3000, skipBlocked: true });
           Config.Diablo.SealLeader && Pather.makePortal() && say("in");
         }
 
@@ -413,7 +413,7 @@
 
         if (Config.Diablo.SealLeader || Config.Diablo.Fast) {
           Common.Diablo.infLayout === 1 ? Pather.moveTo(7860, 5314) : Pather.moveTo(7909, 5317);
-          Config.Diablo.SealLeader && Attack.securePosition(me.x, me.y, 35, 3000, true);
+          Config.Diablo.SealLeader && Attack.securePosition(me.x, me.y, { range: 35, duration: 3000, skipBlocked: true });
           Config.Diablo.SealLeader && Pather.makePortal() && say("in");
         }
 

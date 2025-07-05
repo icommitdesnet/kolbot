@@ -41,7 +41,15 @@ declare global {
       y: number;
     }): Monster[];
     function clearList(mainArg: Function | Unit[], sortFunc?: Function, refresh?: boolean): boolean;
-    function securePosition(x: number, y: number, range?: number, timer?: number, skipBlocked?: boolean, special?: boolean): void;
+    
+    interface SecurePositionOptions {
+      range?: number;
+      timer?: number;
+      skipBlocked?: boolean;
+      useRedemption?: boolean;
+      skipIds?: number[];
+    }
+    function securePosition(x: number, y: number, options: SecurePositionOptions): void;
     function markRoom(room: Room, color: number): void;
     function countUniques(): void;
     function storeStatistics(area: number): void;

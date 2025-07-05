@@ -1243,29 +1243,47 @@ const Attack = {
   },
 
   /**
+   * @typedef {Object} SecurePositionOptions
+   * @property {number} [range=15] - Range to check for monsters
+   * @property {number} [timer=3000] - Time to wait for a safe position
+   * @property {boolean} [skipBlocked=true] - Skip monsters that block the path
+   * @property {boolean} [useRedemption=false] - Redemption for Paladin
+   * @property {number[]} [skipIds=[]] - Skip monsters with these classids
+   */
+
+  /**
    * @param {number} x 
    * @param {number} y 
-   * @param {number} [range=15] 
-   * @param {number} [timer=3000] - time in ms 
-   * @param {boolean} [skipBlocked=true] 
-   * @param {boolean} [special=false] 
+   * @param {SecurePositionOptions} [options]
    * @returns {void}
    */
-  securePosition: function (x, y, range = 15, timer = 3000, skipBlocked = true, special = false) {
+  securePosition: function (x, y, options = {}) {
     let tick;
 
     (typeof x !== "number" || typeof y !== "number") && ({ x, y } = me);
-    skipBlocked === true && (skipBlocked = sdk.collision.Ranged);
+    const node = new PathNode(x, y);
+    /** @type {Required<SecurePositionOptions>} */
+    const clearOptions = Object.assign({
+      range: 15,
+      timer: 3000,
+      skipBlocked: true,
+      useRedemption: false,
+      skipIds: [],
+    }, options);
+    clearOptions.skipBlocked === true && (clearOptions.skipBlocked = sdk.collision.Ranged);
+
+    const { range, timer, skipBlocked, useRedemption, skipIds } = clearOptions;
 
     while (true) {
-      [x, y].distance > 5 && Pather.moveTo(x, y);
+      node.distance > 5 && Pather.moveTo(node.x, node.y);
 
       let monster = Game.getMonster();
       let monList = [];
 
       if (monster) {
         do {
-          if (getDistance(monster, x, y) <= range && monster.attackable && this.canAttack(monster)
+          if (skipIds.includes(monster.classid)) continue;
+          if (getDistance(monster, node.x, node.y) <= range && monster.attackable && this.canAttack(monster)
               && (!skipBlocked || !checkCollision(me, monster, skipBlocked))
               && (Pather.canTeleport() || !checkCollision(me, monster, sdk.collision.BlockWall))) {
             monList.push(copyUnit(monster));
@@ -1287,7 +1305,7 @@ const Attack = {
         tick && (tick = false);
       }
 
-      if (special) {
+      if (useRedemption) {
         if (me.paladin && Skill.canUse(sdk.skills.Redemption)
           && Skill.setSkill(sdk.skills.Redemption, sdk.skills.hand.Right)) {
           delay(1000);

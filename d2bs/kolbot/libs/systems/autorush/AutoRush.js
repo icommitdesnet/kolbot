@@ -94,7 +94,7 @@
 
     let tree = Game.getObject(sdk.quest.chest.InifussTree);
     !!tree && tree.distance > 5 && Pather.moveToUnit(tree);
-    Attack.securePosition(me.x, me.y, 40, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 40, duration: 3000, skipBlocked: true });
     !!tree && tree.distance > 5 && Pather.moveToUnit(tree);
     Pather.makePortal();
     log(AutoRush.playersIn);
@@ -104,7 +104,7 @@
       if (tree.mode) {
         break;
       }
-      Attack.securePosition(me.x, me.y, 25, 1000);
+      Attack.securePosition(me.x, me.y, { range: 25, duration: 1000 });
     }
 
     Pather.usePortal(1) || Town.goToTown();
@@ -115,7 +115,7 @@
     });
     const alphaPreset = Game.getPresetObject(sdk.areas.StonyField, sdk.quest.chest.StoneAlpha);
     const StoneAlpha = alphaPreset.realCoords();
-    Attack.securePosition(StoneAlpha.x, StoneAlpha.y, 40, 3000, true);
+    Attack.securePosition(StoneAlpha.x, StoneAlpha.y, { range: 40, duration: 3000, skipBlocked: true });
     StoneAlpha.distance > 5 && Pather.moveToUnit(StoneAlpha);
     Pather.makePortal();
     log(AutoRush.playersIn);
@@ -135,7 +135,7 @@
           break;
         }
       }
-      Attack.securePosition(StoneAlpha.x, StoneAlpha.y, 35, 1000);
+      Attack.securePosition(StoneAlpha.x, StoneAlpha.y, { range: 35, duration: 1000 });
     }
 
     if (me.inArea(sdk.areas.Tristram)) {
@@ -147,7 +147,7 @@
           throw new Error("Failed to move to Cain's Jail");
         }
 
-        Attack.securePosition(gibbet.x, gibbet.y, 25, 3000);
+        Attack.securePosition(gibbet.x, gibbet.y, { range: 25, duration: 3000 });
         Pather.makePortal();
         log(AutoRush.playersIn);
 
@@ -157,7 +157,7 @@
           if (gibbet.mode) {
             break;
           }
-          Attack.securePosition(me.x, me.y, 15, 1000);
+          Attack.securePosition(me.x, me.y, { range: 15, duration: 1000 });
         }
 
         const playersLeftTrist = Misc.poll(function () {
@@ -190,7 +190,7 @@
       throw new Error("andy failed");
     }
 
-    Attack.securePosition(safeNode.x, safeNode.y, 40, 3000, true);
+    Attack.securePosition(safeNode.x, safeNode.y, { range: 40, duration: 3000, skipBlocked: true });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -242,7 +242,7 @@
       throw new Error("bloodraven failed");
     }
 
-    Attack.securePosition(me.x, me.y, 10, 1000);
+    Attack.securePosition(me.x, me.y, { range: 10, duration: 1000 });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -287,7 +287,7 @@
     if (!Pather.moveToPreset(sdk.areas.Barracks, sdk.unittype.Object, sdk.quest.chest.MalusHolder)) {
       throw new Error("smith failed");
     }
-    Attack.securePosition(me.x, me.y, 30, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true });
     Pather.makePortal();
     log(AutoRush.playersIn);
     if (!Misc.poll(function () {
@@ -360,7 +360,7 @@
     }, 1500, 500);
 
     rada ? moveIntoPos(rada, 60) : console.log("radament unit not found");
-    Attack.securePosition(me.x, me.y, 35, 3000);
+    Attack.securePosition(me.x, me.y, { range: 35, duration: 3000 });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -381,7 +381,7 @@
 
     log(AutoRush.playersOut);
     Pickit.pickItems();
-    Attack.securePosition(returnSpot.x, returnSpot.y, 30, 3000);
+    Attack.securePosition(returnSpot.x, returnSpot.y, { range: 30, duration: 3000 });
 
     if (!Misc.poll(function () {
       return !playerIn(me.area, nick);
@@ -430,7 +430,7 @@
         || !Pather.moveToPreset(me.area, sdk.unittype.Object, sdk.quest.chest.HoradricCubeChest)) {
         throw new Error("cube failed");
       }
-      Attack.securePosition(me.x, me.y, 30, 3000, true);
+      Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true });
       Pather.makePortal();
       log(AutoRush.playersIn);
 
@@ -464,7 +464,7 @@
       throw new Error("amulet failed");
     }
 
-    Attack.securePosition(15044, 14045, 25, 3000, me.hell, me.hell);
+    Attack.securePosition(15044, 14045, { range: 25, duration: 3000, skipBlocked: me.hell, useRedemption: me.hell });
     Pather.makePortal();
 
     log(AutoRush.playersIn);
@@ -497,7 +497,7 @@
       throw new Error("staff failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -557,7 +557,7 @@
       throw new Error("summoner failed");
     }
 
-    Attack.securePosition(spot.x, spot.y, 25, 3000);
+    Attack.securePosition(spot.x, spot.y, { range: 25, duration: 3000 });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -566,7 +566,7 @@
         return true;
       }
       Pather.moveToUnit(spot);
-      Attack.securePosition(me.x, me.y, 25, 500);
+      Attack.securePosition(me.x, me.y, { range: 25, duration: 500 });
       return false;
     }, AutoRush.playerWaitTimeout, 1000)) {
       log(timedOut(nick));
@@ -622,7 +622,7 @@
       throw new Error("duriel failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 3000, true, me.hell);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true, useRedemption: me.hell });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -712,7 +712,7 @@
       throw new Error("gidbinn failed - couldn't find altar");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 3000, true);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: true });
     Pather.makePortal();
     log(AutoRush.playersIn);
     if (!Misc.poll(function () {
@@ -731,7 +731,7 @@
     Misc.poll(function () {
       const gidbinn = Game.getItem(sdk.quest.item.TheGidbinn);
       if (gidbinn) {
-        Attack.securePosition(gidbinn.x, gidbinn.y, 30, 3000, true);
+        Attack.securePosition(gidbinn.x, gidbinn.y, { range: 30, duration: 3000, skipBlocked: true });
         Pather.moveToUnit(gidbinn);
         return true;
       }
@@ -763,7 +763,7 @@
       throw new Error("Lam Essen quest failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 2000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 2000 });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -803,7 +803,7 @@
       throw new Error("brain failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 3000, me.hell, me.hell);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: me.hell, useRedemption: me.hell });
     Pather.makePortal();
 
     log(AutoRush.playersIn);
@@ -836,7 +836,7 @@
       throw new Error("eye failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 3000, me.hell, me.hell);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: me.hell, useRedemption: me.hell });
     Pather.makePortal();
 
     log(AutoRush.playersIn);
@@ -869,7 +869,7 @@
       throw new Error("heart failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 3000, me.hell, me.hell);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipBlocked: me.hell, useRedemption: me.hell });
     Pather.makePortal();
 
     log(AutoRush.playersIn);
@@ -907,16 +907,16 @@
       new PathNode(wpCoords.x + 25, wpCoords.y - 70),
       new PathNode(wpCoords.x + 20, wpCoords.y - 123),
     ].forEach(function (node) {
-      Pather.move(node) && Attack.securePosition(node.x, node.y, 25, 2500);
+      Pather.move(node) && Attack.securePosition(node.x, node.y, { range: 25, duration: 2500 });
     });
 
     Pather.move(portalSpot);
-    Attack.securePosition(portalSpot.x, portalSpot.y, 40, 4000);
+    Attack.securePosition(portalSpot.x, portalSpot.y, { range: 40, duration: 4000 });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
     if (!Misc.poll(function () {
-      Attack.securePosition(portalSpot.x, portalSpot.y, 25, 1000);
+      Attack.securePosition(portalSpot.x, portalSpot.y, { range: 25, duration: 1000 });
       return playerIn(me.area, nick);
     }, AutoRush.playerWaitTimeout, 1000)) {
       log(timedOut(nick));
@@ -926,7 +926,7 @@
     Pather.moveTo(wpCoords.x + 30, wpCoords.y - 134);
     Pather.moveTo(wpCoords.x + 86, wpCoords.y - 130);
     Pather.moveTo(wpCoords.x + 71, wpCoords.y - 94);
-    Attack.securePosition(me.x, me.y, 40, 4000);
+    Attack.securePosition(me.x, me.y, { range: 40, duration: 4000 });
     Attack.kill(sdk.locale.monsters.IsmailVilehand);
 
     Pather.move(portalSpot);
@@ -965,7 +965,7 @@
       delay(250);
     }
 
-    Pather.moveTo(17591, 8070) && Attack.securePosition(me.x, me.y, 40, 3000);
+    Pather.moveTo(17591, 8070) && Attack.securePosition(me.x, me.y, { range: 40, duration: 3000 });
 
     let hydra = Game.getMonster(getLocaleString(sdk.locale.monsters.Hydra));
 
@@ -1065,7 +1065,7 @@
       y: me.y
     };
 
-    Attack.securePosition(me.x, me.y, 30, 3000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -1162,7 +1162,7 @@
 
     Pather.useWaypoint(sdk.areas.FrigidHighlands, true) && Precast.doPrecast(false);
     Pather.moveTo(3846, 5120);
-    Attack.securePosition(me.x, me.y, 30, 3000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
     Pather.makePortal();
     log(AutoRush.playersIn);
 
@@ -1205,7 +1205,7 @@
       throw new Error("Anya quest failed");
     }
 
-    Attack.securePosition(me.x, me.y, 30, 2000);
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 2000 });
 
     let anya = Game.getObject(sdk.objects.FrozenAnya);
 

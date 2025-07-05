@@ -35,3 +35,17 @@ d2bs/kolbot/libs/config/*.*.js
 # Do not track install packages
 node_modules/
 d2bs/kolbot/data/web/limedrop.json
+d2bs/kolbot/libs/systems/automule/config/MuleConfig.js
+d2bs/kolbot/libs/systems/channel/ChannelConfig.js
+d2bs/kolbot/libs/systems/cleaner/CleanerConfig.js
+d2bs/kolbot/libs/systems/torch/FarmerConfig.js
+d2bs/kolbot/libs/systems/pubjoin/PubJoinConfig.js
+d2bs/kolbot/libs/systems/mulelogger/LoggerConfig.js
+d2bs/kolbot/libs/systems/gambling/TeamsConfig.js
+d2bs/kolbot/libs/systems/follow/FollowConfig.js
+d2bs/kolbot/libs/systems/crafting/TeamsConfig.js
+d2bs/kolbot/libs/systems/automule/config/TorchAnniMules.js
+d2bs/kolbot/libs/config/_CustomConfig.js
+d2bs/kolbot/libs/starter/AdvancedConfig.js
+d2bs/kolbot/libs/starter/StarterConfig.js
+d2bs/kolbot/libs/systems/gameaction/GameActionConfig.js

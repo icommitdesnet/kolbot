@@ -530,34 +530,28 @@
     Pather.useWaypoint(sdk.areas.ArcaneSanctuary, true) && Precast.doPrecast(true);
 
     const preset = Game.getPresetObject(sdk.areas.ArcaneSanctuary, sdk.quest.chest.Journal).realCoords();
-    /** @type {PathNode} */
-    let spot = {};
-
-    switch (preset.x) {
-    case 25011:
-      spot = { x: 25081, y: 5446 };
-      break;
-    case 25866:
-      spot = { x: 25830, y: 5447 };
-      break;
-    case 25431:
-      switch (preset.y) {
-      case 5011:
-        spot = { x: 25449, y: 5081 };
-        break;
-      case 5861:
-        spot = { x: 25447, y: 5822 };
-        break;
+    const spot = (function () {
+      switch (preset.x) {
+      case 25011:
+        return new PathNode(25081, 5446);
+      case 25866:
+        return new PathNode(25830, 5447);
+      case 25431:
+        switch (preset.y) {
+        case 5011:
+          return new PathNode(25449, 5081);
+        case 5861:
+          return new PathNode(25447, 5822);
+        }
       }
+      return null;
+    })();
 
-      break;
-    }
-
-    if (!Pather.moveToUnit(spot)) {
+    if (!spot || !Pather.moveToUnit(spot)) {
       throw new Error("summoner failed");
     }
 
-    Attack.securePosition(spot.x, spot.y, { range: 25, duration: 3000 });
+    Attack.securePosition(spot.x, spot.y, { range: 25, duration: 3000, skipIds: [sdk.monsters.Summoner] });
     Pather.makePortal();
     log(AutoRush.playersIn);
 

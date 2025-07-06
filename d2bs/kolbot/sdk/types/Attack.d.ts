@@ -48,8 +48,13 @@ declare global {
       skipBlocked?: boolean;
       useRedemption?: boolean;
       skipIds?: number[];
+      /**
+       * @default 300000 (5 minutes)
+       * @description Timeout in milliseconds for attempting to secure area.
+       */
+      timeout?: number;
     }
-    function securePosition(x: number, y: number, options: SecurePositionOptions): void;
+    function securePosition(x: number, y: number, options: SecurePositionOptions): boolean;
     function countUniques(): void;
     function storeStatistics(area: number): void;
     function clearRoom(room: Room, spectype?: number): boolean;

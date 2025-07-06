@@ -1250,36 +1250,29 @@ const Attack = {
   },
 
   /**
-   * @typedef {Object} SecurePositionOptions
-   * @property {number} [range=15] - Range to check for monsters
-   * @property {number} [timer=3000] - Time to wait for a safe position
-   * @property {boolean} [skipBlocked=true] - Skip monsters that block the path
-   * @property {boolean} [useRedemption=false] - Redemption for Paladin
-   * @property {number[]} [skipIds=[]] - Skip monsters with these classids
-   */
-
-  /**
    * @param {number} x 
    * @param {number} y 
-   * @param {SecurePositionOptions} [options]
-   * @returns {void}
+   * @param {Attack.SecurePositionOptions} [options]
+   * @returns {boolean}
    */
   securePosition: function (x, y, options = {}) {
     let tick;
 
     (typeof x !== "number" || typeof y !== "number") && ({ x, y } = me);
     const node = new PathNode(x, y);
-    /** @type {Required<SecurePositionOptions>} */
+    /** @type {Required<Attack.SecurePositionOptions>} */
     const clearOptions = Object.assign({
       range: 15,
       timer: 3000,
       skipBlocked: true,
       useRedemption: false,
       skipIds: [],
+      timeout: Time.minutes(5),
     }, options);
     clearOptions.skipBlocked === true && (clearOptions.skipBlocked = sdk.collision.Ranged);
 
-    const { range, timer, skipBlocked, useRedemption, skipIds } = clearOptions;
+    const startTime = getTickCount();
+    const { range, timer, skipBlocked, useRedemption, skipIds, timeout } = clearOptions;
 
     while (true) {
       node.distance > 5 && Pather.moveTo(node.x, node.y);
@@ -1303,7 +1296,7 @@ const Attack = {
 
         // only return if it's been safe long enough
         if (getTickCount() - tick >= timer) {
-          return;
+          return true;
         }
       } else {
         this.clearList(monList);
@@ -1317,6 +1310,11 @@ const Attack = {
           && Skill.setSkill(sdk.skills.Redemption, sdk.skills.hand.Right)) {
           delay(1000);
         }
+      }
+
+      if (timeout && getTickCount() - startTime >= timeout) {
+        console.warn("ÿc1Attack.securePosition: Timeout reached, giving up.");
+        return false;
       }
 
       delay(100);

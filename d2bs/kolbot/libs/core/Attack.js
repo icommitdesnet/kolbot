@@ -787,6 +787,7 @@ const Attack = {
   },
 
   /**
+   * @todo Refactor so this can accept prebuilt monsterlist, we have repeat logic with this and clearList
    * @description Clear monsters in a section based on range and spectype or clear monsters around a boss monster
    * @param {number} [range=25] 
    * @param {number} [spectype=0] 
@@ -1215,7 +1216,13 @@ const Attack = {
 
           attackCount += 1;
 
-          if (target.dead || Config.FastPick) {
+          if (target.dead || Config.FastPick || Config.FastFindItem) {
+            if ((target.isBoss || target.uniqueid > 0) && target.dead) {
+              // TODO: add uniqueids to sdk
+              target.isBoss && Attack._killed.add(target.classid);
+              target.uniqueid > -1 && Attack._killed.add(target.name);
+            }
+            Config.FastFindItem && pickit && ClassAttack.findItem();
             Pickit.fastPick();
           }
         } else {

@@ -45,7 +45,14 @@
         Config.MFLeader && Pather.makePortal() && say("cows");
 
         let myRoom;
-        let rooms = this.buildCowRooms();
+        const rooms = this.buildCowRooms();
+        /** @type {Text[]} */
+        const hooks = [];
+
+        /** @param {Text} hook */
+        const clearHook = function (hook) {
+          hook && hook.remove();
+        };
 
         while (rooms.length > 0) {
           // get the first room + initialize myRoom var
@@ -66,10 +73,17 @@
           let result = Pather.getNearestWalkable(room[0], room[1], 10, 2);
 
           if (result) {
+            if (Config.DebugMode.Path) {
+              CollMap.drawRoom(room[2], "green");
+              hooks.push(new Text((++count).toString(), room[0], room[1], 2, 1, null, true));
+            }
             Pather.moveTo(result[0], result[1], 3);
             if (!Attack.clear(30)) return false;
           }
         }
+
+        CollMap.removeHooks();
+        hooks.forEach(clearHook);
 
         return true;
       },

@@ -1433,6 +1433,13 @@ const Attack = {
     let myRoom, previousArea;
     let rooms = [];
     const currentArea = getArea().id;
+    /** @type {Text[]} */
+    const hooks = [];
+
+    /** @param {Text} hook */
+    const clearHook = function (hook) {
+      hook && hook.remove();
+    };
 
     do {
       rooms.push([room.x * 5 + room.xsize / 2, room.y * 5 + room.ysize / 2]);
@@ -1468,6 +1475,10 @@ const Attack = {
       let result = Pather.getNearestWalkable(room[0], room[1], 18, 3);
 
       if (result) {
+        if (Config.DebugMode.Path) {
+          CollMap.drawRoom(room[2], "green");
+          hooks.push(new Text((++count).toString(), room[0], room[1], 2, 1, null, true));
+        }
         Pather.moveToEx(
           result[0], result[1],
           { retry: 3, clearSettings: { specType: spectype, clearPath: (!Pather.canTeleport()) } }
@@ -1487,6 +1498,8 @@ const Attack = {
     }
 
     //this.storeStatistics(getAreaName(me.area));
+    CollMap.removeHooks();
+    hooks.forEach(clearHook);
     console.info(false, getAreaName(currentArea), "clearLevel");
 
     return true;

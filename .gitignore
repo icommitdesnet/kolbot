@@ -15,6 +15,12 @@
 !.vscode/settings.json
 !.vscode/extensions.json
 
+# Do not track install packages
+node_modules/
+
+# Do not track files denoted as private
+**/__*
+
 # Do not track user generated data
 data/*.json
 images/
@@ -31,9 +37,6 @@ d2bs/logs/*.log
 d2bs/kolbot/env.json
 d2bs/kolbot/libs/manualplay/config/*.*.js
 d2bs/kolbot/libs/config/*.*.js
-
-# Do not track install packages
-node_modules/
 d2bs/kolbot/data/web/limedrop.json
 d2bs/kolbot/libs/systems/automule/config/MuleConfig.js
 d2bs/kolbot/libs/systems/channel/ChannelConfig.js

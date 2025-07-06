@@ -166,8 +166,8 @@ const ControlBot = new Runnable(
         throw new Error("Failed to move to durance 3");
       }
       Pather.moveTo(17617, 8069);
-      Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
-      Pather.moveTo(17591, 8070) && Attack.securePosition(me.x, me.y, { range: 20, duration: 3000 });
+      Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipIds: [sdk.monsters.Mephisto] });
+      Attack.securePosition(17591, 8070, { range: 20, duration: 3000, skipIds: [sdk.monsters.Mephisto] });
       let hydra = Game.getMonster(getLocaleString(sdk.locale.monsters.Hydra));
 
       if (hydra) {

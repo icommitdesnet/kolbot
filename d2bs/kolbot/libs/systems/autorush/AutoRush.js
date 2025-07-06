@@ -1059,7 +1059,7 @@
       y: me.y
     };
 
-    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000 });
+    Attack.securePosition(me.x, me.y, { range: 30, duration: 3000, skipIds: [sdk.monsters.Izual] });
     Pather.makePortal();
     log(AutoRush.playersIn);
 

@@ -4,6 +4,15 @@
 
 [**Join the Slack Channel!**](https://join.slack.com/t/blizzhackers/shared_invite/zt-qahq0w11-uzETJNgKmS9DdApJSRQqaw)
 
+## Table of Contents
+
+- [General](#general)
+- [Install Dependencies](#install-dependencies---do-this-first)
+- [Set Up](#set-up)
+- [Getting Started](#getting-started)
+- [Guides](#guides)
+- [LimeDrop](#limedrop-web-based-item-manager-and-dropper)
+
 ## General
 
 1. D2BS, D2Bot and kolbot # are educational tools with an open source developer community. These tools are meant to be used offline or on private servers that explicitly allow them. These tools are not meant to be abused on battle.net (a Blizzard Entertainment entity).

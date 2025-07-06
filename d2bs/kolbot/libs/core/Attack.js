@@ -1317,21 +1317,6 @@ const Attack = {
   },
 
   /**
-   * @description Draw lines around a room on minimap
-   * @param {Room} room 
-   * @param {number} color 
-   */
-  markRoom: function (room, color) {
-    let arr = [];
-    const [rX, rY] = [room.x * 5, room.y * 5];
-
-    arr.push(new Line(rX, rY, rX, rY + room.ysize, color, true));
-    arr.push(new Line(rX, rY, rX + room.xsize, rY, color, true));
-    arr.push(new Line(rX + room.xsize, rY, rX + room.xsize, rY + room.ysize, color, true));
-    arr.push(new Line(rX, rY + room.ysize, rX + room.xsize, rY + room.ysize, color, true));
-  },
-
-  /**
    * @description Count uniques in current area within getUnit range
    */
   countUniques: function () {
@@ -1376,6 +1361,57 @@ const Attack = {
 
     Attack.uniques = 0;
     Attack.ignoredGids = [];
+  },
+
+  /**
+   * @description Clear a single room based on monster spectype
+   * @param {Room} room - The room to clear
+   * @param {number} spectype - The monster spectype to clear
+   * @returns {boolean}
+   */
+  clearRoom: function (room, spectype = 0) {
+    function getCenter(room) {
+      let centerX = room.x * 5 + room.xsize / 2;
+      let centerY = room.y * 5 + room.ysize / 2;
+
+      let adjusted = Pather.getNearestWalkable(centerX, centerY, 18, 3);
+      return adjusted ? [adjusted[0], adjusted[1]] : [centerX, centerY];
+    }
+
+    const currentArea = getArea().id;
+
+    const myRoom = getCenter(room);
+    const result = Pather.getNearestWalkable(myRoom[0], myRoom[1], 18, 3);
+    /** @param {Monster} unit */
+    const shouldAttack = function (unit) {
+      return CollMap.coordsInRoom(unit.x, unit.y, room);
+    };
+
+    if (result) {
+      if (Config.DebugMode.Path) {
+        CollMap.drawRoom(room, "green", true);
+      }
+      let node = new PathNode(result[0], result[1]);
+
+      Pather.move(
+        node,
+        { retry: 3, clearSettings: { specType: spectype, clearPath: (!Pather.canTeleport()) } }
+      );
+
+      if (!this.clear(60, spectype, undefined, undefined, undefined, shouldAttack)) {
+        return false;
+      }
+    } else if (currentArea !== getArea().id) {
+      // Make sure bot does not get stuck in different area.
+      Pather.moveToEx(
+        myRoom[0], myRoom[1],
+        { retry: 3, clearSettings: { specType: spectype, clearPath: (!Pather.canTeleport()) } }
+      );
+    }
+
+    CollMap.removeHookForRoom(room);
+
+    return true;
   },
 
   /**
@@ -1431,7 +1467,7 @@ const Attack = {
     console.info(true, getAreaName(me.area));
 
     let myRoom, previousArea;
-    let rooms = [];
+    const rooms = [];
     const currentArea = getArea().id;
     /** @type {Text[]} */
     const hooks = [];

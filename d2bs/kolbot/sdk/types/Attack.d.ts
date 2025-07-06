@@ -50,9 +50,9 @@ declare global {
       skipIds?: number[];
     }
     function securePosition(x: number, y: number, options: SecurePositionOptions): void;
-    function markRoom(room: Room, color: number): void;
     function countUniques(): void;
     function storeStatistics(area: number): void;
+    function clearRoom(room: Room, spectype?: number): boolean;
     function clearLevel(spectype?: number): boolean;
     function sortMonsters(unitA: Unit, unitB: Unit): boolean;
     function validSpot(x: number, y: number, skill?: number, unitid?: number): boolean;

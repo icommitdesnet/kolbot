@@ -17,6 +17,7 @@
 /// <reference path="./types/AutoMule.d.ts" />
 /// <reference path="./types/OOG.d.ts" />
 /// <reference path="./types/Config.d.ts" />
+/// <reference path="./types/Common.d.ts" />
 
 declare global {
   type IncludePath = import('./types/include-paths').IncludePath;

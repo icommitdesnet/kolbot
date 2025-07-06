@@ -8,8 +8,6 @@
 
 const BaalHelper = new Runnable(
   function BaalHelper () {
-    include("core/Common/Baal.js");
-
     Town.goToTown(5);
     Config.RandomPrecast && Precast.needOutOfTownCast()
       ? Precast.doRandomPrecast(true, sdk.areas.Harrogath)

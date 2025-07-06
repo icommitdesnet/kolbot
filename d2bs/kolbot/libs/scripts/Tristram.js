@@ -12,7 +12,6 @@ const Tristram = new Runnable(
     // complete quest if its not complete
     if (!me.getQuest(sdk.quest.id.TheSearchForCain, 4)
       && !me.getQuest(sdk.quest.id.TheSearchForCain, sdk.quest.states.Completed)) {
-      include("core/Common/Cain.js");
       Common.Cain.run();
     }
 

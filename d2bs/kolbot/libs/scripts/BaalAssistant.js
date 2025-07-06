@@ -14,7 +14,6 @@
 
 const BaalAssistant = new Runnable(
   function BaalAssistant () {
-    include("core/Common/Baal.js");
     let Leader = Config.Leader;
     let Helper = Config.BaalAssistant.Helper;
     let firstAttempt = true;

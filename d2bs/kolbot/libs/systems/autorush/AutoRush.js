@@ -1087,7 +1087,6 @@
   };
   /** @param {string} [nick] */
   const diablo = function (nick) {
-    include("core/Common/Diablo.js");
     log("starting diablo");
 
     function inviteIn () {
@@ -1273,7 +1272,6 @@
       return false;
     }
 
-    include("core/Common/Ancients.js");
     log("starting ancients");
 
     Town.doChores();
@@ -1342,7 +1340,6 @@
       return false;
     }
 
-    include("core/Common/Baal.js");
     log("starting baal");
 
     if (me.inTown) {

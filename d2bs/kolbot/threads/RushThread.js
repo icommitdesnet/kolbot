@@ -488,7 +488,6 @@ function main () {
   };
 
   this.diablo = function () {
-    include("core/Common/Diablo.js");
     this.log("starting diablo");
 
     function inviteIn () {
@@ -560,7 +559,6 @@ function main () {
       return false;
     }
 
-    include("core/Common/Ancients.js");
     this.log("starting ancients");
 
     Town.doChores();
@@ -618,7 +616,6 @@ function main () {
       return false;
     }
 
-    include("core/Common/Baal.js");
     this.log("starting baal");
 
     if (me.inTown) {

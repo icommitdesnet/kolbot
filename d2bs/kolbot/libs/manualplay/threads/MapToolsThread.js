@@ -11,7 +11,6 @@ include("critical.js"); // required
 
 // globals needed for core gameplay
 includeCoreLibs();
-include("core/Common/Tools.js");
 
 // system libs
 includeSystemLibs();

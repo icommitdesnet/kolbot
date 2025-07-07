@@ -16,6 +16,25 @@ function PathNode (x, y) {
 }
 
 /**
+ * Distance from unit to node
+ * @param {Unit} unit 
+ * @returns {number}
+ */
+PathNode.prototype.distanceTo = function (unit) {
+  return !me.gameReady ? NaN : (getDistance.apply(null, [unit, this]));
+};
+
+PathNode.prototype.getWalkDistance = function () {
+  return (getPath(me.area, me.x, me.y, this.x, this.y, 0, Pather.walkDistance) || [])
+    .map(function (e, i, s) {
+      return i && getDistance(s[i - 1], e) || 0;
+    })
+    .reduce(function (acc, cur) {
+      return acc + cur;
+    }, 0) || Infinity;
+};
+
+/**
  * Perform certain actions after moving to each node
  * @todo this needs to be re-worked
  */

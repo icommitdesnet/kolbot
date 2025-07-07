@@ -6,7 +6,7 @@
 */
 
 (function (module) {
-  module.exports = new function Baal () {
+  module.exports = new function () {
     this.throneCoords = {
       bottomLeft: { x: 15072, y: 5073 },
       bottomRight: { x: 15118, y: 5073 },

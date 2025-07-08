@@ -29,6 +29,10 @@ set "D2BS_DIR=d2bs"
 set "STARTER_DIR=d2bs\kolbot\libs\starter"
 set "SYSTEMS_DIR=d2bs\kolbot\libs\systems"
 set "CONFIG_DIR=d2bs\kolbot\libs\config"
+set "SOLOPLAY_DIR=d2bs\kolbot\libs\SoloPlay"
+set "SOLOPLAY_SETUP_DIR=%SOLOPLAY_DIR%\+setup"
+set "SOLOPLAY_SETTINGS_DIR=%SOLOPLAY_DIR%\Settings"
+set "SOLOPLAY_OOG_DIR=%SOLOPLAY_DIR%\OOG"
 
 REM Create directories if they don't exist
 if not exist "%DATA_DIR%\" mkdir "%DATA_DIR%"
@@ -96,6 +100,11 @@ call :CopyIfNotExists "%SETUP_DIR%\config\_CustomConfig.js" "%CONFIG_DIR%\_Custo
 REM Copy starter config files to their respective directories
 call :CopyIfNotExists "%SETUP_DIR%\starter\AdvancedConfig.js" "%STARTER_DIR%\AdvancedConfig.js" "AdvancedConfig.js to starter directory"
 call :CopyIfNotExists "%SETUP_DIR%\starter\StarterConfig.js" "%STARTER_DIR%\StarterConfig.js" "StarterConfig.js to starter directory"
+
+REM Copy SoloPlay setup files to their respective directories
+call :CopyIfNotExists "%SOLOPLAY_SETUP_DIR%\Settings.js" "%SOLOPLAY_SETTINGS_DIR%\Settings.js" "Settings.js to SoloPlay Settings directory"
+call :CopyIfNotExists "%SOLOPLAY_SETUP_DIR%\AdvancedSettings.js" "%SOLOPLAY_SETTINGS_DIR%\AdvancedSettings.js" "AdvancedSettings.js to SoloPlay Settings directory"
+call :CopyIfNotExists "%SOLOPLAY_SETUP_DIR%\StarterConfig.js" "%SOLOPLAY_OOG_DIR%\StarterConfig.js" "StarterConfig.js to SoloPlay OOG directory"
 
 echo Setup files copied successfully!
 pause

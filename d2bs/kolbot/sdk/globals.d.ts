@@ -1477,5 +1477,13 @@ declare global {
    * @note Use sparingly, this method stops the background workers on the callers thread
    */
   function threadSleep(ms: number);
+
+  /**
+   * Deep merge objects, handling nested properties properly
+   * @param target - Target object to merge into
+   * @param source - Source object to merge from
+   * @returns Merged object
+   */
+  function deepMerge(target: object, source: object): object
 }
 export {};

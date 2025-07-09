@@ -105,7 +105,7 @@ const BaalHelper = new Runnable(
     }
 
     if (Config.BaalHelper.DollQuit && Game.getMonster(sdk.monsters.SoulKiller)) {
-      print("Undead Soul Killers found.");
+      console.log("Undead Soul Killers found.");
 
       return true;
     }

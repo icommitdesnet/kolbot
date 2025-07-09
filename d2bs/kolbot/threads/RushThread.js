@@ -80,7 +80,7 @@ new Overrides.Override(Pather, Pather.useWaypoint, function(orignal, targetArea,
   if (orignal(targetArea, check)) {
     return (Config.Rusher.GiveWps && giveWP()) || true;
   } else {
-    print("failed");
+    console.log("failed");
     
     return false;
   }
@@ -513,10 +513,10 @@ function main () {
     
     try {
       Common.Diablo.runSeals(Config.Diablo.SealOrder);
-      print("Attempting to find Diablo");
+      console.log("Attempting to find Diablo");
       inviteIn() && Common.Diablo.diabloPrep();
     } catch (error) {
-      print("Diablo wasn't found. Checking seals.");
+      console.log("Diablo wasn't found. Checking seals.");
       Common.Diablo.runSeals(Config.Diablo.SealOrder);
       inviteIn() && Common.Diablo.diabloPrep();
     }
@@ -793,7 +793,7 @@ function main () {
     moveIntoPos(radaCoords, 50);
     let rada = Misc.poll(() => Game.getMonster(sdk.monsters.Radament), 1500, 500);
 
-    rada ? moveIntoPos(rada, 60) : print("radament unit not found");
+    rada ? moveIntoPos(rada, 60) : console.log("radament unit not found");
     Attack.securePosition(me.x, me.y, { range: 35, duration: 3000 });
     Pather.makePortal();
     this.log("1");
@@ -917,7 +917,7 @@ function main () {
     moveIntoPos(izualCoords, 50);
     let izual = Misc.poll(() => Game.getMonster(sdk.monsters.Izual), 1500, 500);
 
-    izual ? moveIntoPos(izual, 60) : print("izual unit not found");
+    izual ? moveIntoPos(izual, 60) : console.log("izual unit not found");
 
     let returnSpot = {
       x: me.x,

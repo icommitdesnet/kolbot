@@ -78,8 +78,8 @@ global.require = (function (include, isIncluded, print, notify) {
 
     if (!isIncluded(fullpath + ".js") && !modules.hasOwnProperty(moduleNameShort)) {
       if (debug) {
-        depth && notify && print("ÿc2Kolbotÿc0 ::    - loading dependency of " + filename + ": " + moduleNameShort);
-        !depth && notify && print("ÿc2Kolbotÿc0 :: Loading module: " + moduleNameShort);
+        depth && notify && console.log("ÿc2Kolbotÿc0 ::    - loading dependency of " + filename + ": " + moduleNameShort);
+        !depth && notify && console.log("ÿc2Kolbotÿc0 :: Loading module: " + moduleNameShort);
       }
 
       let oldModule = Object.create(global["module"]);

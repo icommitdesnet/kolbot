@@ -163,7 +163,7 @@ const BaalAssistant = new Runnable(
           destination: sdk.areas.ThroneofDestruction,
           quitIf: (area) => [sdk.areas.WorldstoneChamber].includes(area)
         }))) {
-        print("ÿc<Leader: " + Leader);
+        console.log("ÿc<Leader: " + Leader);
         killLeaderTracker = true;
 
         try {
@@ -226,7 +226,7 @@ const BaalAssistant = new Runnable(
                 Misc.poll(() => hotCheck, Time.seconds(Config.BaalAssistant.Wait), 1000);
 
                 if (!hotCheck) {
-                  print("ÿc1Leader didn't tell me to start hunting for an experience shrine.");
+                  console.log("ÿc1Leader didn't tell me to start hunting for an experience shrine.");
                   ShrineStatus = true;
                 }
               }

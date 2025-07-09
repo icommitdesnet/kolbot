@@ -773,7 +773,7 @@ includeIfNotIncluded("core/Me.js");
 
           break MainLoop; // break if we're sure we're on empty char screen
         default:
-          print(getLocation());
+          console.log(getLocation());
 
           me.blockMouse = false;
 
@@ -962,7 +962,7 @@ includeIfNotIncluded("core/Me.js");
             try {
               login(me.profile);
             } catch (e) {
-              print(e);
+              console.log(e);
             }
 
             break;
@@ -1570,7 +1570,7 @@ includeIfNotIncluded("core/Me.js");
               // If stuck here for too long, game creation likely failed. Exit to char selection and try again.
               if (queue < 10) {
                 if (!Starter.locationTimeout(Starter.Config.WaitInLineTimeout * 1e3, currentLoc)) {
-                  print("Failed to create game");
+                  console.log("Failed to create game");
                   Controls.CancelCreateGame.click();
                   Controls.LobbyQuit.click();
                   delay(1000);
@@ -1582,7 +1582,7 @@ includeIfNotIncluded("core/Me.js");
               if (Starter.Config.WaitOutQueueRestriction) {
                 D2Bot.updateStatus("Waiting out Queue restriction: " + queue);
               } else {
-                print("Restricted... Queue: " + queue);
+                console.log("Restricted... Queue: " + queue);
                 D2Bot.printToConsole("Restricted... Queue: " + queue, sdk.colors.D2Bot.Red);
                 Controls.CancelCreateGame.click();
 

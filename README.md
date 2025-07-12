@@ -8,7 +8,7 @@
 
 - [General](#general)
 - [Install Dependencies](#install-dependencies---do-this-first)
-- [Set Up](#set-up)
+- [Required after Download Setup](#required-after-download-setup)
 - [Getting Started](#getting-started)
 - [Guides](#guides)
 - [LimeDrop](#limedrop-web-based-item-manager-and-dropper)
@@ -40,11 +40,11 @@ If you want to contribute to d2bs/d2bot#, come to irc.synirc.net/d2bs and ask ar
 - [Microsoft Visual C++ 2010 Redistributable Package (x86)](https://www.microsoft.com/en-us/download/details.aspx?id=26999)
 - [Microsoft .NET Framework 4.0 (or higher)](https://dotnet.microsoft.com/download/dotnet-framework)
 
-## Set up 
+## Required after download setup
 
-**IMPORTANT: Run the setup script first!**
+**kolbot will NOT work without running the setup script first!**
 
-After downloading kolbot, you must run the setup script to configure the necessary files:
+After downloading kolbot, you **MUST** run the setup script before attempting to use the bot:
 
 1. Run `setup.bat` to copy configuration files to their correct locations
 2. The script will also initialize Git submodules if Git is available
@@ -52,10 +52,14 @@ After downloading kolbot, you must run the setup script to configure the necessa
 
 To keep your installation updated, you can run `update.bat` at any time to pull the latest changes from the repository and update all submodules.
 
+### What happens if you skip setup:
+- Missing configuration files
+- You'll see this error: `Please view your exceptions.log file. D2Bot# will close now :(`
+
 ## Getting Started
 - [download kolbot](https://github.com/blizzhackers/documentation/blob/restructure/d2bot/Download.md#download)
 - [d2bot manager setup](https://github.com/blizzhackers/documentation/blob/restructure/d2bot/ManagerSetup.md/#manager-setup)
-- [IDE-Setup](https://github.com/blizzhackers/documentation/blob/restructure/kolbot/IDES.md/#code-editors-ides):
+- [IDE-Setup](https://github.com/blizzhackers/documentation/blob/restructure/kolbot/IDES.md/#code-editors-ides)
 - [FAQ](https://github.com/blizzhackers/documentation/blob/restructure/kolbot/FAQ.md/#faq)
 
 ## Guides

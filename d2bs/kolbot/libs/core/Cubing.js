@@ -594,7 +594,8 @@ const Cubing = {
         break;
       case Recipe.Unique.Weapon.ToElite: // Ladder only
       case Recipe.Unique.Armor.ToElite: // Ladder only
-        if (!me.ladder) continue;
+        // not ladder and online - we can do these recipes on single player
+        if (!me.ladder && me.realm) continue;
         break;
       case Recipe.Reroll.HighRare:
         recipeObj.Enabled = false;

@@ -78,16 +78,20 @@
       Config.QuitList = temp.slice(0);
     },
 
-    togglePause: function () {
+    /**
+     * @param {string} mainScript 
+     * @returns {boolean}
+     */
+    togglePause: function (mainScript = "default.dbj") {
       for (let curr of this.pauseScripts) {
         let script = getScript(curr);
 
         if (script) {
           if (script.running) {
-            curr === "default.dbj" && console.log("ÿc1Pausing.");
+            curr === mainScript && console.log("ÿc1Pausing.");
             script.pause();
           } else {
-            if (curr === "default.dbj") {
+            if (curr === mainScript) {
               console.log("ÿc2Resuming.");
             }
             script.resume();

@@ -69,7 +69,7 @@ function main () {
   const keyEvent = function (key) {
     switch (key) {
     case sdk.keys.PauseBreak: // pause main.dbj
-      Common.Toolsthread.togglePause();
+      Common.Toolsthread.togglePause("libs/manualplay/main.js");
 
       break;
     case sdk.keys.Delete: // quit current game

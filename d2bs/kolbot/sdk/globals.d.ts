@@ -1392,6 +1392,103 @@ declare global {
     receiveCopyData(mode: number, msg: string | object): void,
     randomString(len?: number, useNumbers?: boolean): string,
     randomNumberString(len?: number): string,
+    /**
+     * Cache for waypoints by character name and difficulty
+     */
+    waypointCache: { [charName: string]: any[] };
+
+    /**
+     * Handles script message events (object version)
+     * @param msg - The message object
+     */
+    scriptMsgEvent(msg: object): void;
+
+    /**
+     * Handles copy data event
+     * @param mode - The mode
+     * @param msg - The message (object or string)
+     */
+    receiveCopyData(mode: number, msg: object | string): void;
+
+    /**
+     * Returns a random string of given length
+     * @param len - Length of string
+     * @param useNumbers - Whether to use numbers
+     */
+    randomString(len?: number, useNumbers?: boolean): string;
+
+    /**
+     * Returns a random number string of given length
+     * @param len - Length of string
+     */
+    randomNumberString(len?: number): string;
+
+    /**
+     * Formats a timer string from a tick value
+     * @param tick - The tick value
+     */
+    timer(tick: number): string;
+
+    /**
+     * Waits for a location to change or timeout
+     * @param time - Timeout in ms
+     * @param location - Location to wait for
+     */
+    locationTimeout(time: number, location: number): boolean;
+
+    /**
+     * Sets the next game name in the stats
+     * @param gameInfo - Game info object
+     */
+    setNextGame(gameInfo?: { gameName?: string }): void;
+
+    /**
+     * Updates the game count and performs relog actions
+     */
+    updateCount(): void;
+
+    /**
+     * Handles script message events (string version)
+     * @param msg - The message string
+     */
+    scriptMsgEvent(msg: string): void;
+
+    /**
+     * Handles copy data event
+     * @param mode - The mode
+     * @param msg - The message (object or string)
+     */
+    receiveCopyData(mode: number, msg: object | string): void;
+
+    /**
+     * Returns a random string of given length
+     * @param len - Length of string
+     * @param useNumbers - Whether to use numbers
+     */
+    randomString(len?: number, useNumbers?: boolean): string;
+
+    /**
+     * Returns a random number string of given length
+     * @param len - Length of string
+     */
+    randomNumberString(len?: number): string;
+
+    /**
+     * Location event handlers
+     */
+    LocationEvents: {
+      selectDifficultySP(): boolean;
+      loginError(): void;
+      charSelectError(): boolean;
+      realmDown(): void;
+      waitingInLine(): void;
+      gameDoesNotExist(): void;
+      unableToConnect(): void;
+      openCreateGameWindow(): boolean;
+      openJoinGameWindow(): void;
+      login(otherMultiCheck?: boolean): boolean;
+      otherMultiplayerSelect(): void;
+    };
   }
 
   const Starter: StarterInterface;

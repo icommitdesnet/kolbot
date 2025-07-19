@@ -1291,14 +1291,18 @@ includeIfNotIncluded("core/Me.js");
       return rval;
     },
 
+    /**
+     * @param {number} [len] 
+     * @returns {string}
+     */
     randomNumberString: function (len) {
       !len && (len = rand(2, 5));
 
       let rval = "";
-      let vals = "0123456789";
+      const vals = "0123456789".split("");
 
       for (let i = 0; i < len; i += 1) {
-        rval += vals[rand(0, vals.length - 1)];
+        rval += vals.random();
       }
 
       return rval;

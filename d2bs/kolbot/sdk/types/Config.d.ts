@@ -164,6 +164,7 @@ declare global {
     MakeRunewords: boolean;
     Runewords: any[][];
     KeepRunewords: any[];
+    LadderOverride: boolean;
     Gamble: boolean;
     GambleItems: any[];
     GambleGoldStart: number;

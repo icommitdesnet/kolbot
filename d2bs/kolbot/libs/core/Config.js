@@ -312,7 +312,7 @@ let Config = {
    */
   Runewords: [],
   KeepRunewords: [],
-  LadderOveride: false,
+  LadderOverride: false,
   Gamble: false,
   GambleItems: [],
   GambleGoldStart: 0,

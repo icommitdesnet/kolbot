@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.js"
+---
+
 # Project general coding standards for JavaScript
 - Prefer function syntax over arrow syntax
 - No template literals

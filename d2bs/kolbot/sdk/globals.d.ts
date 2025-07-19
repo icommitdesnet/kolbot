@@ -20,8 +20,8 @@
 /// <reference path="./types/Common.d.ts" />
 
 declare global {
-  type IncludePath = import('./types/include-paths').IncludePath;
-  type KolbotScript = import('./types/kolbot-scripts').KolbotScript;
+  type IncludePath = import("./types/include-paths").IncludePath;
+  type KolbotScript = import("./types/kolbot-scripts").KolbotScript;
 
   interface Error {
     fileName: string;
@@ -54,9 +54,9 @@ declare global {
     flat(depth?: number): T[];
     compactMap(callback: (value: T, index: number, obj: T[]) => any, thisArg?: any): any[];
     filterNull(): T[];
-    filterHighDistance(step: number): any[]
-    isEqual(t: T[]): boolean
-    remove(val: T): T[]
+    filterHighDistance(step: number): any[];
+    isEqual(t: T[]): boolean;
+    remove(val: T): T[];
     random(): T;
     shuffle(): T[];
     /**
@@ -105,11 +105,11 @@ declare global {
   }
 
   interface String {
-    lcsGraph(compareToThis: string): { a: string, b: string, graph: Uint16Array[]}
-    diffCount(a:string): number;
+    lcsGraph(compareToThis: string): { a: string; b: string; graph: Uint16Array[] };
+    diffCount(a: string): number;
     startsWith(a: string): boolean;
     capitalize(downCase: boolean): string;
-    format(...pairs: Array<string, (number|string|boolean)>): string;
+    format(...pairs: Array<string, number | string | boolean>): string;
     padStart(targetLength: number, padString: string): string;
     padEnd(targetLength: number, padString: string): string;
     at(index: number): string | undefined;
@@ -117,7 +117,7 @@ declare global {
   }
 
   interface StringConstructor {
-    static isEqual(str1: string, str2: string, caseSensitive?: boolean): boolean;
+    isEqual(str1: string, str2: string, caseSensitive?: boolean): boolean;
   }
 
   interface ObjectConstructor {
@@ -160,25 +160,24 @@ declare global {
      * @returns The updated env object for chaining
      */
     update(settings: Record<string, any>): Env;
-    
+
     /**
      * Any additional custom properties
      */
     [key: string]: any;
   }
-  
+
   /**
    * Global environment object
    * This object is lazily loaded when first accessed.
    */
   const env: Env;
 
-  class ScriptError extends Error {
-  }
+  class ScriptError extends Error {}
 
   type Act = 1 | 2 | 3 | 4 | 5;
-  type actType = { initialized: boolean, spot: { [data: string]: [number, number] } };
-  type potType = 'hp' | 'mp' | 'rv';
+  type actType = { initialized: boolean; spot: { [data: string]: [number, number] } };
+  type potType = "hp" | "mp" | "rv";
 
   class Hook {
     color: number;
@@ -196,7 +195,7 @@ declare global {
      * The z-order of the Hook (what it covers up and is covered by).
      */
     zorder: number;
-    
+
     /**
      * How much of the controls underneath the Hook should show through.
      */
@@ -213,7 +212,17 @@ declare global {
   }
 
   class Line extends Hook {
-    constructor(x: number, y: number, x2: number, y2: number, color: number, visible: boolean, automap: boolean, ClickHandler?: Function, HoverHandler?: Function);
+    constructor(
+      x: number,
+      y: number,
+      x2: number,
+      y2: number,
+      color: number,
+      visible: boolean,
+      automap: boolean,
+      ClickHandler?: Function,
+      HoverHandler?: Function,
+    );
     /**
      * The first x coordinate of the Line.
      */
@@ -245,7 +254,7 @@ declare global {
       align: number,
       automap: boolean,
       ClickHandler?: Function,
-      HoverHandler?: Function
+      HoverHandler?: Function,
     );
     text: string;
     /**
@@ -260,7 +269,18 @@ declare global {
   }
 
   class Box extends Hook {
-    constructor(x: number, y: number, xsize: number, ysize: number, color: number, opacity: number, align: number, automap: boolean, ClickHandler?: Function, HoverHandler?: Function);
+    constructor(
+      x: number,
+      y: number,
+      xsize: number,
+      ysize: number,
+      color: number,
+      opacity: number,
+      align: number,
+      automap: boolean,
+      ClickHandler?: Function,
+      HoverHandler?: Function,
+    );
     /**
      * The x coordinate (left) of the Box.
      */
@@ -282,8 +302,7 @@ declare global {
     ysize: number;
   }
 
-  class Frame extends Box {
-  }
+  class Frame extends Box {}
 
   /**
    * @todo Figure out what each of these actually returns to properly document them
@@ -323,23 +342,23 @@ declare global {
   const FILE_APPEND: 2;
 
   const FileTools: {
-    readText(filename: string)
-    writeText(filename: string, data: string)
-    appendText(filename: string, data: string)
+    readText(filename: string);
+    writeText(filename: string, data: string);
+    appendText(filename: string, data: string);
     exists(filename: string): boolean;
     remove(filename: string): boolean;
-  }
+  };
 
-  function getCollision(area: number, x: number, y: number, x2: number, y2: number)
+  function getCollision(area: number, x: number, y: number, x2: number, y2: number);
 
   function getDistance(unit: PathNode, other: PathNode): number;
   function getDistance(unit: PathNode, x: number, y: number): number;
 
   /*************************************
-    *          Unit description         *
-    *          Needs expansion          *
-    *************************************/
-  
+   *          Unit description         *
+   *          Needs expansion          *
+   *************************************/
+
   type UnitType = 0 | 1 | 2 | 3 | 4 | 5;
   interface Unit {
     readonly type: UnitType;
@@ -384,7 +403,7 @@ declare global {
     readonly poisonRes: number;
     readonly hpPercent: number;
     readonly prettyPrint: string;
-    
+
     // D2BS built in
     getNext(): Unit | false;
     interact(): boolean;
@@ -406,21 +425,16 @@ declare global {
     getSkill(skillId: number, type: 0 | 1, item?: ItemUnit): number;
     getStat(index: number, subid?: number, extra?: number): number;
     getState(index: number, subid?: number): boolean;
-    getQuest(quest: number, subid: number): number
+    getQuest(quest: number, subid: number): number;
     getParent(): Unit | string;
     getMinionCount(): number;
 
-    // additions from kolbot		
+    // additions from kolbot
     getStatEx(one: number, sub?: number): number;
     getItemsEx(classId?: number, mode?: number, unitId?: number): ItemUnit[];
     getItemsEx(name?: string, mode?: number, unitId?: number): ItemUnit[];
     inArea(area: number): boolean;
-    checkForMobs(givenSettings: {
-      range?: number;
-      count?: number;
-      coll?: number;
-      spectype: number
-    }): boolean
+    checkForMobs(givenSettings: { range?: number; count?: number; coll?: number; spectype: number }): boolean;
   }
 
   type PlayerType = 0;
@@ -430,8 +444,7 @@ declare global {
   }
 
   type MonsterType = 1;
-  interface Monster extends Unit {
-  }
+  interface Monster extends Unit {}
 
   class Monster extends Unit {
     public type: MonsterType;
@@ -485,7 +498,7 @@ declare global {
     readonly isEnchantable: boolean;
 
     getEnchant(type: number): boolean;
-    hasEnchant(...enchants: number): boolean
+    hasEnchant(...enchants: number): boolean;
   }
 
   class NPCUnit extends Unit {
@@ -494,15 +507,14 @@ declare global {
 
     openMenu(): boolean;
     useMenu(): boolean;
-    startTrade: (mode: any) => (any | boolean);
+    startTrade: (mode: any) => any | boolean;
   }
 
   class MercUnit extends Monster {
-    equip(destination: number | undefined, item: ItemUnit)
+    equip(destination: number | undefined, item: ItemUnit);
   }
 
-  interface ObjectUnit extends Unit {
-  }
+  interface ObjectUnit extends Unit {}
 
   type ObjectType = 2;
   class ObjectUnit extends Unit {
@@ -549,7 +561,7 @@ declare global {
 
     // additional, not from d2bs
     readonly identified: boolean;
-    readonly isEquipped: boolean
+    readonly isEquipped: boolean;
     readonly dexreq: number;
     readonly strreq: number;
     readonly charclass: number;
@@ -563,7 +575,7 @@ declare global {
     readonly runeword: boolean;
     readonly questItem: boolean;
     readonly ethereal: boolean;
-    readonly twoHanded: boolean
+    readonly twoHanded: boolean;
     readonly oneOrTwoHanded: boolean;
     readonly strictlyTwoHanded: boolean;
     readonly sellable: boolean;
@@ -596,8 +608,8 @@ declare global {
     drop(): boolean;
     equip(slot?: number): boolean;
     buy(shift?: boolean, gamble?: boolean): boolean;
-    sellOrDrop():void
-    toCursor():boolean
+    sellOrDrop(): void;
+    toCursor(): boolean;
     use(): boolean;
   }
 
@@ -608,14 +620,14 @@ declare global {
   }
 
   type GetOwnedSettings = {
-    itemType?: number,
-    classid?: number,
-    mode?: number,
-    quality?: number,
-    sockets?: number,
-    location?: number,
-    ethereal?: boolean,
-    cb?: (item: ItemUnit) => boolean,
+    itemType?: number;
+    classid?: number;
+    mode?: number;
+    quality?: number;
+    sockets?: number;
+    location?: number;
+    ethereal?: boolean;
+    cb?: (item: ItemUnit) => boolean;
   };
 
   interface ItemInfo {
@@ -630,7 +642,7 @@ declare global {
   }
 
   interface MeType extends Unit {
-    public type: PlayerType;
+    type: PlayerType;
     readonly account: string;
     readonly charname: string;
     readonly diff: 0 | 1 | 2;
@@ -642,7 +654,7 @@ declare global {
     readonly ping: number;
     readonly fps: number;
     readonly locale: number;
-    readonly playertype: 0|1;
+    readonly playertype: 0 | 1;
     readonly realm: string;
     readonly realmshort: string;
     readonly mercrevivecost: number;
@@ -664,7 +676,7 @@ declare global {
     readonly gameserverip: string;
     readonly itemcount: number;
     readonly classid: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    readonly weaponswitch: 0|1;
+    readonly weaponswitch: 0 | 1;
     readonly gameReady: boolean;
     blockMouse: boolean;
     blockKeys: boolean;
@@ -815,7 +827,7 @@ declare global {
     haveWaypoint(area: number): boolean;
     accessToAct(act: number): boolean;
     inArea(area: number): boolean;
-    haveSome(arg0: { name: number; equipped: boolean; }[]): any;
+    haveSome(arg0: { name: number; equipped: boolean }[]): any;
     findItem(id?: number | string, mode?: number, location?: number, quality?: number): ItemUnit | boolean;
     findItems(id?: number | string, mode?: number, location?: number): ItemUnit[];
     checkItem(itemInfo: {
@@ -826,7 +838,7 @@ declare global {
       ethereal?: boolean;
       name?: string | number;
       equipped?: boolean | number;
-    }): {have: boolean; item: ItemUnit | null};
+    }): { have: boolean; item: ItemUnit | null };
     findFirst(itemInfo: ItemInfo): { have: boolean; item: ItemUnit | null };
     usingShield(): boolean;
     checkQuest(questId: number, state: number): boolean;
@@ -841,7 +853,7 @@ declare global {
     clearBelt(): boolean;
   }
 
-  const me: MeType
+  const me: MeType;
   interface PathNode {
     x: number;
     y: number;
@@ -851,7 +863,7 @@ declare global {
     readonly distance: number;
     /**
      * Distance from 'unit' to this node
-     * @param unit 
+     * @param unit
      */
     distanceTo(unit: Unit): number;
     /**
@@ -860,34 +872,42 @@ declare global {
     getWalkDistance(): number;
     /**
      * Walk Distance from 'node' to this node
-     * @param node 
+     * @param node
      */
     getWalkDistanceTo(node: PathNode, area?: number): number;
-    mobCount(givenSettings: { range?: number, coll?: number, type?: number, ignoreClassids?: number[] }): number;
+    mobCount(givenSettings: { range?: number; coll?: number; type?: number; ignoreClassids?: number[] }): number;
   }
 
-  function getUnit(type: 4, name?: string, mode?: number, unitId?: number): ItemUnit
-  function getUnit(type: 4, classId?: number, mode?: number, unitId?: number): ItemUnit
-  function getUnit(type: 1, name?: string, mode?: number, unitId?: number): Monster
-  function getUnit(type: 1, classId?: number, mode?: number, unitId?: number): Monster
-  function getUnit(type?: number, name?: string, mode?: number, unitId?: number): Unit
-  function getUnit(type?: number, classId?: number, mode?: number, unitId?: number): Unit
+  function getUnit(type: 4, name?: string, mode?: number, unitId?: number): ItemUnit;
+  function getUnit(type: 4, classId?: number, mode?: number, unitId?: number): ItemUnit;
+  function getUnit(type: 1, name?: string, mode?: number, unitId?: number): Monster;
+  function getUnit(type: 1, classId?: number, mode?: number, unitId?: number): Monster;
+  function getUnit(type?: number, name?: string, mode?: number, unitId?: number): Unit;
+  function getUnit(type?: number, classId?: number, mode?: number, unitId?: number): Unit;
 
-  function getPath(area: number, fromX: number, fromY: number, toX: number, toY: number, reductionType: 0 | 1 | 2, radius: number): PathNode[] | false
-  function getCollision(area: number, x: number, y: number)
-  function getMercHP(): number
-  function getCursorType(type: 1 | 3 | 6): boolean
-  function getCursorType(): number
-  function getSkillByName(name: string): number
-  function getSkillById(id: number): string
-  function getLocaleString(id: number): string
+  function getPath(
+    area: number,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+    reductionType: 0 | 1 | 2,
+    radius: number,
+  ): PathNode[] | false;
+  function getCollision(area: number, x: number, y: number);
+  function getMercHP(): number;
+  function getCursorType(type: 1 | 3 | 6): boolean;
+  function getCursorType(): number;
+  function getSkillByName(name: string): number;
+  function getSkillById(id: number): string;
+  function getLocaleString(id: number): string;
 
   // Never seen in the wild, not sure about arguments
-  function getTextSize(name: string, size: number)
-  function getThreadPriority(): number
-  function getUIFlag(flag: number): boolean
-  function getTradeInfo(mode: 0 | 1 | 2): boolean
-  function getWaypoint(id: number, noCache?: boolean): boolean
+  function getTextSize(name: string, size: number);
+  function getThreadPriority(): number;
+  function getUIFlag(flag: number): boolean;
+  function getTradeInfo(mode: 0 | 1 | 2): boolean;
+  function getWaypoint(id: number, noCache?: boolean): boolean;
 
   class Script {
     running: boolean;
@@ -904,8 +924,8 @@ declare global {
     send(): void;
   }
 
-  function getScript(name?: string | boolean): Script | false
-  function getScripts(): Script | false
+  function getScript(name?: string | boolean): Script | false;
+  function getScripts(): Script | false;
 
   class Room {
     area: number;
@@ -919,14 +939,14 @@ declare global {
 
     getNext(): Room | false;
     getNearby(): Room[];
-    isInRoom(unit: PathNode):boolean
-    isInRoom(x:number, y:number):boolean
+    isInRoom(unit: PathNode): boolean;
+    isInRoom(x: number, y: number): boolean;
   }
 
-  function getRoom(area: number, x: number, y: number): Room | false
-  function getRoom(x: number, y: number): Room | false
-  function getRoom(area: number): Room | false
-  function getRoom(): Room | false
+  function getRoom(area: number, x: number, y: number): Room | false;
+  function getRoom(x: number, y: number): Room | false;
+  function getRoom(area: number): Room | false;
+  function getRoom(): Room | false;
 
   class Party {
     x: number;
@@ -944,7 +964,7 @@ declare global {
     getNext(): Party | false;
   }
 
-  function getParty(unit?: Unit): Party | false
+  function getParty(unit?: Unit): Party | false;
 
   class PresetUnit {
     id: number;
@@ -956,28 +976,28 @@ declare global {
     readonly distance: number;
 
     getNext(): PresetUnit | false;
-    realCoords(): { id: number, area: number, x: number, y: number };
+    realCoords(): { id: number; area: number; x: number; y: number };
   }
 
   type PresetObject = {
-    area: number,
-    id: number,
-    type: number,
-    x: number,
-    y: number,
-  }
+    area: number;
+    id: number;
+    type: number;
+    x: number;
+    y: number;
+  };
 
-  function getPresetUnit(area?: number, objType?: number, classid?: number): PresetUnit | false
-  function getPresetUnit(area?: number, objType?: 2, classid?: number): PresetUnit | false
-  function getPresetUnits(area?: number, objType?: number, classid?: number): PresetUnit[] | false
+  function getPresetUnit(area?: number, objType?: number, classid?: number): PresetUnit | false;
+  function getPresetUnit(area?: number, objType?: 2, classid?: number): PresetUnit | false;
+  function getPresetUnits(area?: number, objType?: number, classid?: number): PresetUnit[] | false;
 
   interface Exit extends Object {
-    x: number,
-    y: number,
-    type: number,
-    target: number,
-    tileid: number,
-    level: number,
+    x: number;
+    y: number;
+    type: number;
+    target: number;
+    tileid: number;
+    level: number;
   }
 
   class Area {
@@ -992,9 +1012,9 @@ declare global {
     getNext(): Area | false;
   }
 
-  function getArea(id?: number): Area | false
-  function getBaseStat(table: string, row: number, column: string | number): number | string
-  function getBaseStat(row: number, column: string): number | string
+  function getArea(id?: number): Area | false;
+  function getBaseStat(table: string, row: number, column: string | number): number | string;
+  function getBaseStat(row: number, column: string): number | string;
 
   /**
    * @todo get a better understanding of Control
@@ -1064,16 +1084,16 @@ declare global {
     getText(): string[];
   }
 
-  type Profile = {
-    type: number,
-    ip: number,
-    username: string,
-    gateway: string,
-    character: string,
-    difficulty: number,
-    maxloginTime: number,
-    maxCharacterSelectTime: number,
-  }
+  type D2BotProfile = {
+    type: number;
+    ip: number;
+    username: string;
+    gateway: string;
+    character: string;
+    difficulty: number;
+    maxloginTime: number;
+    maxCharacterSelectTime: number;
+  };
   function Profile(): Profile;
 
   class SQLite {
@@ -1090,87 +1110,108 @@ declare global {
     getColumnValue(index: number): any;
   }
 
-  function getControl(type?: number, x?: number, y?: number, xsize?: number, ysize?: number): Control | false
-  function getControls(type?: number, x?: number, y?: number, xsize?: number, ysize?: number): Control[]
-  function getPlayerFlag(meGid: number, otherGid: number, type: number): boolean
-  function getTickCount(): number
-  function getInteractedNPC(): NPCUnit | false
-  function getIsTalkingNPC(): boolean
-  function getDialogLines(): { handler() }[] | false
-  function print(what: string): void
-  function stringToEUC(arg: any): []
-  function utf8ToEuc(arg: any): []
-  function delay(ms: number): void
-  function load(file: string): boolean
-  function isIncluded(file: IncludePath): boolean
-  function include(file: IncludePath): boolean
-  function stacktrace(): true
-  function rand(from: number, to: number): number
-  function copy(what: string): void
-  function paste(): string
+  function getControl(type?: number, x?: number, y?: number, xsize?: number, ysize?: number): Control | false;
+  function getControls(type?: number, x?: number, y?: number, xsize?: number, ysize?: number): Control[];
+  function getPlayerFlag(meGid: number, otherGid: number, type: number): boolean;
+  function getTickCount(): number;
+  function getInteractedNPC(): NPCUnit | false;
+  function getIsTalkingNPC(): boolean;
+  function getDialogLines(): { handler() }[] | false;
+  function print(what: string): void;
+  function stringToEUC(arg: any): [];
+  function utf8ToEuc(arg: any): [];
+  function delay(ms: number): void;
+  function load(file: string): boolean;
+  function isIncluded(file: IncludePath): boolean;
+  function include(file: IncludePath): boolean;
+  function stacktrace(): true;
+  function rand(from: number, to: number): number;
+  function copy(what: string): void;
+  function paste(): string;
 
   function sendCopyData(noIdea: null, handle: number | string, mode: number, data: string): void;
 
-  function sendDDE()
-  function keystate()
+  function sendDDE();
+  function keystate();
 
   type eventName =
-    | 'itemaction'
-    | 'gameevent'
-    | 'copydata'
-    | 'chatmsg'
-    | 'chatinput'
-    | 'whispermsg'
-    | 'chatmsgblocker'
-    | 'chatinputblocker'
-    | 'whispermsgblocker'
-    | 'mousemove'
-    | 'ScreenHookHover'
-    | 'mouseclick'
-    | 'keyup'
-    | 'keydownblocker'
-    | 'keydown'
-    | 'memana'
-    | 'melife'
-    | 'playerassign'
-    | 'ScreenHookClick'
-    | 'Command'
-    | 'scriptmsg'
-    | 'gamepacket'
-    | 'gamepacketsent'
-    | 'realmpacket';
+    | "itemaction"
+    | "gameevent"
+    | "copydata"
+    | "chatmsg"
+    | "chatinput"
+    | "whispermsg"
+    | "chatmsgblocker"
+    | "chatinputblocker"
+    | "whispermsgblocker"
+    | "mousemove"
+    | "ScreenHookHover"
+    | "mouseclick"
+    | "keyup"
+    | "keydownblocker"
+    | "keydown"
+    | "memana"
+    | "melife"
+    | "playerassign"
+    | "ScreenHookClick"
+    | "Command"
+    | "scriptmsg"
+    | "gamepacket"
+    | "gamepacketsent"
+    | "realmpacket";
 
-  function addEventListener(eventType: 'realmpacket', callback: ((bytes: ArrayBufferLike) => boolean)): void
-  function addEventListener(eventType: 'gamepacket', callback: ((bytes: ArrayBufferLike) => boolean)): void
-  function addEventListener(eventType: 'scriptmsg', callback: ((data: string | object | number) => void)): void
-  function addEventListener(eventType: 'copydata', callback: ((mode: number, msg: string) => void)): void
-  function addEventListener(eventType: 'itemaction', callback: ((gid: number, mode?: number, code?: string, global?: true) => void)): void
-  function addEventListener(eventType: 'keyup' | 'keydown' | 'keydownblocker', callback: ((key: number|string) => void)): void
-  function addEventListener(eventType: 'chatmsg' | 'chatinput' | 'whispermsg', callback: ((nick: string, msg: string) => void)): void
-  function addEventListener(eventType: 'chatmsgblocker' | 'chatinputblocker' | 'whispermsgblocker', callback: ((arg1: string, arg2: string) => void)): void
-  function addEventListener(eventType: 'mousemove', callback: ((arg1: string, arg2: string) => void)): void
-  function addEventListener(eventType: 'ScreenHookHover', callback: ((arg1: string, arg2: string) => void)): void
-  function addEventListener(eventType: 'mouseclick', callback: ((arg1: string, arg2: string, arg3: string, arg4: string) => void)): void
-  function addEventListener(eventType: 'memana' | 'melife', callback: ((arg1: string, arg2: string) => void)): void
-  function addEventListener(eventType: 'playerassign', callback: ((arg1: string, arg4: string) => void)): void
-  function addEventListener(eventType: 'ScreenHookClick', callback: ((arg1: any, arg2: any, arg3: any, arg4: any) => void)): void
-  function addEventListener(eventType: eventName, callback: ((...args: any) => void)): void
+  function addEventListener(eventType: "realmpacket", callback: (bytes: ArrayBufferLike) => boolean): void;
+  function addEventListener(eventType: "gamepacket", callback: (bytes: ArrayBufferLike) => boolean): void;
+  function addEventListener(eventType: "scriptmsg", callback: (data: string | object | number) => void): void;
+  function addEventListener(eventType: "copydata", callback: (mode: number, msg: string) => void): void;
+  function addEventListener(
+    eventType: "itemaction",
+    callback: (gid: number, mode?: number, code?: string, global?: true) => void,
+  ): void;
+  function addEventListener(
+    eventType: "keyup" | "keydown" | "keydownblocker",
+    callback: (key: number | string) => void,
+  ): void;
+  function addEventListener(
+    eventType: "chatmsg" | "chatinput" | "whispermsg",
+    callback: (nick: string, msg: string) => void,
+  ): void;
+  function addEventListener(
+    eventType: "chatmsgblocker" | "chatinputblocker" | "whispermsgblocker",
+    callback: (arg1: string, arg2: string) => void,
+  ): void;
+  function addEventListener(eventType: "mousemove", callback: (arg1: string, arg2: string) => void): void;
+  function addEventListener(eventType: "ScreenHookHover", callback: (arg1: string, arg2: string) => void): void;
+  function addEventListener(
+    eventType: "mouseclick",
+    callback: (arg1: string, arg2: string, arg3: string, arg4: string) => void,
+  ): void;
+  function addEventListener(eventType: "memana" | "melife", callback: (arg1: string, arg2: string) => void): void;
+  function addEventListener(eventType: "playerassign", callback: (arg1: string, arg4: string) => void): void;
+  function addEventListener(
+    eventType: "ScreenHookClick",
+    callback: (arg1: any, arg2: any, arg3: any, arg4: any) => void,
+  ): void;
+  function addEventListener(eventType: eventName, callback: (...args: any) => void): void;
 
-  function removeEventListener(eventType: 'gamepacket', callback: ((bytes: ArrayBufferLike) => boolean)): void
-  function removeEventListener(eventType: 'scriptmsg', callback: ((data: string | object | number) => void)): void
-  function removeEventListener(eventType: 'copydata', callback: ((mode: number, msg: string) => void)): void
-  function removeEventListener(eventType: 'itemaction', callback: ((gid: number, mode?: number, code?: string, global?: true) => void)): void
-  function removeEventListener(eventType: 'keyup' | 'keydown', callback: ((key: number) => void)): void
-  function removeEventListener(eventType: 'chatmsg', callback: ((nick: string, msg: string) => void)): void
-  function removeEventListener(eventType: eventName, callback: ((...args: any) => void)): void
+  function removeEventListener(eventType: "gamepacket", callback: (bytes: ArrayBufferLike) => boolean): void;
+  function removeEventListener(eventType: "scriptmsg", callback: (data: string | object | number) => void): void;
+  function removeEventListener(eventType: "copydata", callback: (mode: number, msg: string) => void): void;
+  function removeEventListener(
+    eventType: "itemaction",
+    callback: (gid: number, mode?: number, code?: string, global?: true) => void,
+  ): void;
+  function removeEventListener(eventType: "keyup" | "keydown", callback: (key: number) => void): void;
+  function removeEventListener(eventType: "chatmsg", callback: (nick: string, msg: string) => void): void;
+  function removeEventListener(eventType: eventName, callback: (...args: any) => void): void;
 
-  function clearEvent()
-  function clearAllEvents()
-  function js_strict()
-  function version(): number
-  function scriptBroadcast(what: string | object): void
-  function sqlite_version()
-  function sqlite_memusage()
+  function clearEvent();
+  function clearAllEvents();
+  function js_strict();
+  function version(): number;
+  function scriptBroadcast(what: string | object): void;
+  function sqlite_version();
+  function sqlite_memusage();
 
   type directory = {
     getFiles(): string[];
@@ -1178,88 +1219,88 @@ declare global {
     create(what?: string): boolean;
   };
   function dopen(what?: string): directory | false;
-  function debugLog(text: string): void
-  function showConsole(): void
-  function hideConsole(): void
+  function debugLog(text: string): void;
+  function showConsole(): void;
+  function hideConsole(): void;
 
   // out of game functions
-  function login(name?: string): void
-  function selectCharacter()
-  function createGame()
-  function joinGame()
-  function addProfile()
-  function getLocation():number
-  function loadMpq()
+  function login(name?: string): void;
+  function selectCharacter();
+  function createGame();
+  function joinGame();
+  function addProfile();
+  function getLocation(): number;
+  function loadMpq();
 
   // game functions that don't have anything to do with gathering data
-  function submitItem(): void
-  function getMouseCoords()
-  function copyUnit<S extends Unit>(unit: S): S
-  function clickMap(type: 0 | 1 | 2 | 3, shift: 0 | 1, x: number, y: number)
-  function acceptTrade()
-  function tradeOk()
-  function beep(id?: number)
+  function submitItem(): void;
+  function getMouseCoords();
+  function copyUnit<S extends Unit>(unit: S): S;
+  function clickMap(type: 0 | 1 | 2 | 3, shift: 0 | 1, x: number, y: number);
+  function acceptTrade();
+  function tradeOk();
+  function beep(id?: number);
 
-  function clickItem(where: 0 | 1 | 2, bodyLocation: number)
-  function clickItem(where: 0 | 1 | 2, item: ItemUnit)
-  function clickItem(where: 0 | 1 | 2, x: number, y: number)
-  function clickItem(where: 0 | 1 | 2, x: number, y: number, location: number)
+  function clickItem(where: 0 | 1 | 2, bodyLocation: number);
+  function clickItem(where: 0 | 1 | 2, item: ItemUnit);
+  function clickItem(where: 0 | 1 | 2, x: number, y: number);
+  function clickItem(where: 0 | 1 | 2, x: number, y: number, location: number);
 
-  function getDistance(a: Unit, b: Unit): number
-  function getDistance(a: Unit, toX: number, toY: number): number
-  function getDistance(fromX: number, fromY: number, b: Unit): number
-  function getDistance(fromX: number, fromY: number, toX: number, toY: number): number
+  function getDistance(a: Unit, b: Unit): number;
+  function getDistance(a: Unit, toX: number, toY: number): number;
+  function getDistance(fromX: number, fromY: number, b: Unit): number;
+  function getDistance(fromX: number, fromY: number, toX: number, toY: number): number;
 
-  function gold(amount: number, changeType?: 0 | 1 | 2 | 3 | 4): void
-  function checkCollision(a: Unit, b: Unit, type: number): boolean
-  function playSound(num: number): void
-  function quit(): never
-  function quitGame(): never
-  function say(what: string, force?: boolean): void
+  function gold(amount: number, changeType?: 0 | 1 | 2 | 3 | 4): void;
+  function checkCollision(a: Unit, b: Unit, type: number): boolean;
+  function playSound(num: number): void;
+  function quit(): never;
+  function quitGame(): never;
+  function say(what: string, force?: boolean): void;
   /**
    * Use when you want to force something to be said in chat and don't know if LocalChat is being used
-   * @param what 
+   * @param what
    */
-  function _say(what: string): void
-  function clickParty(player: Party, type: 0 | 1 | 2 | 3 | 4)
-  function weaponSwitch(): void
-  function transmute(): void
-  function useStatPoint(type: number): void
-  function useSkillPoint(type: number): void
-  function takeScreenshot(): void
-  function moveNPC(npc: Monster, x: number, y: number): void
+  function _say(what: string): void;
+  function clickParty(player: Party, type: 0 | 1 | 2 | 3 | 4);
+  function weaponSwitch(): void;
+  function transmute(): void;
+  function useStatPoint(type: number): void;
+  function useSkillPoint(type: number): void;
+  function takeScreenshot(): void;
+  function moveNPC(npc: Monster, x: number, y: number): void;
 
-  function getPacket(buffer: ArrayBuffer): void
-  function getPacket(...args: { size: number, data: number }[]): void
+  function getPacket(buffer: ArrayBuffer): void;
+  function getPacket(...args: { size: number; data: number }[]): void;
 
-  function sendPacket(buffer: ArrayBuffer): void
-  function sendPacket(...number: number[]): void
+  function sendPacket(buffer: ArrayBuffer): void;
+  function sendPacket(...number: number[]): void;
 
-  function getIP(): string
-  function sendKey(key: number): void
-  function revealLevel(unknown: true): void
+  function getIP(): string;
+  function sendKey(key: number): void;
+  function revealLevel(unknown: true): void;
 
   // hash functions
-  function md5(str: string): string
-  function sha1(str: string): string
-  function sha256(str: string): string
-  function sha384(str: string): string
-  function sha512(str: string): string
-  function md5_file(str: string): string
-  function sha1_file(str: string): string
-  function sha256_file(str: string): string
-  function sha384_file(str: string): string
-  function sha512_file(str: string): string
+  function md5(str: string): string;
+  function sha1(str: string): string;
+  function sha256(str: string): string;
+  function sha384(str: string): string;
+  function sha512(str: string): string;
+  function md5_file(str: string): string;
+  function sha1_file(str: string): string;
+  function sha256_file(str: string): string;
+  function sha384_file(str: string): string;
+  function sha512_file(str: string): string;
 
   interface Console {
-    static log(...whatever: any[]): void
-    static debug(...whatever: any[]): void
-    static warn(...whatever: any[]): void
-    static error(...whatever: any[]): void
-    static time(name: string): void;
-    static timeEnd(name: string): void;
-    static trace(): void;
-    static info(start: boolean, msg: string, timer: string): void;
+    log(...whatever: any[]): void;
+    debug(...whatever: any[]): void;
+    warn(...whatever: any[]): void;
+    error(...whatever: any[]): void;
+    time(name: string): void;
+    timeEnd(name: string): void;
+    trace(): void;
+    info(start: boolean, msg: string, timer: string): void;
   }
   const console: Console;
 
@@ -1301,97 +1342,97 @@ declare global {
   function copyObj(from: object): object;
 
   interface StarterConfig {
-    MinGameTime: number,
-    MaxGameTime?: number,
-    PingQuitDelay: number,
-    CreateGameDelay: number,
-    ResetCount: number
-    CharacterDifference: number,
-    MaxPlayerCount: number,
-    StopOnDeadHardcore: boolean,
+    MinGameTime: number;
+    MaxGameTime?: number;
+    PingQuitDelay: number;
+    CreateGameDelay: number;
+    ResetCount: number;
+    CharacterDifference: number;
+    MaxPlayerCount: number;
+    StopOnDeadHardcore: boolean;
 
-    JoinChannel: string,
-    FirstJoinMessage: string,
-    ChatActionsDelay: number,
-    AnnounceGames: boolean,
-    AnnounceMessage: string,
-    AfterGameMessage: string,
+    JoinChannel: string;
+    FirstJoinMessage: string;
+    ChatActionsDelay: number;
+    AnnounceGames: boolean;
+    AnnounceMessage: string;
+    AfterGameMessage: string;
 
-    InvalidPasswordDelay: number, // Minutes to wait after getting Invalid Password message
-    VersionErrorDelay: number, // Seconds to wait after 'unable to identify version' message
-    SwitchKeyDelay: number, // Seconds to wait before switching a used/banned key or after realm down
-    CrashDelay: number, // Seconds to wait after a d2 window crash
-    FTJDelay: number, // Seconds to wait after failing to create a game
-    RealmDownDelay: number, // Minutes to wait after getting Realm Down message
-    UnableToConnectDelay: number, // Minutes to wait after Unable To Connect message
-    TCPIPNoHostDelay: number, // Seconds to wait after Cannot Connect To Server message
-    CDKeyInUseDelay: number, // Minutes to wait before connecting again if CD-Key is in use.
-    ConnectingTimeout: number, // Seconds to wait before cancelling the 'Connecting...' screen
-    PleaseWaitTimeout: number, // Seconds to wait before cancelling the 'Please Wait...' screen
-    WaitInLineTimeout: number, // Seconds to wait before cancelling the 'Waiting in Line...' screen
-    WaitOutQueueRestriction: boolean, // Wait out queue if we are restricted, queue time > 10000
-    WaitOutQueueExitToMenu: boolean, // Wait out queue restriction at D2 Splash screen if true, else wait out in lobby
-    GameDoesNotExistTimeout: number, // Seconds to wait before cancelling the 'Game does not exist.' screen
+    InvalidPasswordDelay: number; // Minutes to wait after getting Invalid Password message
+    VersionErrorDelay: number; // Seconds to wait after 'unable to identify version' message
+    SwitchKeyDelay: number; // Seconds to wait before switching a used/banned key or after realm down
+    CrashDelay: number; // Seconds to wait after a d2 window crash
+    FTJDelay: number; // Seconds to wait after failing to create a game
+    RealmDownDelay: number; // Minutes to wait after getting Realm Down message
+    UnableToConnectDelay: number; // Minutes to wait after Unable To Connect message
+    TCPIPNoHostDelay: number; // Seconds to wait after Cannot Connect To Server message
+    CDKeyInUseDelay: number; // Minutes to wait before connecting again if CD-Key is in use.
+    ConnectingTimeout: number; // Seconds to wait before cancelling the 'Connecting...' screen
+    PleaseWaitTimeout: number; // Seconds to wait before cancelling the 'Please Wait...' screen
+    WaitInLineTimeout: number; // Seconds to wait before cancelling the 'Waiting in Line...' screen
+    WaitOutQueueRestriction: boolean; // Wait out queue if we are restricted, queue time > 10000
+    WaitOutQueueExitToMenu: boolean; // Wait out queue restriction at D2 Splash screen if true, else wait out in lobby
+    GameDoesNotExistTimeout: number; // Seconds to wait before cancelling the 'Game does not exist.' screen
   }
 
   interface ProfileInfo {
-    profile: string,
-    account: string,
-    charName: string,
-    difficulty: string,
-    tag: string,
-    realm: string,
+    profile: string;
+    account: string;
+    charName: string;
+    difficulty: string;
+    tag: string;
+    realm: string;
   }
 
   interface StarterInterface {
-    Config: StarterConfig,
-    useChat: boolean,
-    pingQuit: boolean,
-    inGame: boolean,
-    firstLogin: boolean,
-    firstRun: boolean,
-    isUp: "yes"|"no",
-    loginRetry: number,
-    deadCheck: boolean,
-    chatActionsDone: boolean,
-    gameStart: boolean,
-    gameCount: number,
-    lastGameStatus: string,
-    handle: number | null,
-    connectFail: boolean,
-    connectFailRetry: number,
-    makeAccount: false,
-    channelNotify: boolean,
+    Config: StarterConfig;
+    useChat: boolean;
+    pingQuit: boolean;
+    inGame: boolean;
+    firstLogin: boolean;
+    firstRun: boolean;
+    isUp: "yes" | "no";
+    loginRetry: number;
+    deadCheck: boolean;
+    chatActionsDone: boolean;
+    gameStart: boolean;
+    gameCount: number;
+    lastGameStatus: string;
+    handle: number | null;
+    connectFail: boolean;
+    connectFailRetry: number;
+    makeAccount: false;
+    channelNotify: boolean;
     chanInfo: {
-      joinChannel: string,
-      firstMsg: string,
-      afterMsg: string,
-      announce: boolean,
-    },
+      joinChannel: string;
+      firstMsg: string;
+      afterMsg: string;
+      announce: boolean;
+    };
     gameInfo: {
-      error: string,
-      gameName?: string,
-      gamePass?: string,
-      difficulty?: string,
+      error: string;
+      gameName?: string;
+      gamePass?: string;
+      difficulty?: string;
       crashInfo: {
-          currScript: number,
-          area: number,
-      },
-      switchKeys: boolean,
-    },
-    joinInfo: {},
-    profileInfo: ProfileInfo,
-    ftjCount: number,
+        currScript: number;
+        area: number;
+      };
+      switchKeys: boolean;
+    };
+    joinInfo: {};
+    profileInfo: ProfileInfo;
+    ftjCount: number;
 
-    sayMsg(string: string): void,
-    timer(tick: number): string,
-    locationTimeout(time: number, location: number): boolean,
-    setNextGame(gameInfo: { gameName: string }): void,
-    updateCount(): void,
-    scriptMsgEvent(msg: string): void,
-    receiveCopyData(mode: number, msg: string | object): void,
-    randomString(len?: number, useNumbers?: boolean): string,
-    randomNumberString(len?: number): string,
+    sayMsg(string: string): void;
+    timer(tick: number): string;
+    locationTimeout(time: number, location: number): boolean;
+    setNextGame(gameInfo: { gameName: string }): void;
+    updateCount(): void;
+    scriptMsgEvent(msg: string): void;
+    receiveCopyData(mode: number, msg: string | object): void;
+    randomString(len?: number, useNumbers?: boolean): string;
+    randomNumberString(len?: number): string;
     /**
      * Cache for waypoints by character name and difficulty
      */
@@ -1496,7 +1537,7 @@ declare global {
   namespace Time {
     /**
      * Converts seconds to milliseconds.
-     * 
+     *
      * @param {number} [seconds=0] - The number of seconds to convert.
      * @returns {number} - The equivalent time in milliseconds.
      */
@@ -1504,7 +1545,7 @@ declare global {
 
     /**
      * Converts minutes to milliseconds.
-     * 
+     *
      * @param {number} [minutes=0] - The number of minutes to convert.
      * @returns {number} - The equivalent time in milliseconds.
      */
@@ -1512,7 +1553,7 @@ declare global {
 
     /**
      * Formats milliseconds into a "HH:MM:SS" string.
-     * 
+     *
      * @param {number} [ms=0] - The time in milliseconds to format.
      * @returns {string} - The formatted time string.
      */
@@ -1520,7 +1561,7 @@ declare global {
 
     /**
      * Converts milliseconds to seconds.
-     * 
+     *
      * @param {number} [ms=0] - The time in milliseconds to convert.
      * @returns {number} - The equivalent time in seconds.
      */
@@ -1528,7 +1569,7 @@ declare global {
 
     /**
      * Converts milliseconds to minutes.
-     * 
+     *
      * @param {number} [ms=0] - The time in milliseconds to convert.
      * @returns {number} - The equivalent time in minutes.
      */
@@ -1536,7 +1577,7 @@ declare global {
 
     /**
      * Converts milliseconds to hours.
-     * 
+     *
      * @param {number} [ms=0] - The time in milliseconds to convert.
      * @returns {number} - The equivalent time in hours.
      */
@@ -1544,7 +1585,7 @@ declare global {
 
     /**
      * Converts milliseconds to days.
-     * 
+     *
      * @param {number} [ms=0] - The time in milliseconds to convert.
      * @returns {number} - The equivalent time in days.
      */
@@ -1552,17 +1593,26 @@ declare global {
 
     /**
      * Calculates the elapsed time from a given timestamp.
-     * 
+     *
      * @param {number} [ms=0] - The starting time in milliseconds.
      * @returns {number} - The elapsed time in milliseconds.
      */
     function elapsed(start: number): number;
   }
 
-  type PrimitiveType = "undefined" | "object" | "boolean" | "number" | "bigint" | "string" | "symbol" | "function" | "array";
+  type PrimitiveType =
+    | "undefined"
+    | "object"
+    | "boolean"
+    | "number"
+    | "bigint"
+    | "string"
+    | "symbol"
+    | "function"
+    | "array";
   /**
    * Checks if the value matches the expected type.
-   * 
+   *
    * @param val - The value to be checked.
    * @param type - The expected type as a string.
    * @returns {boolean} - Returns true if the value matches the expected type, otherwise false.
@@ -1581,6 +1631,6 @@ declare global {
    * @param source - Source object to merge from
    * @returns Merged object
    */
-  function deepMerge(target: object, source: object): object
+  function deepMerge(target: object, source: object): object;
 }
 export {};

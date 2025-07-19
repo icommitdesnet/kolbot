@@ -309,19 +309,36 @@ function deepMerge(target, source) {
     return target;
   }
 
-  let result = Object.assign({}, target);
+  // Immutable merge
+  // let result = Object.assign({}, target);
 
+  // for (let key in source) {
+  //   if (source.hasOwnProperty(key)) {
+  //     if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
+  //       // Recursively merge nested objects
+  //       result[key] = deepMerge(result[key] || {}, source[key]);
+  //     } else {
+  //       // Direct assignment for primitives and arrays
+  //       result[key] = source[key];
+  //     }
+  //   }
+  // }
+
+  // return result;
+
+  // Mutable merge - this modifies the target object
   for (let key in source) {
     if (source.hasOwnProperty(key)) {
       if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
-        // Recursively merge nested objects
-        result[key] = deepMerge(result[key] || {}, source[key]);
+        if (!target[key] || typeof target[key] !== "object" || Array.isArray(target[key])) {
+          target[key] = {};
+        }
+        deepMerge(target[key], source[key]);
       } else {
-        // Direct assignment for primitives and arrays
-        result[key] = source[key];
+        target[key] = source[key];
       }
     }
   }
 
-  return result;
+  return target;
 }

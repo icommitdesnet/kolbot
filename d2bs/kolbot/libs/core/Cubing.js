@@ -263,6 +263,7 @@ const Recipe = {
       case sdk.items.runes.Tal:
       case sdk.items.runes.Ral:
       case sdk.items.runes.Ort:
+      case sdk.items.runes.Thul:
         return [keyItem - 1, keyItem - 1, keyItem - 1];
       case sdk.items.runes.Amn: // thul->amn
         return [sdk.items.runes.Thul, sdk.items.runes.Thul, sdk.items.runes.Thul, sdk.items.gems.Chipped.Topaz];

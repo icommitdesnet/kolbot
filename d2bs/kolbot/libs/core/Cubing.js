@@ -633,7 +633,7 @@ const Cubing = {
 
       if (recipe.hasOwnProperty("condition") && typeof recipe.condition === "function") {
         if (!recipe.condition()) {
-          console.debug("Skipping recipe due to condition cb");
+          console.debug("Skipping recipe " + recipe.Index + " due to condition cb");
           continue;
         }
       }
@@ -646,7 +646,7 @@ const Cubing = {
 
         if (itemCount >= recipe.MaxQuantity) {
           console.debug(
-            "Skipping recipe due to item count exceeding MaxQuantity."
+            "Skipping recipe " + recipe.Index + " due to item count exceeding MaxQuantity."
             + " Have: " + itemCount
             + ", Wanted: " + recipe.MaxQuantity
           );

@@ -854,6 +854,7 @@ declare global {
   }
 
   const me: MeType;
+
   interface PathNode {
     x: number;
     y: number;
@@ -876,6 +877,10 @@ declare global {
      */
     getWalkDistanceTo(node: PathNode, area?: number): number;
     mobCount(givenSettings: { range?: number; coll?: number; type?: number; ignoreClassids?: number[] }): number;
+  }
+
+  class PathNode {
+    constructor(x: number, y: number);
   }
 
   function getUnit(type: 4, name?: string, mode?: number, unitId?: number): ItemUnit;

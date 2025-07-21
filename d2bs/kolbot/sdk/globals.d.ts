@@ -18,6 +18,7 @@
 /// <reference path="./types/OOG.d.ts" />
 /// <reference path="./types/Config.d.ts" />
 /// <reference path="./types/Common.d.ts" />
+/// <reference path="./types/CollMap.d.ts" />
 
 declare global {
   type IncludePath = import("./types/include-paths").IncludePath;

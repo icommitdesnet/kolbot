@@ -435,6 +435,7 @@ declare global {
     getItemsEx(classId?: number, mode?: number, unitId?: number): ItemUnit[];
     getItemsEx(name?: string, mode?: number, unitId?: number): ItemUnit[];
     inArea(area: number): boolean;
+    getMobCount(range: number, coll: number, type: number, noSpecialMobs: boolean): number;
     checkForMobs(givenSettings: { range?: number; count?: number; coll?: number; spectype: number }): boolean;
   }
 
@@ -1431,24 +1432,16 @@ declare global {
     ftjCount: number;
 
     sayMsg(string: string): void;
-    timer(tick: number): string;
-    locationTimeout(time: number, location: number): boolean;
-    setNextGame(gameInfo: { gameName: string }): void;
-    updateCount(): void;
-    scriptMsgEvent(msg: string): void;
-    receiveCopyData(mode: number, msg: string | object): void;
-    randomString(len?: number, useNumbers?: boolean): string;
-    randomNumberString(len?: number): string;
     /**
      * Cache for waypoints by character name and difficulty
      */
-    waypointCache: { [charName: string]: any[] };
+    waypointCache: { [charName: string]: number[] };
 
     /**
      * Handles script message events (object version)
      * @param msg - The message object
      */
-    scriptMsgEvent(msg: object): void;
+    scriptMsgEvent(msg: string | object): void;
 
     /**
      * Handles copy data event
@@ -1493,32 +1486,6 @@ declare global {
      * Updates the game count and performs relog actions
      */
     updateCount(): void;
-
-    /**
-     * Handles script message events (string version)
-     * @param msg - The message string
-     */
-    scriptMsgEvent(msg: string): void;
-
-    /**
-     * Handles copy data event
-     * @param mode - The mode
-     * @param msg - The message (object or string)
-     */
-    receiveCopyData(mode: number, msg: object | string): void;
-
-    /**
-     * Returns a random string of given length
-     * @param len - Length of string
-     * @param useNumbers - Whether to use numbers
-     */
-    randomString(len?: number, useNumbers?: boolean): string;
-
-    /**
-     * Returns a random number string of given length
-     * @param len - Length of string
-     */
-    randomNumberString(len?: number): string;
 
     /**
      * Location event handlers

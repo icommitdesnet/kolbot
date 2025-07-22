@@ -562,6 +562,7 @@ let Config = {
     StarTP: "Star TP up",
     DiabloMsg: "Diablo",
     ClearRadius: 30,
+    /** @type {import("sdk/types/Config").DiabloSeal[]} */
     SealOrder: ["vizier", "seis", "infector"]
   },
   DiabloHelper: {
@@ -572,6 +573,7 @@ let Config = {
     OpenSeals: false,
     SafePrecast: true,
     ClearRadius: 30,
+    /** @type {import("sdk/types/Config").DiabloSeal[]} */
     SealOrder: ["vizier", "seis", "infector"],
     RecheckSeals: false
   },

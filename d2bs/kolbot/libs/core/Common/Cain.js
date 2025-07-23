@@ -7,6 +7,10 @@
 
 (function (module) {
   module.exports = {
+    /**
+     * @param {ObjectUnit} stone 
+     * @returns {boolean}
+     */
     activateStone: function (stone) {
       for (let i = 0; i < 3; i++) {
         // don't use tk if we are right next to it

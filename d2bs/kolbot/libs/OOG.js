@@ -245,7 +245,7 @@ includeIfNotIncluded("core/Me.js");
       const matchLadderString = function (text) {
         return text.includes(ladderString);
       };
-      const singlePlayer = ![sdk.game.gametype.OpenBattlenet, sdk.game.gametype.BattleNet].includes(Profile().type);
+      const singlePlayer = ![sdk.game.profiletype.OpenBattlenet, sdk.game.profiletype.Battlenet].includes(Profile().type);
       // offline doesn't have a character limit cap
       const cap = singlePlayer ? 999 : 24;
       let count = 0;
@@ -258,6 +258,24 @@ includeIfNotIncluded("core/Me.js");
         }
 
         delay(25);
+      }
+
+      // Wrong char select screen fix
+      if ([sdk.game.locations.CharSelect, sdk.game.locations.CharSelectNoChars].includes(getLocation())) {
+        hideConsole(); // seems to fix odd crash with single-player characters if the console is open to type in
+        let spCheck = Profile().type === sdk.game.profiletype.Battlenet;
+        let realmControl = !!Controls.CharSelectCurrentRealm.control;
+        if ((spCheck && !realmControl) || ((!spCheck && realmControl))) {
+          Controls.BottomLeftExit.click();
+          return false; // what about a recursive call to loginCharacter?
+        }
+      }
+
+      if (getLocation() === sdk.game.locations.CharSelectConnecting) {
+        if (!Starter.LocationEvents.charSelectConnecting()) {
+          D2Bot.printToConsole("Stuck at connecting screen");
+          D2Bot.restart();
+        }
       }
 
       // start from beginning of the char list
@@ -1806,6 +1824,19 @@ includeIfNotIncluded("core/Me.js");
             Controls.OpenBattleNet.click();
           } else {
             Controls.OtherMultiplayerCancel.click();
+          }
+        },
+
+        charSelectConnecting: function () {
+          if (getLocation() === sdk.game.locations.CharSelectConnecting) {
+            // bugged? lets see if we can unbug it
+            // Click create char button on infinite "connecting" screen
+            Controls.CharSelectCreate.click() && delay(1000);
+            Controls.BottomLeftExit.click() && delay(1000);
+        
+            return (getLocation() !== sdk.game.locations.CharSelectConnecting);
+          } else {
+            return true;
           }
         }
       };

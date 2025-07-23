@@ -1502,6 +1502,7 @@ declare global {
       openJoinGameWindow(): void;
       login(otherMultiCheck?: boolean): boolean;
       otherMultiplayerSelect(): void;
+      charSelectConnecting(): boolean;
     };
   }
 

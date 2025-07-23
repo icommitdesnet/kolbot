@@ -469,7 +469,7 @@ const Pather = {
         if (getUIFlag(this.cancelFlags[i])) me.cancel();
       }
 
-      Config.DebugMode.Path && ShrineHooks.check();
+      Config.DebugMode.Shrines && ShrineHooks.check();
       
       node = path.shift();
 
@@ -608,7 +608,7 @@ const Pather = {
 
     useTeleport && Config.TeleSwitch && me.switchWeapons(primarySlot);
     PathDebug.removeHooks(PATH_DEBUG_ID);
-    Config.DebugMode.Path && ShrineHooks.flush();
+    Config.DebugMode.Shrines && ShrineHooks.flush();
 
     return getDistance(me, node.x, node.y) < 5;
   },

@@ -118,6 +118,7 @@ let Config = {
     Memory: false,
     Skill: false,
     Town: false,
+    Shrines: false,
   },
 
   // Experimental

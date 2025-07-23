@@ -14,6 +14,7 @@ declare global {
       Memory: boolean;
       Skill: boolean;
       Town: boolean;
+      Shrines: boolean;
     };
 
     // Experimental

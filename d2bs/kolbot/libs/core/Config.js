@@ -124,6 +124,7 @@ let Config = {
   FastParty: false,
   AutoEquip: false,
   UseExperimentalAvoid: false,
+  UseExperimentalClearLevel: false,
 
   // Time
   StartDelay: 0,

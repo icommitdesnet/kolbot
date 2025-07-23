@@ -20,8 +20,10 @@ declare global {
     FastParty: boolean;
     AutoEquip: boolean;
     UseExperimentalAvoid: boolean;
-
-    Experimental: {};
+    /**
+     * Enables experimental walk clear level feature for non-teleporters
+     */
+    UseExperimentalClearLevel: boolean;
 
     StartDelay: number;
     PickDelay: number;

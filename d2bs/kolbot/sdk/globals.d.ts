@@ -1101,7 +1101,7 @@ declare global {
     maxloginTime: number;
     maxCharacterSelectTime: number;
   };
-  function Profile(): Profile;
+  function Profile(): D2BotProfile;
 
   class SQLite {
     constructor(database: string, isNew: boolean);

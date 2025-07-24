@@ -293,7 +293,7 @@ includeIfNotIncluded("core/Me.js");
               count++;
 
               if (String.isEqual(text[1], info.charName)) {
-                if (info.ladder && !text.some(matchLadderString)) continue;
+                if (!singlePlayer && info.ladder && !text.some(matchLadderString)) continue;
                 // how to check hardcore?
                 return control;
               }

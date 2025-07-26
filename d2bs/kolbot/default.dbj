@@ -213,7 +213,7 @@ function main () {
     }
   }
 
-  me.automap = Config.AutoMap;
+  me.automap = Config.AutoMap || Config.DebugMode.Path;
 
   // Next game = drop keys
   TorchSystem.keyCheck() && scriptBroadcast("torch");

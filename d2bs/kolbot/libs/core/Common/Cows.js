@@ -101,6 +101,7 @@
         }
       }
 
+      let room;
       RoomLoop:
       while (rooms.length > 0) {
         // get the first room + initialize myRoom var

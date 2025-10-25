@@ -542,11 +542,13 @@ declare global {
     // todo define item modes
     public readonly type: ItemType;
     readonly code: string;
+    readonly prefix?: string;
+    readonly suffix?: string;
     readonly prefixes: string[];
     readonly suffixes: string[];
     readonly prefixnum: number;
     readonly suffixnum: number;
-    readonly prefixenums: number[];
+    readonly prefixnums: number[];
     readonly suffixnums: number[];
     readonly fname: string;
     readonly quality: number;

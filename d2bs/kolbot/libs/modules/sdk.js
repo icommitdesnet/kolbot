@@ -2505,9 +2505,9 @@
       Griswold: 365,
       Izual: 256,
       Hephasto: 409,
-      KorlictheProtector: 540,
-      TalictheDefender: 541,
-      MadawctheGuardian: 542,
+      TalictheDefender: 540,
+      MadawctheGuardian: 541,
+      KorlictheProtector: 542,
       ListerTheTormenter: 571,
       TheCowKing: 743, // 773?
       ColdwormtheBurrower: 284,

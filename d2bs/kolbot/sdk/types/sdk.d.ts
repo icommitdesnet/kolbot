@@ -19,7 +19,7 @@ declare global {
     }
 
     export namespace party {
-      const NoParty: 65535
+      const NoParty: 65535;
       namespace flag {
         const Invite: 0;
         const InParty: 1;
@@ -42,7 +42,7 @@ declare global {
           const Right: 1;
           const ShiftLeft: 2; // For belt
           const MercFromBelt: 3; // For belt
-          const Mercenary: 4 // Give to merc
+          const Mercenary: 4; // Give to merc
         }
         namespace map {
           const LeftDown: 0;
@@ -55,7 +55,7 @@ declare global {
       }
       namespace shift {
         const NoShift: 0;
-        const Shift: 1
+        const Shift: 1;
       }
     }
 
@@ -86,8 +86,8 @@ declare global {
       const FriendlyNPC: 0x2000;
       const Unknown2: 0x4000;
       const DeadBodies: 0x8000;
-      const MonsterObject: 0xFFFF;
-      const BlockMissile: 0x80E;
+      const MonsterObject: 0xffff;
+      const BlockMissile: 0x80e;
       const WallOrRanged: 0x5;
       const BlockWalk: 0x1805;
       const FriendlyRanged: 0x2004;
@@ -250,14 +250,14 @@ declare global {
       const townOf: (townArea: number) => 1 | 40 | 75 | 103 | 109;
       const townOfAct: (act: 1 | 2 | 3 | 4 | 5) => 1 | 40 | 75 | 103 | 109;
     }
-    
+
     export namespace skills {
       namespace get {
         const RightName: 0;
         const LeftName: 1;
         const RightId: 2;
         const LeftId: 3;
-        const AllSkills: 4
+        const AllSkills: 4;
       }
       namespace hand {
         const Right: 0;
@@ -267,7 +267,7 @@ declare global {
       }
       namespace subindex {
         const HardPoints: 0;
-        const SoftPoints: 1
+        const SoftPoints: 1;
       }
       // General
       const Attack: 0;
@@ -562,7 +562,7 @@ declare global {
         const MartialArts: 50;
       }
     }
-    export const skillTabs: undefined
+    export const skillTabs: undefined;
 
     export namespace quest {
       export namespace item {
@@ -620,15 +620,35 @@ declare global {
       }
       const items: [
         // act 1
-        88, 89, 524, 525,
+        88,
+        89,
+        524,
+        525,
         // act 2
-        91, 92, 521, 549, 552,
+        91,
+        92,
+        521,
+        549,
+        552,
         // act 3
-        86, 87, 173, 174, 545, 546, 547, 548, 553, 554, 555,
+        86,
+        87,
+        173,
+        174,
+        545,
+        546,
+        547,
+        548,
+        553,
+        554,
+        555,
         // act 4
-        90, 551,
+        90,
+        551,
         // act 5
-        644, 645, 646,
+        644,
+        645,
+        646,
       ];
       export namespace chest {
         // act1
@@ -669,15 +689,34 @@ declare global {
       }
       const chests: [
         // act 1
-        17, 18, 19, 20, 21, 22, 26, 30, 108,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        26,
+        30,
+        108,
         // act 2
-        149, 152, 354, 355, 356, 357,
+        149,
+        152,
+        354,
+        355,
+        356,
+        357,
         // act 3
-        81, 193, 405, 406, 407,
+        81,
+        193,
+        405,
+        406,
+        407,
         // act 4
         376,
         // act 5
-        434, 558, 546
+        434,
+        558,
+        546,
       ];
       export namespace id {
         const SpokeToWarriv: 0;
@@ -737,12 +776,12 @@ declare global {
       const NPCMenu: 0x08;
       const EscMenu: 0x09;
       const KeytotheCairnStonesScreen: 0x10;
-      const AutoMap: 0x0A;
-      const ConfigControls: 0x0B;
-      const Shop: 0x0C;
-      const ShowItem: 0x0D;
-      const SubmitItem: 0x0E;
-      const Quest: 0x0F;
+      const AutoMap: 0x0a;
+      const ConfigControls: 0x0b;
+      const Shop: 0x0c;
+      const ShowItem: 0x0d;
+      const SubmitItem: 0x0e;
+      const Quest: 0x0f;
       const QuestLog: 0x11;
       const StatusArea: 0x12;
       const Waypoint: 0x14;
@@ -751,45 +790,125 @@ declare global {
       const TradePrompt: 0x17;
       const Msgs: 0x18;
       const Stash: 0x19;
-      const Cube: 0x1A;
-      const ShowBelt: 0x1F;
+      const Cube: 0x1a;
+      const ShowBelt: 0x1f;
       const Help: 0x21;
       const MercScreen: 0x24;
-      const ScrollWindow: 0x25
+      const ScrollWindow: 0x25;
     }
 
     export namespace menu {
-      const Respec: 0x2BA0;
-      const Ok: 0x0D49;
-      const Talk: 0x0D35;
-      const Trade: 0x0D44;
-      const TradeRepair: 0x0D06;
-      const Imbue: 0x0FB1;
-      const Gamble: 0x0D46;
-      const Hire: 0x0D45;
-      const GoEast: 0x0D36;
-      const GoWest: 0x0D37;
-      const IdentifyItems: 0x0FB4;
-      const SailEast: 0x0D38;
-      const SailWest: 0x0D39;
+      const Respec: 0x2ba0;
+      const Ok: 0x0d49;
+      const Talk: 0x0d35;
+      const Trade: 0x0d44;
+      const TradeRepair: 0x0d06;
+      const Imbue: 0x0fb1;
+      const Gamble: 0x0d46;
+      const Hire: 0x0d45;
+      const GoEast: 0x0d36;
+      const GoWest: 0x0d37;
+      const IdentifyItems: 0x0fb4;
+      const SailEast: 0x0d38;
+      const SailWest: 0x0d39;
       const RessurectMerc: 0x1507;
-      const AddSockets: 0x58DC;
-      const Personalize: 0x58DD;
-      const TravelToHarrogath: 0x58D2;
+      const AddSockets: 0x58dc;
+      const Personalize: 0x58dd;
+      const TravelToHarrogath: 0x58d2;
     }
 
     // shrine types
     export namespace shrines {
       const Presets: [2, 81, 83, 170, 344, 197, 202];
       const Ids: [
-        2, 77, 81, 83, 84, 85, 93, 96, 97, 109, 116, 123, 124,
-        133, 134, 135, 136, 150, 151, 164, 165, 166, 167, 168,
-        170, 172, 173, 184, 190, 191, 197, 199, 200, 201, 202,
-        206, 226, 231, 232, 236, 249, 260, 262, 263, 264, 265,
-        275, 276, 277, 278, 279, 280, 281, 282, 299, 300, 302,
-        303, 320, 325, 343, 344, 361, 414, 415, 421, 422, 423,
-        427, 428, 464, 465, 472, 479, 483, 484, 488, 491, 492,
-        495, 497, 499, 503, 509, 512, 520, 521, 522
+        2,
+        77,
+        81,
+        83,
+        84,
+        85,
+        93,
+        96,
+        97,
+        109,
+        116,
+        123,
+        124,
+        133,
+        134,
+        135,
+        136,
+        150,
+        151,
+        164,
+        165,
+        166,
+        167,
+        168,
+        170,
+        172,
+        173,
+        184,
+        190,
+        191,
+        197,
+        199,
+        200,
+        201,
+        202,
+        206,
+        226,
+        231,
+        232,
+        236,
+        249,
+        260,
+        262,
+        263,
+        264,
+        265,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        299,
+        300,
+        302,
+        303,
+        320,
+        325,
+        343,
+        344,
+        361,
+        414,
+        415,
+        421,
+        422,
+        423,
+        427,
+        428,
+        464,
+        465,
+        472,
+        479,
+        483,
+        484,
+        488,
+        491,
+        492,
+        495,
+        497,
+        499,
+        503,
+        509,
+        512,
+        520,
+        521,
+        522,
       ];
       const None: 0;
       const Refilling: 1;
@@ -813,7 +932,7 @@ declare global {
       const Fire: 19;
       const Monster: 20;
       const Exploding: 21;
-      const Poison: 22
+      const Poison: 22;
     }
 
     // unit states
@@ -1421,13 +1540,14 @@ declare global {
       }
       export namespace slot {
         const Main: 0;
-        const Secondary: 1
+        const Secondary: 1;
       }
       export namespace move {
         const Walk: 0;
-        const Run: 1
+        const Run: 1;
       }
-      export namespace mode { // sdk.player.mode.
+      export namespace mode {
+        // sdk.player.mode.
         const Death: 0;
         const StandingOutsideTown: 1;
         const Walking: 2;
@@ -1458,9 +1578,11 @@ declare global {
         const Druid: 5;
         const Assassin: 6;
 
-        const nameOf: (classid: 0 | 1 | 2 | 3 | 4 | 5 | 6) => "Amazon" | "Sorceress" | "Necromancer" | "Paladin" | "Barbarian" | "Druid" | "Assassin" | false;
+        const nameOf: (
+          classid: 0 | 1 | 2 | 3 | 4 | 5 | 6,
+        ) => "Amazon" | "Sorceress" | "Necromancer" | "Paladin" | "Barbarian" | "Druid" | "Assassin" | false;
       }
-      export { _class as class };
+      export type { _class as class };
     }
 
     export namespace npcs {
@@ -1481,7 +1603,7 @@ declare global {
         const Dead: 12;
         const KnockedBack: 13;
         const Spawning: 14;
-        const Running: 15
+        const Running: 15;
       }
 
       const Akara: 148;
@@ -1536,9 +1658,65 @@ declare global {
       }
 
       const chestIds: [
-        5, 6, 87, 104, 105, 106, 107, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 240, 241,
-        242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 371, 387, 389, 390, 391, 397, 405,
-        406, 407, 413, 420, 424, 425, 430, 431, 432, 433, 454, 455, 501, 502, 504, 505, 580, 581
+        5,
+        6,
+        87,
+        104,
+        105,
+        106,
+        107,
+        143,
+        140,
+        141,
+        144,
+        146,
+        147,
+        148,
+        176,
+        177,
+        181,
+        183,
+        198,
+        240,
+        241,
+        242,
+        243,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        354,
+        355,
+        356,
+        371,
+        387,
+        389,
+        390,
+        391,
+        397,
+        405,
+        406,
+        407,
+        413,
+        420,
+        424,
+        425,
+        430,
+        431,
+        432,
+        433,
+        454,
+        455,
+        501,
+        502,
+        504,
+        505,
+        580,
+        581,
       ];
 
       // act1
@@ -1711,7 +1889,7 @@ declare global {
         const NextAreaWorldstone: 82;
       }
     }
-    
+
     export namespace monsters {
       namespace preset {
         // Confirmed
@@ -1805,7 +1983,7 @@ declare global {
         const Dead: 12;
         const KnockedBack: 13;
         const Spawning: 14;
-        const Running: 15
+        const Running: 15;
       }
       namespace spectype {
         const All: 0;
@@ -2427,9 +2605,9 @@ declare global {
       const Griswold: 365;
       const Izual: 256;
       const Hephasto: 409;
-      const KorlictheProtector: 540;
-      const TalictheDefender: 541;
-      const MadawctheGuardian: 542;
+      const TalictheDefender: 540;
+      const MadawctheGuardian: 541;
+      const KorlictheProtector: 542;
       const ListerTheTormenter: 571;
       const TheCowKing: 743;
       const ColdwormtheBurrower: 284;
@@ -2507,7 +2685,7 @@ declare global {
         const Dead: 12;
         const KnockedBack: 13;
         const Spawning: 14;
-        const Running: 15
+        const Running: 15;
       }
 
       const ClayGolem: 289;
@@ -2538,7 +2716,7 @@ declare global {
         const Dead: 12;
         const KnockedBack: 13;
         const Spawning: 14;
-        const Running: 15
+        const Running: 15;
       }
 
       const Rogue: 271;
@@ -2585,7 +2763,7 @@ declare global {
       const Feet: 9;
       const Gloves: 10;
       const RightArmSecondary: 11;
-      const LeftArmSecondary: 12
+      const LeftArmSecondary: 12;
     }
 
     export namespace items {
@@ -2620,7 +2798,7 @@ declare global {
         const onGround: 3; // Item on ground
         const onCursor: 4; // Item on cursor
         const Dropping: 5; // Item being dropped
-        const Socketed: 6 // Item socketed in item
+        const Socketed: 6; // Item socketed in item
       }
       export namespace quality {
         const LowQuality: 1;
@@ -2637,7 +2815,7 @@ declare global {
         const Exceptional: 1;
         const Elite: 2;
       }
-      export { _class1 as class };
+      export type { _class1 as class };
       export namespace type {
         const Shield: 2;
         const Armor: 3;
@@ -2741,7 +2919,7 @@ declare global {
         const Topaz: 101;
         const Skull: 102;
       }
-      
+
       // Weapons
       export const HandAxe: 0;
       export const Axe: 1;
@@ -4398,7 +4576,7 @@ declare global {
         const Zephyr: 20675;
       }
       namespace dialog {
-        const youDoNotHaveEnoughGoldForThat: 3362
+        const youDoNotHaveEnoughGoldForThat: 3362;
       }
 
       namespace text {
@@ -4638,7 +4816,7 @@ declare global {
         const Battlenet: 2;
         const OpenBattlenet: 3;
         const TcpIpHost: 4;
-        const TcpIpJoin: 5
+        const TcpIpJoin: 5;
       }
 
       namespace controls {
@@ -4699,7 +4877,7 @@ declare global {
         const TcpIpUnableToConnect: 44;
       }
     }
-    
+
     export namespace colors {
       const White: "ÿc0";
       const Red: "ÿc1";
@@ -4722,7 +4900,7 @@ declare global {
         const DarkGold: 7;
         const Orange: 8;
         const Red: 9;
-        const Gray: 10
+        const Gray: 10;
       }
     }
 
@@ -4803,14 +4981,14 @@ declare global {
       namespace code {
         const Backspace: 0x08;
         const Tab: 0x09;
-        const Clear: 0x0C;
-        const Enter: 0x0D;
+        const Clear: 0x0c;
+        const Enter: 0x0d;
         const Shift: 0x10;
         const Ctrl: 0x11;
         const Alt: 0x12;
         const PauseBreak: 0x13;
         const CapsLock: 0x14;
-        const Esc: 0x1B;
+        const Esc: 0x1b;
         const Space: 0x20;
         const PageUp: 0x21;
         const PageDown: 0x22;
@@ -4821,10 +4999,10 @@ declare global {
         const RightArrow: 0x27;
         const DownArrow: 0x28;
         const Select: 0x29;
-        const Print: 0x2A;
-        const PrintScreen: 0x2C;
-        const Insert: 0x2D;
-        const Delete: 0x2E;
+        const Print: 0x2a;
+        const PrintScreen: 0x2c;
+        const Insert: 0x2d;
+        const Delete: 0x2e;
       }
     }
 
@@ -4840,7 +5018,7 @@ declare global {
       const Smack: 9;
       const ProgressBar: 10;
       const Popup: 11;
-      const AccountList: 12
+      const AccountList: 12;
     }
 
     export namespace packets {
@@ -4854,11 +5032,11 @@ declare global {
         const LeftSkillOnEntityEx: 0x07;
         const LeftSkillOnLocationEx: 0x08;
         const LeftSkillOnEntityEx2: 0x09;
-        const LeftSkillOnEntityEx3: 0x0A;
-        const RightSkillOnLocation: 0x0C;
-        const RightSkillOnEntity: 0x0D;
-        const RightSkillOnEntityEx: 0x0E;
-        const RightSkillOnLocationEx: 0x0F;
+        const LeftSkillOnEntityEx3: 0x0a;
+        const RightSkillOnLocation: 0x0c;
+        const RightSkillOnEntity: 0x0d;
+        const RightSkillOnEntityEx: 0x0e;
+        const RightSkillOnLocationEx: 0x0f;
         const RightSkillOnEntityEx2: 0x10;
         const RightSkillOnEntityEx3: 0x11;
         const SetInfernoState: 0x12;
@@ -4869,12 +5047,12 @@ declare global {
         const DropItem: 0x17;
         const ItemToBuffer: 0x18;
         const PickupBufferItem: 0x19;
-        const ItemToBody: 0x1A;
-        const Swap2HandedItem: 0x1B;
-        const PickupBodyItem: 0x1C;
-        const SwitchBodyItem: 0x1D;
-        const Switch1HandWith2Hand: 0x1E;
-        const SwitchInventoryItem: 0x1F;
+        const ItemToBody: 0x1a;
+        const Swap2HandedItem: 0x1b;
+        const PickupBodyItem: 0x1c;
+        const SwitchBodyItem: 0x1d;
+        const Switch1HandWith2Hand: 0x1e;
+        const SwitchInventoryItem: 0x1f;
         const UseItem: 0x20;
         const StackItem: 0x21;
         const RemoveStackItem: 0x22;
@@ -4885,8 +5063,8 @@ declare global {
         const IndentifyItem: 0x27;
         const InsertSocketItem: 0x28;
         const ScrollToMe: 0x29;
-        const ItemToCube: 0x2A;
-        const NPCInit: 0x2F;
+        const ItemToCube: 0x2a;
+        const NPCInit: 0x2f;
         const NPCCancel: 0x30;
         const QuestMessage: 0x31;
         const NPCBuy: 0x32;
@@ -4896,11 +5074,11 @@ declare global {
         const HireMerc: 0x36;
         const IndentifyGamble: 0x37;
         const EntityAction: 0x38;
-        const AddStat: 0x3A;
-        const AddSkill: 0x3B;
-        const SelectSkill: 0x3C;
-        const ActivateItem: 0x3E;
-        const CharacterPhrase: 0x3F;
+        const AddStat: 0x3a;
+        const AddSkill: 0x3b;
+        const SelectSkill: 0x3c;
+        const ActivateItem: 0x3e;
+        const CharacterPhrase: 0x3f;
         const UpdateQuests: 0x40;
         const Resurrect: 0x41;
         const StaffInOrifice: 0x44;
@@ -4908,19 +5086,19 @@ declare global {
         const MercMove: 0x47;
         const BusyStateOff: 0x48;
         const Waypoint: 0x49;
-        const RequestEntityUpdate: 0x4B;
-        const Transmorgify: 0x4C;
-        const PlayNPCMessage: 0x4D;
-        const ClickButton: 0x4F;
+        const RequestEntityUpdate: 0x4b;
+        const Transmorgify: 0x4c;
+        const PlayNPCMessage: 0x4d;
+        const ClickButton: 0x4f;
         const DropGold: 0x50;
         const BindHotkey: 0x51;
         const StaminaOn: 0x53;
         const StaminaOff: 0x54;
         const QuestCompleted: 0x58;
         const MakeEntityMove: 0x59;
-        const SquelchHostile: 0x5D;
-        const Party: 0x5E;
-        const UpdatePlayerPos: 0x5F;
+        const SquelchHostile: 0x5d;
+        const Party: 0x5e;
+        const UpdatePlayerPos: 0x5f;
         const SwapWeapon: 0x60;
         const MercItem: 0x61;
         const MercRessurect: 0x62;

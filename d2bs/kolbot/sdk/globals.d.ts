@@ -129,7 +129,9 @@ declare global {
     values(source: object): any[];
     entries(source: object): any[][];
     is(o1: any, o2: any): boolean;
-    hasOwn(obj: object, prop: string): boolean;
+    // hasOwn(obj: object, prop: string): boolean;
+    hasOwn<T extends object>(obj: T, prop: keyof T): boolean;
+    hasOwn<T extends object, K extends PropertyKey>(obj: T, prop: K): prop is keyof T;
   }
 
   interface Object {

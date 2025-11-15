@@ -171,6 +171,12 @@ const locationAction = (function () {
         Starter.pingQuit = false;
       }
 
+      if (Starter.Config.JoinChannel !== "" || Starter.Config.AnnounceGames) {
+        Controls.LobbyEnterChat.click();
+
+        return;
+      }
+
       if (Starter.inGame || Starter.gameInfo.error) {
         !Starter.gameStart && (Starter.gameStart = DataFile.getStats().ingameTick);
 
@@ -201,6 +207,43 @@ const locationAction = (function () {
         if (Starter.Config.ResetCount && Starter.gameCount >= Starter.Config.ResetCount) {
           Starter.gameCount = 1;
           DataFile.updateStats("runs", Starter.gameCount);
+        }
+      }
+
+      Starter.LocationEvents.openJoinGameWindow();
+    }
+  );
+  locations.set(sdk.game.locations.LobbyChat,
+    function () {
+      D2Bot.updateStatus("Lobby Chat");
+
+      if (Starter.inGame) {
+        if (AutoMule.outOfGameCheck()
+          || TorchSystem.outOfGameCheck()
+          || Gambling.outOfGameCheck()
+          || CraftingSystem.outOfGameCheck()) {
+          return;
+        }
+
+        console.log("updating runs");
+        D2Bot.updateRuns();
+
+        lastGameTick = getTickCount();
+        Starter.gameCount += 1;
+        Starter.lastGameStatus = "ready";
+        Starter.inGame = false;
+      }
+
+      if (!Starter.chatActionsDone) {
+        Starter.chatActionsDone = true;
+
+        ControlAction.timeoutDelay("Chat delay", Starter.Config.ChatActionsDelay * 1e3);
+        say("/j " + Starter.Config.JoinChannel);
+        delay(1000);
+
+        if (Starter.Config.FirstJoinMessage !== "") {
+          say(Starter.Config.FirstJoinMessage);
+          delay(500);
         }
       }
 

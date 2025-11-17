@@ -258,6 +258,13 @@ declare global {
     MapMode: {
       UseOwnItemFilter: boolean;
     };
+
+    Advertise: {
+      Enabled: boolean;
+      Message: string | string[];
+      Interval: [number, number] | number;
+    };
+
     MFLeader: boolean;
     Mausoleum: {
       KillBishibosh: boolean;

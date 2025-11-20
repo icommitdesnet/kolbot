@@ -8,7 +8,7 @@
 (function (threadType, globalThis) {
   const others = [];
 
-  const myEvents = new (require("Events"));
+  const myEvents = new (require("./AsyncEvents"));
   const Worker = require("Worker");
   const Messaging = require("Messaging");
   const defaultCopyDataMode = 0xC0FFFEE;

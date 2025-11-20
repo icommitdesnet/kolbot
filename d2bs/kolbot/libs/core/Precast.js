@@ -594,7 +594,7 @@ const Precast = (function () {
             let spot = Pather.findSpotAtDistance(wp, 8);
 
             if (spot) {
-              Pather.move(spot);
+              Pather.move(spot, { allowNodeActions: false });
             }
             Precast.doPrecast(force);
           }

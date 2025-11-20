@@ -45,13 +45,14 @@ const Attack = {
 
   // Initialize attacks
   init: function () {
+    // TODO: properly handle loading wereform and custom files so they work with LazyLoader and get the correct types
     if (Config.Wereform) {
-      include("core/Attacks/wereform.js");
+      ClassAttack.load(me.classid, require("./Attacks/Wereform"));
     } else if (Config.CustomClassAttack && FileTools.exists("libs/core/Attacks/" + Config.CustomClassAttack + ".js")) {
       console.log("Loading custom attack file");
-      include("core/Attacks/" + Config.CustomClassAttack + ".js");
+      ClassAttack.load(me.classid, require("./Attacks/" + Config.CustomClassAttack));
     } else {
-      include("core/Attacks/" + sdk.player.class.nameOf(me.classid) + ".js");
+      ClassAttack.load(me.classid);
     }
 
     if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) {
@@ -366,7 +367,7 @@ const Attack = {
           Packet.flash(me.gid);
         }
 
-        let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
+        let result = ClassAttack[me.classid].doAttack(target, attackCount % 15 === 0);
 
         if (result === this.Result.FAILED) {
           if (retry++ > 3) {
@@ -392,7 +393,7 @@ const Attack = {
 
       attackCount === Config.MaxAttackCount && (errorInfo = " (attackCount exceeded: " + attackCount + ")");
       Config.MFSwitchPercent && me.switchWeapons(primarySlot);
-      ClassAttack.afterAttack();
+      ClassAttack[me.classid].afterAttack();
       Pickit.pickItems();
 
       if (!!target && target.attackable) {
@@ -439,7 +440,7 @@ const Attack = {
     const who = (!!target.name ? target.name : classId);
 
     while (attackCount < Config.MaxAttackCount && target.attackable && !Attack.skipCheck(target)) {
-      let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
+      let result = ClassAttack[me.classid].doAttack(target, attackCount % 15 === 0);
 
       if (result === this.Result.FAILED) {
         if (retry++ > 3) {
@@ -660,7 +661,7 @@ const Attack = {
 
         let _currMon = attacks.get(target.gid);
         const checkAttackSkill = (!!_currMon && _currMon.attacks % 15 === 0);
-        const result = ClassAttack.doAttack(target, checkAttackSkill);
+        const result = ClassAttack[me.classid].doAttack(target, checkAttackSkill);
 
         if (result) {
           retry = 0;
@@ -683,10 +684,13 @@ const Attack = {
           const isSpecial = target.isSpecial;
           const secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
           const checkSkill = Config.AttackSkill[isSpecial ? 1 : 3];
-          const hammerCheck = me.paladin && checkSkill === sdk.skills.BlessedHammer;
+          const hammerCheck = me.classid === sdk.player.class.Paladin && checkSkill === sdk.skills.BlessedHammer;
 
           if (Config.AttackSkill[secAttack] > -1
-            && (!Attack.checkResist(target, checkSkill) || (hammerCheck && !ClassAttack.getHammerPosition(target)))) {
+            && (
+              !Attack.checkResist(target, checkSkill)
+              || (hammerCheck && !ClassAttack[me.classid].getHammerPosition(target)))
+          ) {
             skillCheck = Config.AttackSkill[secAttack];
           } else {
             skillCheck = checkSkill;
@@ -739,7 +743,9 @@ const Attack = {
                 + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick)
               );
             }
-            Config.FastFindItem && pickit && ClassAttack.findItem();
+            if (Config.FastFindItem && pickit && me.classid === sdk.player.class.Barbarian) {
+              ClassAttack[me.classid].findItem();
+            }
             Pickit.fastPick();
           }
         } else {
@@ -761,7 +767,7 @@ const Attack = {
     }
 
     if (attackCount > 0) {
-      ClassAttack.afterAttack(pickit);
+      ClassAttack[me.classid].afterAttack(pickit);
       Attack.openChests(range, orgx, orgy);
       pickit && Pickit.pickItems();
     } else {
@@ -924,7 +930,7 @@ const Attack = {
           }
         }
         
-        const result = ClassAttack.doAttack(target, checkAttackSkill);
+        const result = ClassAttack[me.classid].doAttack(target, checkAttackSkill);
 
         if (result) {
           retry = 0;
@@ -947,10 +953,12 @@ const Attack = {
           const isSpecial = target.isSpecial;
           const secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
           const checkSkill = Config.AttackSkill[isSpecial ? 1 : 3];
-          const hammerCheck = me.paladin && checkSkill === sdk.skills.BlessedHammer;
+          const hammerCheck = me.classid === sdk.player.class.Paladin && checkSkill === sdk.skills.BlessedHammer;
 
           if (Config.AttackSkill[secAttack] > -1
-            && (!Attack.checkResist(target, checkSkill) || (hammerCheck && !ClassAttack.getHammerPosition(target)))
+            && (
+              !Attack.checkResist(target, checkSkill)
+              || (hammerCheck && !ClassAttack[me.classid].getHammerPosition(target)))
           ) {
             skillCheck = Config.AttackSkill[secAttack];
           } else {
@@ -1001,7 +1009,9 @@ const Attack = {
                 + "ÿc0 - ÿc7Duration: ÿc0" + Time.format(getTickCount() - tick)
               );
             }
-            Config.FastFindItem && pickit && ClassAttack.findItem();
+            if (Config.FastFindItem && pickit && me.classid === sdk.player.class.Barbarian) {
+              ClassAttack[me.classid].findItem();
+            }
             Pickit.fastPick();
           }
         } else {
@@ -1023,7 +1033,7 @@ const Attack = {
     }
 
     if (attackCount > 0) {
-      ClassAttack.afterAttack(pickit);
+      ClassAttack[me.classid].afterAttack(pickit);
       this.openChests(range, orgx, orgy);
       pickit && Pickit.pickItems();
     } else {
@@ -1180,7 +1190,7 @@ const Attack = {
         Config.Dodge && me.hpPercent <= Config.DodgeHP && this.deploy(target, Config.DodgeRange, 5, 9);
         // me.overhead("attacking " + target.name + " spectype " + target.spectype + " id " + target.classid);
         let i;
-        let result = ClassAttack.doAttack(target, attackCount % 15 === 0);
+        let result = ClassAttack[me.classid].doAttack(target, attackCount % 15 === 0);
 
         if (result) {
           retry = 0;
@@ -1240,7 +1250,7 @@ const Attack = {
               target.isBoss && Attack._killed.add(target.classid);
               target.uniqueid > -1 && Attack._killed.add(target.name);
             }
-            Config.FastFindItem && pickit && ClassAttack.findItem();
+            Config.FastFindItem && pickit && ClassAttack[me.classid].findItem();
             Pickit.fastPick();
           }
         } else {
@@ -1257,7 +1267,7 @@ const Attack = {
     }
 
     if (attackCount > 0) {
-      ClassAttack.afterAttack(true);
+      ClassAttack[me.classid].afterAttack(true);
       this.openChests(Config.OpenChests.Range);
       Pickit.pickItems();
     } else {
@@ -1854,13 +1864,18 @@ const Attack = {
 
     monList = this.buildMonsterList();
     monList.sort(Sort.units);
-    if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) return true;
+    
+    if (this.getMonsterCount(me.x, me.y, 15, monList) === 0) {
+      return true;
+    }
 
     CollMap.getNearbyRooms(unit.x, unit.y);
-    let grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
+    const grid = this.buildGrid(unit.x - distance, unit.x + distance, unit.y - distance, unit.y + distance, spread);
 
     if (!grid.length) return false;
-    grid.sort((a, b) => getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y));
+    grid.sort(function (a, b) {
+      return getDistance(b.x, b.y, unit.x, unit.y) - getDistance(a.x, a.y, unit.x, unit.y);
+    });
 
     for (let i = 0; i < grid.length; i += 1) {
       if (!(CollMap.getColl(grid[i].x, grid[i].y, true) & sdk.collision.BlockWall)
@@ -1928,6 +1943,7 @@ const Attack = {
       throw new Error("buildGrid: Bad parameters");
     }
 
+    /** @type {(PathNode & { coll: number })[]} */
     let grid = [];
 
     for (let i = xmin; i <= xmax; i += spread) {

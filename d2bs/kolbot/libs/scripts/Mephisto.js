@@ -35,7 +35,7 @@ const Mephisto = new Runnable(
           }
         }
 
-        if (ClassAttack.doAttack(meph) < 2) {
+        if (ClassAttack[me.classid].doAttack(meph) < 2) {
           break;
         }
 

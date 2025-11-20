@@ -1531,6 +1531,7 @@
         Druid: 5,
         Assassin: 6,
 
+        /** @param {number} classid */
         nameOf: function (classid) {
           if (classid === undefined || typeof classid !== "number") return false;
           if (classid < 0 || classid > 6) return false;

@@ -1,4 +1,3 @@
-export {};
 declare global {
   type DamageType = "physical" | "fire" | "lightning" | "magic" | "cold" | "poison" | "holybolt";
 
@@ -8,14 +7,7 @@ declare global {
     CANTATTACK: 2; // need to fix the ambiguity between this result and Failed
     NEEDMANA: 3;
   }
-  interface ClassAttack {
-    doAttack(unit: Monster, preattack?: boolean): AttackResult;
-    afterAttack(any?: any): void;
-    doCast(unit: Monster, timedSkill: number, untimedSkill: number): AttackResult;
 
-    // Self defined
-    decideSkill(unit: Monster, skipSkill?: number[]): { timed: number; untimed: number };
-  }
   namespace Attack {
     const infinity: boolean;
     const auradin: boolean;
@@ -125,3 +117,4 @@ declare global {
     function doChargeCast(unit: Monster): boolean;
   }
 }
+export {};

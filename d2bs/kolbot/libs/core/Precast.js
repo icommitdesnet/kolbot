@@ -475,7 +475,7 @@ const Precast = (function () {
           Precast.summon(Config.Golem, sdk.summons.type.Golem);
         }
 
-        Config.ActiveSummon && ClassAttack.raiseArmy();
+        Config.ActiveSummon && ClassAttack[me.classid].raiseArmy();
 
         break;
       case sdk.player.class.Paladin:

@@ -37,6 +37,14 @@ PathNode.prototype.getWalkDistance = function () {
 };
 
 /**
+ * @param {{ x?: number, y?: number }} node
+ */
+PathNode.prototype.update = function (node) {
+  if (typeof node.x === "number") this.x = node.x;
+  if (typeof node.y === "number") this.y = node.y;
+};
+
+/**
  * Perform certain actions after moving to each node
  * @todo this needs to be re-worked
  */

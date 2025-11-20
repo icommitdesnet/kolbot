@@ -19,10 +19,12 @@
 /// <reference path="./types/Config.d.ts" />
 /// <reference path="./types/Common.d.ts" />
 /// <reference path="./types/CollMap.d.ts" />
+/// <reference path="./types/ClassAttack.d.ts" />
 
 declare global {
   type IncludePath = import("./types/include-paths").IncludePath;
   type KolbotScript = import("./types/kolbot-scripts").KolbotScript;
+  type EventsInstance = InstanceType<typeof import("libs/modules/Events")>;
 
   interface Error {
     fileName: string;
@@ -884,6 +886,7 @@ declare global {
      */
     getWalkDistanceTo(node: PathNode, area?: number): number;
     mobCount(givenSettings: { range?: number; coll?: number; type?: number; ignoreClassids?: number[] }): number;
+    update({ x, y }: { x?: number; y?: number }): void;
   }
 
   class PathNode {

@@ -370,7 +370,7 @@ declare global {
     readonly classid: number;
     readonly mode: number;
     readonly name: string;
-    readonly act: any;
+    readonly act: 1 | 2 | 3 | 4 | 5;
     readonly gid: number;
     readonly x: number;
     readonly y: number;
@@ -1609,7 +1609,14 @@ declare global {
    * This method sleeps the caller thread for the duration in ms passed to it
    * @note Use sparingly, this method stops the background workers on the callers thread
    */
-  function threadSleep(ms: number);
+  function nativeDelay(ms: number): void;
+
+  /**
+   * @description blocks the thread for specified milliseconds - use sparingly this does not yield to the other threads so it
+   * can potentially cause the heartbeat thread to crash
+   * @param ms
+   */
+  function hardDelay(ms: number): void;
 
   /**
    * Deep merge objects, handling nested properties properly

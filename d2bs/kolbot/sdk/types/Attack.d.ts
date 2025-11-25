@@ -6,6 +6,8 @@ declare global {
     SUCCESS: 1;
     CANTATTACK: 2; // need to fix the ambiguity between this result and Failed
     NEEDMANA: 3;
+    NOOP: 4; // used for clearing, if we didn't find any monsters to clear it's not exactly a success or fail
+    FAILED_POSITION: 5;
   }
 
   namespace Attack {

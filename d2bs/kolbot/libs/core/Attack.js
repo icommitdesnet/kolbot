@@ -28,6 +28,7 @@ const Attack = {
     CANTATTACK: 2, // need to fix the ambiguity between this result and Failed
     NEEDMANA: 3,
     NOOP: 4, // used for clearing, if we didn't find any monsters to clear it's not exactly a success or fail
+    FAILED_POSITION: 5,
   },
   /**
    * Track bosses killed
@@ -802,7 +803,7 @@ const Attack = {
    * @param {(a: T, b: T) => number} [sortfunc] 
    * @param {boolean} [pickit] 
    * @param {(unit: Monster) => boolean} [shouldAttackCb]
-   * @returns {boolean}
+   * @returns {AttackResult}
    * @todo change to passing an object
    */
   clear: function (range, spectype, bossId, sortfunc, pickit = true, shouldAttackCb = () => true) {
@@ -810,7 +811,9 @@ const Attack = {
       delay(40);
     }
 
-    if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) return false;
+    if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) {
+      return Attack.Result.FAILED;
+    }
 
     range === undefined && (range = 25);
     spectype === undefined && (spectype = 0);
@@ -818,7 +821,9 @@ const Attack = {
     sortfunc === undefined && (sortfunc = false);
     !sortfunc && (sortfunc = this.sortMonsters);
 
-    if (typeof (range) !== "number") throw new Error("Attack.clear: range must be a number.");
+    if (typeof (range) !== "number") {
+      throw new Error("Attack.clear: range must be a number.");
+    }
 
     /** @type {Map<number, { attacks: number, name: string }} */
     const attacks = new Map();
@@ -882,7 +887,7 @@ const Attack = {
     }
 
     while (start && monsterList.length > 0 && attackCount < Config.MaxAttackCount) {
-      if (me.dead) return false;
+      if (me.dead) return Attack.Result.FAILED;
       
       boss && (({ orgx, orgy } = { orgx: boss.x, orgy: boss.y }));
       monsterList.sort(sortfunc);
@@ -950,6 +955,14 @@ const Attack = {
 
           _currMon.attacks += 1;
           attackCount += 1;
+
+          if (result === this.Result.FAILED_POSITION && _currMon.attacks < 15) {
+            // push to the end of the list to try later
+            monsterList.push(monsterList.shift());
+            console.debug("ÿc1Requeuing " + target.name + " " + target.gid + " " + _currMon.attacks);
+            continue;
+          }
+
           const isSpecial = target.isSpecial;
           const secAttack = me.barbarian ? (isSpecial ? 2 : 4) : 5;
           const checkSkill = Config.AttackSkill[isSpecial ? 1 : 3];
@@ -1034,7 +1047,7 @@ const Attack = {
 
     if (attackCount > 0) {
       ClassAttack[me.classid].afterAttack(pickit);
-      this.openChests(range, orgx, orgy);
+      Misc.openChests(range, orgx, orgy);
       pickit && Pickit.pickItems();
     } else {
       Precast.doPrecast(false); // we didn't attack anything but check if we need to precast. TODO: better method of keeping track of precast skills
@@ -1049,10 +1062,12 @@ const Attack = {
         );
       } else {
         console.log("ÿc7Clear ÿc0:: ÿc1Failed to clear ÿc0:: " + (!!boss.name ? boss.name : bossId));
+        
+        return Attack.Result.FAILED;
       }
     }
 
-    return true;
+    return attackCount > 0 ? Attack.Result.SUCCESS : Attack.Result.NOOP;
   },
 
   /**
@@ -1268,7 +1283,7 @@ const Attack = {
 
     if (attackCount > 0) {
       ClassAttack[me.classid].afterAttack(true);
-      this.openChests(Config.OpenChests.Range);
+      Misc.openChests(Config.OpenChests.Range);
       Pickit.pickItems();
     } else {
       Precast.doPrecast(false); // we didn't attack anything but check if we need to precast. TODO: better method of keeping track of precast skills
@@ -1793,6 +1808,7 @@ const Attack = {
   },
 
   /**
+   * @deprecated - Use Misc.openChests instead
    * @description Open chests when clearing
    * @param {number} range 
    * @param {number} [x=me.x] 

@@ -105,7 +105,7 @@
         */
         if (unit.distance > Skill.getRange(attackSkill) || checkCollision(me, unit, sdk.collision.BlockWall)) {
           if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), sdk.collision.BlockWall, 2)) {
-            return Attack.Result.FAILED;
+            return Attack.Result.FAILED_POSITION;
           }
         }
 
@@ -124,7 +124,7 @@
           );
 
           if (!Attack.getIntoPosition(unit, Skill.getRange(attackSkill), sdk.collision.Ranged, walk)) {
-            return Attack.Result.FAILED;
+            return Attack.Result.FAILED_POSITION;
           }
         }
 
@@ -244,7 +244,7 @@
               // if (!me.inArea(sdk.areas.ThroneofDestruction)) {
               //   D2Bot.printToConsole("Failed to hork " + JSON.stringify(corpse) + " at " + getAreaName(me.area));
               // }
-              console.debug("Failed to hork " + JSON.stringify(corpse) + " at " + getAreaName(me.area));
+              // console.debug("Failed to hork " + JSON.stringify(corpse) + " at " + getAreaName(me.area));
             }
           }
         }

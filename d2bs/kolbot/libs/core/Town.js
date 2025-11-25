@@ -452,6 +452,9 @@ const Town = {
 
       console.info(false, "Did " + reason + " at " + npc.name, "initNPC");
     } catch (e) {
+      if ((e instanceof ScriptError)) {
+        throw e;
+      }
       console.error(e);
 
       if (!!e.message && e.message === "Couldn't interact with npc") {
@@ -712,6 +715,9 @@ const Town = {
         try {
           tome.buy();
         } catch (e1) {
+          if ((e instanceof ScriptError)) {
+            throw e;
+          }
           console.log(e1);
           // Couldn't buy the tome, don't spam the scrolls
           return false;
@@ -982,6 +988,9 @@ const Town = {
             item.buy();
           }
         } catch (e) {
+          if ((e instanceof ScriptError)) {
+            throw e;
+          }
           console.error(e);
         }
       }
@@ -1182,6 +1191,9 @@ const Town = {
         }
       }
     } catch (e) {
+      if ((e instanceof ScriptError)) {
+        throw e;
+      }
       console.error(e);
 
       return false;
@@ -1259,6 +1271,9 @@ const Town = {
     try {
       key.buy(true);
     } catch (e) {
+      if ((e instanceof ScriptError)) {
+        throw e;
+      }
       console.error(e);
 
       return false;
@@ -1688,6 +1703,9 @@ const Town = {
         console.debug("Open npc menu");
         !!getInteractedNPC() && Misc.useMenu(sdk.menu.Trade);
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         console.error(e);
         me.cancelUIFlags();
       }
@@ -1824,6 +1842,9 @@ const Town = {
                 Item.logger("Sold", item);
                 item.sell() && (sold = true);
               } catch (e) {
+                if ((e instanceof ScriptError)) {
+                  throw e;
+                }
                 console.error(e);
               }
               sold && delay(250); // would a rand delay be better?
@@ -1844,6 +1865,9 @@ const Town = {
             Item.logger("Dropped", item, "clearInventory");
             item.drop() && (drop = true);
           } catch (e) {
+            if ((e instanceof ScriptError)) {
+              throw e;
+            }
             console.error(e);
           }
           drop && delay(50);
@@ -2081,6 +2105,9 @@ const Town = {
           }
         }
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         let tpTool = me.getTpTool();
         if (!tpTool && Misc.getPlayerCount() <= 1) {
           Misc.errorReport(new Error("Town.goToTown: Failed to go to town and no tps available. Restart."));
@@ -2111,6 +2138,9 @@ const Town = {
       try {
         Pather.useWaypoint(sdk.areas.townOfAct(act), wpmenu);
       } catch (WPError) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         throw new Error("Town.goToTown: Failed use WP");
       }
     }
@@ -2144,6 +2174,9 @@ const Town = {
     try {
       Town.goToTown();
     } catch (e) {
+      if ((e instanceof ScriptError)) {
+        throw e;
+      }
       return false;
     }
 
@@ -2156,6 +2189,9 @@ const Town = {
       try {
         Pather.usePortal(preArea, me.name);
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         throw new Error("Town.visitTown: Failed to go back from town");
       }
     }
@@ -2251,6 +2287,9 @@ const Town = {
       try {
         Town.goToTown();
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         return false;
       }
     }
@@ -2289,6 +2328,9 @@ const Town = {
         try {
           Pather.usePortal(preArea, me.name);
         } catch (e) {
+          if ((e instanceof ScriptError)) {
+            throw e;
+          }
           throw new Error("Town.visitTown: Failed to go back from town");
         }
       }

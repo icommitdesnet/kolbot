@@ -237,6 +237,9 @@
       return Attack.Result.SUCCESS;
     },
 
+    /**
+     * @param {Monster} unit 
+     */
     checkTraps: function (unit) {
       if (!Config.UseTraps || !unit) return false;
 

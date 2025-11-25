@@ -262,6 +262,9 @@ const Precast = (function () {
         }
         return state ? me.getState(state) : true;
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         console.error(e);
 
         return false;
@@ -603,6 +606,9 @@ const Precast = (function () {
         }
         Pather.useWaypoint(returnTo);
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         console.error(e);
       } finally {
         if (me.area !== returnTo && (!Pather.useWaypoint(returnTo) || !Pather.useWaypoint(sdk.areas.townOf(me.area)))) {

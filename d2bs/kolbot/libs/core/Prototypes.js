@@ -986,6 +986,9 @@ Unit.prototype.toCursor = function (usePacket = false) {
         clickItem(sdk.clicktypes.click.item.Left, this);
       }
     } catch (e) {
+      if ((e instanceof ScriptError)) {
+        throw e;
+      }
       return false;
     }
 

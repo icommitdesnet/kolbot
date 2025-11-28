@@ -193,7 +193,6 @@
     },
 
     afterAttack: function () {
-      console.debug("Sorceress afterAttack: doPrecast");
       Precast.doPrecast(false);
     },
 

@@ -1442,6 +1442,7 @@ declare global {
     joinInfo: {};
     profileInfo: ProfileInfo;
     ftjCount: number;
+    lastLocation: number[];
 
     sayMsg(string: string): void;
     /**

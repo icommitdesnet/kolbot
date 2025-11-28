@@ -435,10 +435,30 @@
       Starter.lastGameStatus = "ready";
     }
   );
+
+  /** @param {number} loc */
+  const run = function (loc) {
+    try {
+      let func = _loc.get(loc);
+      if (typeof func === "function") {
+        console.debug("Handling location: " + loc);
+        Starter.lastLocation.push(loc);
+        if (Starter.lastLocation.length > 5) {
+          Starter.lastLocation.shift();
+        }
+        func(loc);
+      } else if (loc !== undefined && loc !== null) {
+        console.log("Unhandled location: " + loc);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
   
   module.exports = {
     locations: _loc,
     addLocations: addLocations,
     parseControlText: parseControlText,
+    run: run,
   };
 })(module);

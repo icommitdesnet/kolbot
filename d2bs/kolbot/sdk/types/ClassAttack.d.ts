@@ -20,6 +20,19 @@ declare global {
     [sdk.player.class.Paladin]: typeof import("../../libs/core/Attacks/Paladin");
     [sdk.player.class.Necromancer]: typeof import("../../libs/core/Attacks/Necromancer");
     Wereform: typeof import("../../libs/core/Attacks/Wereform");
+
+    /**
+     * @deprecated Use the specific class attack modules instead. ClassAttack[me.classid].doAttack(...)
+     */
+    doAttack: (unit: Monster | Player, preattack?: boolean) => AttackResult;
+    /**
+     * @deprecated Use the specific class attack modules instead. ClassAttack[me.classid].afterAttack()
+     */
+    afterAttack: () => void;
+    /**
+     * @deprecated Use the specific class attack modules instead. ClassAttack[me.classid].doCast(...)
+     */
+    doCast: (unit: Monster | Player, timedSkill: number, untimedSkill: number) => AttackResult;
   }
 
   const ClassAttack: IClassAttack;

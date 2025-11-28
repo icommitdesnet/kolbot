@@ -68,6 +68,7 @@ declare global {
     function clearLevel(spectype?: number): boolean;
     function sortMonsters(unitA: Unit, unitB: Unit): boolean;
     function validSpot(x: number, y: number, skill?: number, unitid?: number): boolean;
+    /** @deprecated Use Misc.openChests instead */
     function openChests(range: number, x?: number, y?: number): boolean;
     function buildMonsterList(): [] | Monster[];
     function findSafeSpot(

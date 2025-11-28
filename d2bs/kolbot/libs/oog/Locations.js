@@ -395,7 +395,22 @@
       Starter.LocationEvents.unableToConnect();
     }
   );
-  addLocations([sdk.game.locations.CharSelectPleaseWait, sdk.game.locations.LobbyPleaseWait],
+  addLocations([sdk.game.locations.LobbyPleaseWait],
+    function (location) {
+      let startTick = getTickCount();
+      if (!Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, location)) {
+        Controls.OkCentered.click();
+      } else {
+        if (getTickCount() - startTick < Time.seconds(5)) {
+          ControlAction.timeoutDelay(
+            "After Game Delay",
+            Math.max((Time.seconds(5) - (getTickCount() - startTick), 1000))
+          );
+        }
+      }
+    }
+  );
+  addLocations([sdk.game.locations.CharSelectPleaseWait],
     function (location) {
       if (!Starter.locationTimeout(Starter.Config.PleaseWaitTimeout * 1e3, location)) {
         Controls.OkCentered.click();

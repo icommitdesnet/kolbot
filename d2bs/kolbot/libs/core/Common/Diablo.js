@@ -6,7 +6,14 @@
 */
 
 (function (module) {
+  const Events = new (require("../../modules/Events"));
+  
   const _Diablo = {
+    on: Events.on,
+    off: Events.off,
+    once: Events.once,
+    emit: Events.emit,
+
     diabloSpawned: false,
     diaWaitTime: Time.seconds(30),
     clearRadius: 30,
@@ -64,6 +71,7 @@
         console.debug("Diablo lights event detected");
         _Diablo.diabloSpawned = true;
         Misc._diabloSpawned = true;
+        _Diablo.emit("diablospawned");
       }
     },
 

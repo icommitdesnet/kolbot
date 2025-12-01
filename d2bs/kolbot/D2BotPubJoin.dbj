@@ -204,11 +204,6 @@ const locationAction = (function () {
           Starter.gameCount = 1;
           DataFile.updateStats("runs", Starter.gameCount);
         }
-
-        ControlAction.timeoutDelay(
-          "Join Game Delay",
-          Starter.Config.JoinGameDelay * 1e3
-        );
       }
 
       if (Starter.Config.JoinChannel !== "" || Starter.Config.AnnounceGames) {
@@ -239,11 +234,6 @@ const locationAction = (function () {
         Starter.gameCount += 1;
         Starter.lastGameStatus = "ready";
         Starter.inGame = false;
-
-        ControlAction.timeoutDelay(
-          "Join Game Delay",
-          Starter.Config.JoinGameDelay * 1e3
-        );
       }
 
       if (!Starter.chatActionsDone) {
@@ -270,8 +260,9 @@ const locationAction = (function () {
   );
   addLocations(
     [
-      sdk.game.locations.LobbyChat, sdk.game.locations.CreateGame,
-      sdk.game.locations.Ladder, sdk.game.locations.ChannelList
+      sdk.game.locations.CreateGame,
+      sdk.game.locations.Ladder,
+      sdk.game.locations.ChannelList
     ],
     function () {
       Starter.LocationEvents.openJoinGameWindow();

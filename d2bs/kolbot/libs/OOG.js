@@ -1737,6 +1737,10 @@ includeIfNotIncluded("core/Me.js");
         openJoinGameWindow: function () {
           let currentLoc = getLocation();
 
+          if (Starter.inGame) {
+            ControlAction.timeoutDelay("Open join game delay", 5000);
+          }
+
           if (!Controls.JoinGameWindow.click()) {
             return;
           }

@@ -52,6 +52,11 @@ global.require = (function (include, isIncluded, print, notify) {
       directory = "../" + directory; // Add a extra recursive path, as we start out of the lib directory
     }
 
+    // remove the / from it, in case it was libs/ (rather than lib/) and we now have a leading slash
+    if (directory.startsWith("/")) {
+      directory = directory.substr(1);
+    }
+
     path = path || directory;
 
     let fullpath = removeRelativePath((path + field).replace(/\\/, "/")).toLowerCase();
@@ -59,6 +64,12 @@ global.require = (function (include, isIncluded, print, notify) {
     if (fullpath.startsWith("lib")) {
       fullpath = fullpath.substr(4);
     }
+
+    // remove the / from it, in case it was libs/ (rather than lib/) and we now have a leading slash
+    if (fullpath.startsWith("/")) {
+      fullpath = fullpath.substr(1);
+    }
+
     const packageName = fullpath;
 
     const asNew = this.__proto__.constructor === require && ((...args) => new (Function.prototype.bind.apply(modules[packageName].exports, args)));
@@ -78,8 +89,8 @@ global.require = (function (include, isIncluded, print, notify) {
 
     if (!isIncluded(fullpath + ".js") && !modules.hasOwnProperty(moduleNameShort)) {
       if (debug) {
-        depth && notify && print("ÿc2Kolbotÿc0 ::    - loading dependency of " + filename + ": " + moduleNameShort);
-        !depth && notify && print("ÿc2Kolbotÿc0 :: Loading module: " + moduleNameShort);
+        depth && notify && console.log("ÿc2Kolbotÿc0 ::    - loading dependency of " + filename + ": " + moduleNameShort);
+        !depth && notify && console.log("ÿc2Kolbotÿc0 :: Loading module: " + moduleNameShort);
       }
 
       let oldModule = Object.create(global["module"]);

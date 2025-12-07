@@ -595,11 +595,25 @@
 
         return me.inTown || (me.mpPercent > 25);
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         return false;
       }
     },
 
-    // Cast a skill on self, Unit or coords
+    /**
+     * Cast a skill on self, Unit or coords
+     * @param {number} skillId 
+     * @param {number} hand 
+     * @param {number | Unit | PathNode} x 
+     * @param {number} [y] 
+     * @param {ItemUnit} [item] 
+     * @param {number} [weaponSlot] 
+     * @returns {boolean}
+     *
+     * @todo Track skills cast so we can determine most used, skills, mana expenditure, etc.
+     */
     cast: function (skillId, hand, x, y, item, weaponSlot = -1) {
       if (skillId === undefined) throw new Error("Unit.cast: Must supply a skill ID");
       const switchWeapons = weaponSlot > -1;
@@ -737,6 +751,9 @@
       try {
         return item.castChargedSkill(skillId, unit.x, unit.y);
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         console.error(e);
         // maybe rebuild list?
         // Skill.getCharges();
@@ -750,15 +767,11 @@
         }
       }
     },
-  };
 
-  Object.defineProperties(Skill, {
-    haveTK: {
-      get: function () {
-        return Skill.canUse(sdk.skills.Telekinesis);
-      },
-    },
-  });
+    get haveTK () {
+      return Skill.canUse(sdk.skills.Telekinesis);
+    }
+  };
 
   // export to the global scope
   global.Skill = Skill;

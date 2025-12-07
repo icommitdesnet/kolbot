@@ -43,7 +43,7 @@
           throw error;
         } // keep on throwing
 
-        print("[ÿc9Warningÿc0] Too much recursion");
+        console.log("[ÿc9Warningÿc0] Too much recursion");
       }
     };
 
@@ -82,6 +82,7 @@
           }
         };
         self.pushLowPrio(proxyCallback);
+        return true;
       },
       deleteProperty: function (target, name) {
         if (!target.processes.hasOwnProperty(name)) {
@@ -113,6 +114,7 @@
     };
 
     global._delay = delay; // The original delay function
+    global.nativeSleep = delay;
 
     /**
      * Just makes it easier to peform a delay

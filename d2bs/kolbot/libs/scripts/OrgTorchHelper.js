@@ -5,6 +5,7 @@
 *
 */
 
+
 const OrgTorchHelper = new Runnable(
   function OrgTorchHelper () {
     // TODO: Temp remove organs from nip so this doesn't interfere with OrgTorch
@@ -21,9 +22,9 @@ const OrgTorchHelper = new Runnable(
     const tasks = ["kill", "clear", "quit", "starting"];
 
     /**
-     * @param {string} name 
-     * @param {string} msg 
-     */
+    * @param {string} name 
+    * @param {string} msg 
+    */
     function chatEvent (name, msg) {
       if (!msg) return;
       const cmd = msg.toLowerCase().split(" ");
@@ -84,10 +85,10 @@ const OrgTorchHelper = new Runnable(
     }
 
     /**
-     * Get fade in River of Flames - only works if we are wearing an item with ctc Fade
-     * @returns {boolean}
-     * @todo equipping an item from storage if we have it
-     */
+    * Get fade in River of Flames - only works if we are wearing an item with ctc Fade
+    * @returns {boolean}
+    * @todo equipping an item from storage if we have it
+    */
     const getFade = function () {
       if (!Config.OrgTorchHelper.GetFade) return true;
       if (me.getState(sdk.states.Fade)) return true;
@@ -219,38 +220,24 @@ const OrgTorchHelper = new Runnable(
       Pickit.pickItems();
       Town.goToTown();
     };
-
-    /**
-     * Try to lure a monster - wait until it's close enough
-     * @param {number} bossId 
-     * @returns {boolean}
-     * @todo redo this
-     * - should, lure boss AWAY from the others and to us
-     * - create path to boss, move some -> wait to see if aggroed -> if yes - move back and make sure it follows until its safely away from other bosses
-     */
-    const lure = function (bossId) {
-      let unit = Game.getMonster(bossId);
-
-      if (unit) {
-        let tick = getTickCount();
-
-        while (getTickCount() - tick < 2000) {
-          if (unit.distance <= 10) {
-            return true;
-          }
-
-          delay(50);
-        }
-      }
-
-      return false;
-    };
     
     const uberTrist = function () {
       Config.MercWatch = false;
       
       Pather.moveTo(25068, 5078);
       Precast.doPrecast(true);
+
+      const validIds = [
+        sdk.monsters.UberDiablo,
+        sdk.monsters.UberMephisto,
+        sdk.monsters.UberBaal
+      ];
+
+      // poll for the killer to have started so we don't interfere with lure
+      Misc.poll(function () {
+        let killCmd = taskList.find(el => el.task === "kill" && validIds.includes(el.id));
+        return killCmd && killCmd.at < getTickCount() - Time.minutes(3);
+      }, Time.seconds(15), 50);
 
       let nodes = [
         new PathNode(25040, 5101),
@@ -262,10 +249,6 @@ const OrgTorchHelper = new Runnable(
         Pather.move(node);
       }
 
-      lure(sdk.monsters.UberMephisto);
-      Pather.moveTo(25129, 5198);
-      lure(sdk.monsters.UberMephisto);
-
       if (!Game.getMonster(sdk.monsters.UberMephisto)) {
         Pather.moveTo(25122, 5170);
       }
@@ -273,7 +256,10 @@ const OrgTorchHelper = new Runnable(
       Attack.clear(15, sdk.monsters.spectype.All, sdk.monsters.UberMephisto);
 
       Pather.moveTo(25162, 5141);
-      delay(3250);
+      Misc.poll(function () {
+        let diablo = Game.getMonster(sdk.monsters.UberDiablo);
+        return diablo && (diablo.distance < 10 || diablo.dead);
+      }, 3250, 50);
 
       if (!Game.getMonster(sdk.monsters.UberDiablo)) {
         Pather.moveTo(25122, 5170);

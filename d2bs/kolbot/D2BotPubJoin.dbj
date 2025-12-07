@@ -11,23 +11,15 @@
 
 include("critical.js"); // required
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-// D2BotPubJoin specific settings - for global settings see libs/starter/StarterConfig.js
-Starter.Config.MinGameTime = 0; // Minimum game length in seconds. If a game is ended too soon, the rest of the time is waited in the lobby
-Starter.Config.ResetCount = 0; // Reset game count back to 1 every X games.
-Starter.Config.JoinDelay = 10; // Seconds to wait between join attempts
-Starter.Config.AttemptNextGame = true; // after joining a game, attempt incrementing game count and joining next game rather than looking for it in game list
-Starter.Config.AttemptNextGameRetrys = 5;
-Starter.Config.MinPlayers = 1; // Minimum players in game to join
 const {
   includeFilter,
   excludeFilter,
   profileOverides,
+  StarterConfig,
 } = require("./libs/systems/pubjoin/PubJoinConfig");
 
-// Override default values for StarterConfig under here by following format
-// Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
-
 // ###############################################################################
+Object.assign(Starter.Config, StarterConfig);
 
 // the only things we really need from these are their oog checks
 includeSystemLibs();
@@ -70,7 +62,8 @@ if (DataFile.init()) {
   Starter.firstRun = true;
 }
 
-let lastGameTick, retry = 0;
+let lastGameTick = 0;
+let retry = 0;
 let retryTick = 0;
 
 const GameTracker = {
@@ -110,7 +103,8 @@ const locationAction = (function () {
   const Controls = require("./libs/modules/Control");
   const {
     locations,
-    addLocations
+    addLocations,
+    run
   } = require("./libs/oog/Locations");
   
   /** @param {string} game */
@@ -212,6 +206,49 @@ const locationAction = (function () {
         }
       }
 
+      if (Starter.Config.JoinChannel !== "" || Starter.Config.AnnounceGames) {
+        Controls.LobbyEnterChat.click();
+
+        return;
+      }
+
+      Starter.LocationEvents.openJoinGameWindow();
+    }
+  );
+  locations.set(sdk.game.locations.LobbyChat,
+    function () {
+      D2Bot.updateStatus("Lobby Chat");
+
+      if (Starter.inGame) {
+        if (AutoMule.outOfGameCheck()
+          || TorchSystem.outOfGameCheck()
+          || Gambling.outOfGameCheck()
+          || CraftingSystem.outOfGameCheck()) {
+          return;
+        }
+
+        console.log("updating runs");
+        D2Bot.updateRuns();
+
+        lastGameTick = getTickCount();
+        Starter.gameCount += 1;
+        Starter.lastGameStatus = "ready";
+        Starter.inGame = false;
+      }
+
+      if (!Starter.chatActionsDone) {
+        Starter.chatActionsDone = true;
+
+        ControlAction.timeoutDelay("Chat delay", Starter.Config.ChatActionsDelay * 1e3);
+        say("/j " + Starter.Config.JoinChannel);
+        delay(1000);
+
+        if (Starter.Config.FirstJoinMessage !== "") {
+          say(Starter.Config.FirstJoinMessage);
+          delay(500);
+        }
+      }
+
       Starter.LocationEvents.openJoinGameWindow();
     }
   );
@@ -223,8 +260,9 @@ const locationAction = (function () {
   );
   addLocations(
     [
-      sdk.game.locations.LobbyChat, sdk.game.locations.CreateGame,
-      sdk.game.locations.Ladder, sdk.game.locations.ChannelList
+      sdk.game.locations.CreateGame,
+      sdk.game.locations.Ladder,
+      sdk.game.locations.ChannelList
     ],
     function () {
       Starter.LocationEvents.openJoinGameWindow();
@@ -236,6 +274,8 @@ const locationAction = (function () {
       if (getTickCount() - lastGameTick < 5000) {
         ControlAction.timeoutDelay("Game Delay", (lastGameTick - getTickCount() + 5000));
       }
+
+      D2Bot.updateStatus("Searching for Public Game");
 
       if (Starter.Config.AttemptNextGame && retry < Starter.Config.AttemptNextGameRetrys) {
         let ng = DataFile.getStats().nextGame;
@@ -337,19 +377,7 @@ const locationAction = (function () {
   );
 
   return {
-    /** @param {number} loc */
-    run: function (loc) {
-      try {
-        let func = locations.get(loc);
-        if (typeof func === "function") {
-          func(loc);
-        } else if (loc !== undefined && loc !== null) {
-          console.log("Unhandled location: " + loc);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    },
+    run: run,
   };
 })();
 

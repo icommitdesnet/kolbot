@@ -1489,6 +1489,7 @@
     player: {
       flag: {
         Ignore: 2,
+        Squelch: 4,
         Hostile: 8,
       },
       slot: {
@@ -1530,6 +1531,7 @@
         Druid: 5,
         Assassin: 6,
 
+        /** @param {number} classid */
         nameOf: function (classid) {
           if (classid === undefined || typeof classid !== "number") return false;
           if (classid < 0 || classid > 6) return false;
@@ -1954,6 +1956,10 @@
         DeathMauler: 57,
         PutridDefiler: 58,
       },
+      Raven: 419,
+      PoisonCreeper: 425,
+      CarrionVine: 426,
+      SolarCreeper: 427,
       DiablosBoneCage: 340,
       DiablosBoneCage2: 342,
       Dummy1: 149,
@@ -2500,9 +2506,9 @@
       Griswold: 365,
       Izual: 256,
       Hephasto: 409,
-      KorlictheProtector: 540,
-      TalictheDefender: 541,
-      MadawctheGuardian: 542,
+      TalictheDefender: 540,
+      MadawctheGuardian: 541,
+      KorlictheProtector: 542,
       ListerTheTormenter: 571,
       TheCowKing: 743, // 773?
       ColdwormtheBurrower: 284,
@@ -4474,6 +4480,7 @@
       },
 
       text: {
+        Ladder: 719,
         RepairCost: 3330,
         SellValue: 3331,
         IdentifyCost: 3332,

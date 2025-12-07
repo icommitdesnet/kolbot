@@ -72,6 +72,9 @@ NTIP.OpenFile = function (filepath, notify) {
   try {
     nipfile = File.open(filepath, 0);
   } catch (fileError) {
+    if ((e instanceof ScriptError)) {
+      throw e;
+    }
     if (notify) {
       Misc.errorReport("ÿc1Failed to load NIP: ÿc0" + filename);
     }
@@ -122,7 +125,7 @@ NTIP.CheckQuantityOwned = function (item_type, item_stats) {
   let items = me.getItemsEx();
 
   if (!items.length) {
-    print("I can't find my items!");
+    console.log("I can't find my items!");
 
     return 0;
   }
@@ -145,7 +148,7 @@ NTIP.CheckQuantityOwned = function (item_type, item_stats) {
     }
   }
 
-  //print("I have "+num+" of these.");
+  //console.log("I have "+num+" of these.");
 
   return num;
 };
@@ -199,6 +202,9 @@ NTIP.generateTierFunc = function (tierType) {
             }
           }
         } catch (e) {
+          if ((e instanceof ScriptError)) {
+            throw e;
+          }
           const info = stringArray[i];
           Misc.errorReport("ÿc1Pickit Tier (" + tierType + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
         }
@@ -227,9 +233,11 @@ NTIP.GetMercTier = NTIP.generateTierFunc("Merctier");
  * @param {ItemUnit} item 
  * @param {[(item) => Boolean, (item) => Boolean, (item) => Boolean]} entryList 
  * @param {boolean} verbose 
+ * @returns {number|{line: string, result: number}}
  */
 NTIP.CheckItem = function (item, entryList, verbose) {
   let i, num;
+  /** @type {{ line: string, result: number }} */
   let rval = {};
   let result = 0;
 
@@ -322,6 +330,9 @@ NTIP.CheckItem = function (item, entryList, verbose) {
         }
       }
     } catch (pickError) {
+      if ((e instanceof ScriptError)) {
+        throw e;
+      }
       showConsole();
 
       if (!entryList) {
@@ -620,6 +631,9 @@ NTIP.ParseLineInt = function (input, info) {
             // p_result[2].Tier = function(item) { return value };
             p_result[2][keyword.charAt(0).toUpperCase() + keyword.slice(1)] = (new Function("return function(item) { return " + p_section[i].split("==")[1] + ";}")).call(null); // generate function out of
           } catch (e) {
+            if ((e instanceof ScriptError)) {
+              throw e;
+            }
             throw new Error("ÿc1Pickit Tier (" + keyword + ") error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
           }
           break;
@@ -629,6 +643,9 @@ NTIP.ParseLineInt = function (input, info) {
       }
     }
   } catch (e) {
+    if ((e instanceof ScriptError)) {
+      throw e;
+    }
     Misc.errorReport(e);
 
     return false;
@@ -640,6 +657,9 @@ NTIP.ParseLineInt = function (input, info) {
       try {
         p_result[i] = (new Function("return function(item) { return " + p_result[i] + ";}")).call(null); // generate function out of
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         Misc.errorReport("ÿc1Pickit error! Line # ÿc2" + info.line + " ÿc1Entry: ÿc0" + info.string + " (" + info.file + ") Error message: " + e.message);
 
         return null; // failed load this line so return false

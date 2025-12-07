@@ -19,6 +19,18 @@
 
 const OrgTorch = new Runnable(
   function OrgTorch () {
+    if (Config.OrgTorch.UseSalvation) {
+      Config.AdvancedCustomAttack.push({
+        check: function (unit) {
+          return (
+            unit.classid === sdk.monsters.UberMephisto
+            || (me.inArea(sdk.areas.UberTristram) && Game.getMonster(sdk.monsters.UberMephisto))
+          );
+        },
+        attack: [Config.AttackSkill[1], sdk.skills.Salvation]
+      });
+    }
+    
     Config.MFLeader = true;
     let currentGameInfo = null;
     /** @type {Player | null} */
@@ -31,6 +43,10 @@ const OrgTorch = new Runnable(
       UberTristram: 1
     };
 
+    /**
+     * @param {string} nick 
+     * @param {string} msg 
+     */
     function chatEvent (nick, msg) {
       if (!nick || !msg) return;
       if (msg !== "up") return;
@@ -71,8 +87,10 @@ const OrgTorch = new Runnable(
 
       Town.doChores();
 
-      if (!Config.OrgTorch.MakeTorch) return false;
-
+      if (!Config.OrgTorch.MakeTorch) {
+        return false;
+      }
+      
       let torch = me.checkItem({ classid: sdk.items.LargeCharm, quality: sdk.items.quality.Unique });
 
       if (torch.have && Pickit.checkItem(torch.item).result === Pickit.Result.WANTED) {
@@ -323,7 +341,7 @@ const OrgTorch = new Runnable(
       let mBrain = me.findItems(sdk.items.quest.MephistosBrain, sdk.items.mode.inStorage).length;
 
       const foundIzual = function () {
-        return !!Game.getMonster(sdk.monsters.UberIzual);
+        return !!Game.getMonster(sdk.monsters.UberIzual) || Attack.haveKilled(sdk.monsters.UberIzual);
       };
       Precast.doPrecast(true);
       Pather.moveToPresetObject(
@@ -344,17 +362,19 @@ const OrgTorch = new Runnable(
     * @todo re-write this, lure doesn't always work and other classes can do ubers
     */
     const uberTrist = function () {
-      let skillBackup;
-      const useSalvation = Config.OrgTorch.UseSalvation && Skill.canUse(sdk.skills.Salvation);
-
       Pather.moveTo(25068, 5078);
+      
+      if (Precast.checkCTA() && !me.getState(sdk.states.BattleOrders) && Misc.getNearbyPlayerCount() === 0) {
+        Config.UseCta = true; // override
+      }
       Precast.doPrecast(true);
 
       const nodes = [
         new PathNode(25040, 5101),
         new PathNode(25040, 5166),
         new PathNode(25131, 5187),
-        new PathNode(25122, 5170),
+        // new PathNode(25122, 5170),
+        new PathNode(25131, 5187),
       ];
 
       for (let node of nodes) {
@@ -370,42 +390,41 @@ const OrgTorch = new Runnable(
         } });
       }
 
-      useSalvation && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
-      lure(sdk.monsters.UberMephisto);
-      Pather.moveTo(25129, 5198);
-      useSalvation && Skill.setSkill(sdk.skills.Salvation, sdk.skills.hand.Right);
-      lure(sdk.monsters.UberMephisto);
+      lure(sdk.monsters.UberMephisto, 25131, 5187);
 
       if (!Game.getMonster(sdk.monsters.UberMephisto)) {
         Pather.moveTo(25122, 5170);
       }
 
-      if (useSalvation) {
-        skillBackup = Config.AttackSkill[2];
-        Config.AttackSkill[2] = sdk.skills.Salvation;
-
-        Attack.init();
-      }
-
       Attack.kill(sdk.monsters.UberMephisto);
 
-      if (skillBackup && useSalvation) {
-        Config.AttackSkill[2] = skillBackup;
-
-        Attack.init();
-      }
-
-      Pather.moveTo(25162, 5141);
-      delay(3250);
+      Pather.move(new PathNode(25162, 5141), { callback: function () {
+        return Attack.haveKilled(sdk.monsters.UberDiablo);
+      } });
+      
+      const uberDiableCB = function () {
+        if (Attack.haveKilled(sdk.monsters.UberDiablo)) {
+          return true;
+        }
+        let diablo = Game.getMonster(sdk.monsters.UberDiablo);
+        return (diablo && diablo.distance < 10) || diablo.dead;
+      };
+      Misc.poll(uberDiableCB, 3250, 50);
 
       if (!Game.getMonster(sdk.monsters.UberDiablo)) {
-        Pather.moveTo(25122, 5170);
+        Pather.move(new PathNode(25122, 5170), { callback: uberDiableCB });
       }
 
       Attack.kill(sdk.monsters.UberDiablo);
 
       if (!Game.getMonster(sdk.monsters.UberBaal)) {
-        Pather.moveTo(25122, 5170);
+        Pather.move(new PathNode(25122, 5170), { callback: function () {
+          if (Attack.haveKilled(sdk.monsters.UberBaal)) {
+            return true;
+          }
+          let baal = Game.getMonster(sdk.monsters.UberBaal);
+          return (baal && baal.distance < 10) || baal.dead;
+        } });
       }
 
       Attack.kill(sdk.monsters.UberBaal);
@@ -460,7 +479,7 @@ const OrgTorch = new Runnable(
       }
       say("Starting " + portal.objtype);
       
-      if (Config.OrgTorch.TaxiChar) {
+      if (Config.OrgTorch.TaxiChar && portalArea !== sdk.areas.UberTristram) {
         Town.move("portalspot");
 
         const taxiReady = function () {

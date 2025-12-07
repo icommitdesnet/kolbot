@@ -166,6 +166,37 @@ if (!global.hasOwnProperty("copyObj")) {
   });
 }
 
+if (!global.hasOwnProperty("hardDelay")) {
+  /**
+   * @description blocks the thread for specified milliseconds - use sparingly this does not yield to the other threads so it
+   * can potentially cause the heartbeat thread to crash
+   * @param {number} ms 
+   */
+  Object.defineProperty(global, "hardDelay", {
+    value: function (ms) {
+      let start = getTickCount();
+      while (getTickCount() - start < ms) {
+        //
+      }
+    },
+  });
+}
+
+if (!global.hasOwnProperty("nativeDelay")) {
+  /**
+   * @description Use sparingly, this calls the original delay function bypassing the background worker checks
+   * @param {number} ms 
+   */
+  Object.defineProperty(global, "nativeDelay", {
+    value: function (ms) {
+      if (global.hasOwnProperty("_delay")) {
+        return global._delay(ms);
+      }
+      return delay(ms);
+    },
+  });
+}
+
 /**
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Misc Utils ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -297,3 +328,48 @@ const getThreads = function () {
 
   return threads;
 };
+
+/**
+ * Deep merge objects, handling nested properties properly
+ * @param {Object} target - Target object to merge into
+ * @param {Object} source - Source object to merge from
+ * @returns {Object} Merged object
+ */
+function deepMerge(target, source) {
+  if (!source || typeof source !== "object") {
+    return target;
+  }
+
+  // Immutable merge
+  // let result = Object.assign({}, target);
+
+  // for (let key in source) {
+  //   if (source.hasOwnProperty(key)) {
+  //     if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
+  //       // Recursively merge nested objects
+  //       result[key] = deepMerge(result[key] || {}, source[key]);
+  //     } else {
+  //       // Direct assignment for primitives and arrays
+  //       result[key] = source[key];
+  //     }
+  //   }
+  // }
+
+  // return result;
+
+  // Mutable merge - this modifies the target object
+  for (let key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
+        if (!target[key] || typeof target[key] !== "object" || Array.isArray(target[key])) {
+          target[key] = {};
+        }
+        deepMerge(target[key], source[key]);
+      } else {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+}

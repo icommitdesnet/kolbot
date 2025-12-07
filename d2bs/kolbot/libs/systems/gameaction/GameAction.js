@@ -7,34 +7,44 @@
 */
 include("systems/mulelogger/MuleLogger.js");
 
+/** @type {import("./GameAction").GameActionType} */
 const GameAction = {
-  // keeping with the general structure changes this section should probably be in its own config file
-  // but its not a lot so does it really need to be?
-  LogNames: true, // Put account/character name on the picture
-  LogItemLevel: true, // Add item level to the picture
-  LogEquipped: false, // include equipped items
-  LogMerc: false, // include items merc has equipped (if alive)
-  SaveScreenShot: false, // Save pictures in jpg format (saved in 'Images' folder)
-  IngameTime: 60, // Time to wait before leaving game
-
+  /** @type {{ action: string, data: any } | null} */
   task: null,
-  // don't edit
+  
+  /**
+   * @param {string} task - JSON string containing task information
+   * @returns {boolean}
+   */
   init: function (task) {
-    GameAction.task = JSON.parse(task);
+    try {
+      GameAction.task = JSON.parse(task);
+      console.log("ÿc4GameActionÿc0: Task: ", GameAction.task);
+      
+      if (this.task["data"] && typeof this.task.data === "string") {
+        this.task.data = JSON.parse(this.task.data);
+      }
 
-    if (this.task["data"] && typeof this.task.data === "string") {
-      this.task.data = JSON.parse(this.task.data);
+      MuleLogger.LogNames = this.LogNames;
+      MuleLogger.LogItemLevel = this.LogItemLevel;
+      MuleLogger.LogEquipped = this.LogEquipped;
+      MuleLogger.LogMerc = this.LogMerc;
+      MuleLogger.SaveScreenShot = this.SaveScreenShot;
+
+      return true;
+    } catch (err) {
+      console.log("ÿc4GameActionÿc0: Error in init: " + err);
+      this.update("done", "Error in init: " + err);
+      D2Bot.stop();
+      
+      return false;
     }
-
-    MuleLogger.LogNames = this.LogNames;
-    MuleLogger.LogItemLevel = this.LogItemLevel;
-    MuleLogger.LogEquipped = this.LogEquipped;
-    MuleLogger.LogMerc = this.LogMerc;
-    MuleLogger.SaveScreenShot = this.SaveScreenShot;
-
-    return true;
   },
 
+  /**
+   * @param {string} action 
+   * @param {string | Object} data 
+   */
   update: function (action, data) {
     if (typeof action !== "string") throw new Error("Action must be a string!");
     
@@ -42,7 +52,14 @@ const GameAction = {
 
     D2Bot.printToConsole(data);
 
-    let tag = JSON.parse(JSON.stringify(this.task)); // deep copy
+    let tag = (function () {
+      try {
+        return JSON.parse(JSON.stringify(GameAction.task)); // deep copy
+      } catch (err) {
+        console.log("ÿc4GameActionÿc0: Error in update: " + err);
+        return {};
+      }
+    })();
     tag.action = action;
     tag.data = data;
     D2Bot.setTag(tag);
@@ -113,42 +130,47 @@ const GameAction = {
   },
 
   inGameCheck: function () {
-    if (getScript("D2BotGameAction.dbj")) {
-      while (!this["task"]) {
-        D2Bot.getProfile();
-        delay(500);
-      }
-
-      switch (this.task.action) {
-      case "doMule":
-        MuleLogger.logChar();
-
-        break;
-      case "doDrop":
-        this.dropItems(this.task.data.items);
-        MuleLogger.logChar();
-
-        break;
-      default:
-        break;
-      }
-
-      while ((getTickCount() - me.gamestarttime) < this.IngameTime * 1000) {
-        delay(1000);
-      }
-
-      try {
-        quit();
-      } finally {
-        while (me.ingame) {
-          delay(100);
-        }
-      }
-
-      return true;
+    if (!getScript("D2BotGameAction.dbj")) {
+      return false;
+    }
+    
+    while (!this["task"]) {
+      D2Bot.getProfile();
+      delay(500);
     }
 
-    return false;
+    switch (this.task.action) {
+    case "doMule":
+      MuleLogger.logChar();
+
+      break;
+    case "doDrop":
+      this.dropItems(this.task.data.items);
+      MuleLogger.logChar();
+
+      break;
+    default:
+      break;
+    }
+
+    while ((getTickCount() - me.gamestarttime) < this.IngameTime * 1000) {
+      const elapsedMs = getTickCount() - me.gamestarttime;
+      const totalMs = this.IngameTime * 1000;
+      const remainingSeconds = Math.round((totalMs - elapsedMs) / 1000);
+  
+      me.overhead("Stalling for " + remainingSeconds + " Seconds");
+      delay(1000);
+    }
+
+    try {
+      quit();
+    } finally {
+      while (me.ingame) {
+        delay(100);
+      }
+    }
+
+    return true;
   },
 
   load: function (hash) {
@@ -185,7 +207,8 @@ const GameAction = {
         continue;
       }
 
-      let info = droplist[i].itemid.split(":"); //":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y;
+      //unit.gid ":" + unit.classid + ":" + unit.location + ":" + unit.x + ":" + unit.y;
+      let info = droplist[i].itemid.split(":");
 
       let classid = info[1];
       let loc = info[2];
@@ -193,7 +216,7 @@ const GameAction = {
       let unitY = info[4];
 
       // for debug purposes
-      print("classid: " + classid + " location: " + loc + " X: " + unitX + " Y: " + unitY);
+      console.log("classid: " + classid + " location: " + loc + " X: " + unitX + " Y: " + unitY);
 
       for (let j = 0; j < items.length; j += 1) {
         if (items[j].classid.toString() === classid
@@ -205,4 +228,53 @@ const GameAction = {
       }
     }
   },
+
+  convertLadderFiles: function () {
+    console.log("ÿc4GameActionÿc0: Converting ladder files to non-ladder...");
+    if (!this.task || !this.task.data || this.task.action !== "doConvertNL") {
+      return;
+    }
+
+    /** @type {{ realm: string, account: string, character: string}[]} */
+    const data = this.task.data;
+    let converted = 0;
+
+    if (!data || !Array.isArray(data)) {
+      this.update("done", "Invalid data for conversion!");
+      D2Bot.stop();
+      delay(5000);
+    }
+
+    for (let i = 0; i < data.length; i++) {
+      const { realm, account, character } = data[i];
+
+      if (!realm || !account || !character) {
+        continue;
+      }
+
+      const fileName = "mules/" + realm + "/" + account + "/" + character + ".txt";
+      if (!FileTools.exists(fileName)) {
+        continue;
+      }
+
+      const fileContent = FileTools.readText(fileName);
+      if (!fileContent) {
+        continue;
+      }
+      const [charName, ext] = character.split(".");
+      const newFileName = "mules/" + realm + "/" + account + "/" + charName + "." + ext.replace("l", "n") + ".txt";
+      FileTools.writeText(newFileName, fileContent);
+      FileTools.remove(fileName);
+      console.log("Converted " + fileName + " to " + newFileName);
+      converted++;
+    }
+
+    this.update("done", "Conversion complete! Converted " + converted + " files.");
+    D2Bot.stop(me.profile, true);
+  },
 };
+
+// load configuration file and apply settings to GameAction, has to be after the namespace is created
+(function () {
+  Object.assign(GameAction, require("./GameActionConfig", null, false));
+})();

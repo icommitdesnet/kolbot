@@ -83,6 +83,9 @@ const Misc = (function () {
           return true;
         }
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         player = getParty();
 
         if (player) {
@@ -440,9 +443,11 @@ const Misc = (function () {
 
     /**
      * @param {number} range 
+     * @param {number} [x=me.x]
+     * @param {number} [y=me.y]
      * @returns {boolean}
      */
-    openChests: function (range = 15) {
+    openChests: function (range = 15, x = me.x, y = me.y) {
       if (!Config.OpenChests.Enabled) return true;
 
       let containers = [];
@@ -479,8 +484,9 @@ const Misc = (function () {
           do {
             if (unit.name && unit.mode === sdk.objects.mode.Inactive
               && !seenGids.has(unit.gid)
-              && getDistance(me.x, me.y, unit.x, unit.y) <= range
-              && containers.includes(unit.name.toLowerCase())) {
+              && getDistance(x, y, unit.x, unit.y) <= range
+              && containers.includes(unit.name.toLowerCase())
+            ) {
               seenGids.add(unit.gid);
               unitList.push(copyUnit(unit));
             }
@@ -489,7 +495,7 @@ const Misc = (function () {
         return unitList;
       };
       
-      const startPos = new PathNode(me.x, me.y);
+      const startPos = new PathNode(x, y);
       let unitList = buildChestList(range);
 
       while (unitList.length > 0) {
@@ -548,7 +554,12 @@ const Misc = (function () {
     /** @type {Set<number>} */
     _shrinerIgnore: new Set(),
 
-    shriner: function () {
+    /**
+     * @param {number[]} ignore 
+     * @param {number} range
+     * @returns {boolean}
+     */
+    shriner: function (ignore = [], range = 50) {
       if (!Config.AutoShriner) return false;
 
       let shrineList = [];
@@ -567,33 +578,68 @@ const Misc = (function () {
           && Misc.lastShrine.remaining() > Time.seconds(30)) {
           return false;
         }
+        const walkDistance = Pather.getWalkDistance(shrine.x, shrine.y);
+        
         switch (shrine.objtype) {
         case sdk.shrines.Health:
           // we only want if its dire or its close to us if we can't teleport
-          if (!Pather.useTeleport() && Pather.getWalkDistance(shrine.x, shrine.y) > 10) {
+          if (!Pather.useTeleport() && walkDistance > 10) {
             return me.hpPercent <= 50;
           }
           return me.hpPercent < 80;
         case sdk.shrines.Mana:
           // we only want if its dire or its close to us if we can't teleport
-          if (!Pather.useTeleport() && Pather.getWalkDistance(shrine.x, shrine.y) > 10) {
+          if (!Pather.useTeleport() && walkDistance > 10) {
             return me.mpPercent <= 50;
           }
           return me.mpPercent < 80;
         case sdk.shrines.Refilling:
           // we only want if its dire or its close to us if we can't teleport
-          if (!Pather.useTeleport() && Pather.getWalkDistance(shrine.x, shrine.y) > 10) {
+          if (!Pather.useTeleport() && walkDistance > 10) {
             return me.hpPercent <= 50 || me.mpPercent <= 50;
           }
           return me.hpPercent < 85 || me.mpPercent < 85;
         case sdk.shrines.Experience:
           return me.charlvl < 99;
         case sdk.shrines.Skill:
+          if (Config.DebugMode.Shrines) {
+            console.debug(
+              "Skill shrine. Dist: " + walkDistance
+              + " Last shrine state: " + Misc.lastShrine.state
+              + " isMyCurrentState: " + Misc.lastShrine.isMyCurrentState()
+            );
+          }
           return !me.getState(sdk.states.ShrineExperience);
         case sdk.shrines.ManaRecharge:
-        case sdk.shrines.Stamina:
+          if (Config.DebugMode.Shrines) {
+            console.debug(
+              "Mana recharge shrine. Dist: " + walkDistance
+              + " Mana: " + me.mpPercent + "%"
+              + " Last shrine state: " + Misc.lastShrine.state
+              + " isMyCurrentState: " + Misc.lastShrine.isMyCurrentState()
+            );
+          }
           // we only want if its close to us if we can't teleport
-          if (!Pather.useTeleport() && Pather.getWalkDistance(shrine.x, shrine.y) > 15) {
+          if (!Pather.useTeleport() && walkDistance > 15) {
+            return false;
+          }
+          // for now, only grab if we have nothing else active
+          return !Misc.lastShrine.state || !me.getState(Misc.lastShrine.state);
+        case sdk.shrines.Stamina:
+          if (Config.DebugMode.Shrines) {
+            console.debug(
+              "Staima shrine. Dist: " + walkDistance
+              + " Stamina: " + me.staminaPercent
+              + "% Max: " + me.staminamax
+              + " Last shrine state: " + Misc.lastShrine.state
+              + " isMyCurrentState: " + Misc.lastShrine.isMyCurrentState()
+            );
+          }
+          // we only want if its close to us if we can't teleport
+          if (
+            !Pather.useTeleport()
+            && walkDistance > (me.staminamax < 200 || me.staminaPercent < 30) ? 30 : 15
+          ) {
             return false;
           }
           // for now, only grab if we have nothing else active
@@ -611,7 +657,7 @@ const Misc = (function () {
           resistances[sdk.shrines.ResistPoison] = me.poisonRes;
 
           // we only want if its dire or its close to us if we can't teleport
-          if (!Pather.useTeleport() && Pather.getWalkDistance(shrine.x, shrine.y) > 15) {
+          if (!Pather.useTeleport() && walkDistance > 15) {
             return resistances[shrine.objtype] <= 0;
           }
           
@@ -649,8 +695,16 @@ const Misc = (function () {
         // TODO: handle armor and combat shrines
         case sdk.shrines.Armor:
         case sdk.shrines.Combat:
+          if (Config.DebugMode.Shrines) {
+            console.debug(
+              "Armor/Combat. Last shrine state: " + Misc.lastShrine.state
+              + " isMyCurrentState: " + Misc.lastShrine.isMyCurrentState()
+              + " Distance: " + walkDistance
+            );
+          }
+
           // we only want if its close to us if we can't teleport
-          if (!Pather.useTeleport() && Pather.getWalkDistance(shrine.x, shrine.y) > 15) {
+          if (!Pather.useTeleport() && walkDistance > 15) {
             return false;
           }
           
@@ -660,7 +714,7 @@ const Misc = (function () {
           return false;
         case sdk.shrines.Monster:
           // we only want if its close to us if we can't teleport
-          if (!Pather.useTeleport() && Pather.getWalkDistance(shrine.x, shrine.y) > 15) {
+          if (!Pather.useTeleport() && walkDistance > 15) {
             return false;
           }
           
@@ -670,6 +724,15 @@ const Misc = (function () {
           // TODO: add gem hunting logic, get gem from stash if we have one
           console.debug("shriner: gem shrine. try my best.");
           return Town.prepareForGemShrine();
+        case sdk.shrines.Poison:
+        case sdk.shrines.Exploding:
+          // if it's close are we are low on gold then why not?
+          if (!Pather.useTeleport() && walkDistance > 10) {
+            return false;
+          }
+          // ideally we should mock the potion to see if we will actually pick it up
+          // but for now we just check if we are low on gold
+          return me.gold < Config.LowGold || me.gold < 500000;
         }
         return false;
       };
@@ -697,7 +760,9 @@ const Misc = (function () {
           let _name = shrine.name.toLowerCase();
           if ((_name.includes("shrine") && ShrineData.has(shrine.objtype) || (_name.includes("well")))
             && ShrineData.has(shrine.objtype)
-            && shrine.mode === sdk.objects.mode.Inactive) {
+            && !ignore.includes(shrine.objtype)
+            && shrine.mode === sdk.objects.mode.Inactive
+          ) {
             shrineList.push(copyUnit(shrine));
           }
         } while (shrine.getNext());
@@ -708,6 +773,10 @@ const Misc = (function () {
         shrine = shrineList.shift();
 
         if (shrine) {
+          if (shrine.distance > range) {
+            continue; // too far away
+          }
+          
           if (me.inArea(sdk.areas.ChaosSanctuary)) {
             // stateful shrines are pointless in CS unless we are running wakka or diablo has spawned so no more oblivion knights
             if (!this._diabloSpawned && Loader.scriptName() !== "Wakka" && ShrineData.getState(shrine.objtype)) {
@@ -745,13 +814,13 @@ const Misc = (function () {
      * @returns {boolean}
      */
     scanShrines: function (range, ignore) {
+      !Array.isArray(ignore) && (ignore = [ignore]);
       if (Config.AutoShriner) {
-        return this.shriner();
+        return this.shriner(ignore);
       }
       if (!Config.ScanShrines.length) return false;
 
       !range && (range = Pather.useTeleport() ? 25 : 15);
-      !Array.isArray(ignore) && (ignore = [ignore]);
 
       /** @type {ObjectUnit[]} */
       let shrineList = [];
@@ -952,6 +1021,9 @@ const Misc = (function () {
             check = true;
           }
         } catch (e) {
+          if ((e instanceof ScriptError)) {
+            throw e;
+          }
           return false;
         }
 

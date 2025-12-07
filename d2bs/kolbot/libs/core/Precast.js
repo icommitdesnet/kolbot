@@ -262,6 +262,9 @@ const Precast = (function () {
         }
         return state ? me.getState(state) : true;
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         console.error(e);
 
         return false;
@@ -475,7 +478,7 @@ const Precast = (function () {
           Precast.summon(Config.Golem, sdk.summons.type.Golem);
         }
 
-        Config.ActiveSummon && ClassAttack.raiseArmy();
+        Config.ActiveSummon && ClassAttack[me.classid].raiseArmy();
 
         break;
       case sdk.player.class.Paladin:
@@ -589,12 +592,23 @@ const Precast = (function () {
       try {
         // Only do this is you are a barb or actually have a cta. Otherwise its just a waste of time and you can precast in town
         if (Precast.needOutOfTownCast()) {
-          Pather.useWaypoint("random") && Precast.doPrecast(force);
+          if (Pather.useWaypoint("random")) {
+            let wp = Game.getObject("waypoint");
+            let spot = Pather.findSpotAtDistance(wp, 8);
+
+            if (spot) {
+              Pather.move(spot, { allowNodeActions: false });
+            }
+            Precast.doPrecast(force);
+          }
         } else {
           Precast.doPrecast(force);
         }
         Pather.useWaypoint(returnTo);
       } catch (e) {
+        if ((e instanceof ScriptError)) {
+          throw e;
+        }
         console.error(e);
       } finally {
         if (me.area !== returnTo && (!Pather.useWaypoint(returnTo) || !Pather.useWaypoint(sdk.areas.townOf(me.area)))) {

@@ -10,10 +10,8 @@
 
 include("critical.js"); // required
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-// D2BotGameAction specific settings - for global settings see libs/starter/StarterConfig.js
-Starter.Config.MinGameTime = 0; // Minimum game length in seconds. If a game is ended too soon, the rest of the time is waited in the lobby
-Starter.Config.CreateGameDelay = 5; // Seconds to wait before creating a new game
-Starter.Config.SwitchKeyDelay = 0; // Seconds to wait before switching a used/banned key or after realm down
+const { StarterConfig } = require("./libs/systems/gameaction/GameActionConfig");
+Object.assign(Starter.Config, StarterConfig);
 
 // Override default values for StarterConfig under here by following format
 // Starter.Config.ValueToChange = value; // Example: Starter.Config.MinGameTime = 500; // changes MinGameTime to 500 seconds
@@ -47,7 +45,8 @@ const locationAction = (function () {
   const {
     locations,
     addLocations,
-    parseControlText
+    parseControlText,
+    run
   } = require("./libs/oog/Locations");
   
   addLocations([sdk.game.locations.Lobby, sdk.game.locations.LobbyChat],
@@ -156,7 +155,9 @@ const locationAction = (function () {
 
       // last char in list
       if (!charList || !charList.length) {
-        GameAction.update("done", "GameAction has completed task");
+        const loginInfo = GameAction.getLogin();
+        const accountInfo = loginInfo.account ? "for account " + loginInfo.account : "";
+        GameAction.update("done", "GameAction has completed task " + accountInfo);
         D2Bot.stop(me.profile, true);
         delay(5000);
         return;
@@ -180,7 +181,9 @@ const locationAction = (function () {
 
       // last char in list
       if (!charList || !charList.length) {
-        GameAction.update("done", "GameAction has completed task");
+        const loginInfo = GameAction.getLogin();
+        const accountInfo = loginInfo.account ? "for account " + loginInfo.account : "";
+        GameAction.update("done", "GameAction has completed task " + accountInfo);
         D2Bot.stop(me.profile, true);
         delay(5000);
         return;
@@ -275,19 +278,7 @@ const locationAction = (function () {
   );
 
   return {
-    /** @param {number} loc */
-    run: function (loc) {
-      try {
-        let func = locations.get(loc);
-        if (typeof func === "function") {
-          func(loc);
-        } else if (loc !== undefined && loc !== null) {
-          console.log("Unhandled location: " + loc);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    },
+    run: run,
   };
 })();
 
@@ -324,6 +315,12 @@ function main () {
   }
 
   GameAction.init(tag);
+
+  if (GameAction.task.action === "doConvertNL") {
+    GameAction.convertLadderFiles();
+
+    return;
+  }
 
   if (Starter.gameInfo.error) {
     if (!!DataFile.getStats().debugInfo) {

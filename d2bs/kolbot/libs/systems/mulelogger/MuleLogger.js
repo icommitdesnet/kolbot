@@ -4,23 +4,14 @@
 *  @author      kolton, theBGuy
 *  @desc        Log items and perm accounts/characters, for setup @see LoggerConfig.js
 *
+*  @typedef {import("../../../sdk/globals")}
 */
 
+/** @type {import("./MuleLogger").MuleLoggerType} */
 const MuleLogger = {
-  // ~~~ DON'T TOUCH, configuration file loaded at bottom. Use LoggerConfig.js ~~~ //
-  LogGame: ["", ""], // ["gamename", "password"]
-  LogNames: true, // Put account/character name on the picture
-  LogItemLevel: true, // Add item level to the picture
-  LogEquipped: true, // include equipped items
-  LogMerc: true, // include items merc has equipped (if alive)
-  SaveScreenShot: false, // Save pictures in jpg format (saved in 'Images' folder)
-  AutoPerm: true, // override InGameTime to perm character
-  IngameTime: 0, // (180, 210) to avoid RD, increase it to (7230, 7290) for mule perming
-  LogAccounts: {},
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
   inGameCheck: function () {
     if (getScript("D2BotMuleLog.dbj") && this.LogGame[0] && me.gamename.match(this.LogGame[0], "i")) {
-      print("ÿc4MuleLoggerÿc0: Logging items on " + me.account + " - " + me.name + ".");
+      console.log("ÿc4MuleLoggerÿc0: Logging items on " + me.account + " - " + me.name + ".");
       D2Bot.printToConsole("MuleLogger: Logging items on " + me.account + " - " + me.name + ".", sdk.colors.D2Bot.DarkGold);
       this.logChar();
       let stayInGame = this.IngameTime;
@@ -111,6 +102,88 @@ const MuleLogger = {
   },
 
   /**
+   * @param {ItemUnit} item
+   * @returns {Record<string, number|string>}
+   */
+  dumpItemStats: function (item) {
+    const stats = item.getStat(-2);
+    const dump = {};
+
+    for (let i = 0; i < stats.length; i += 1) {
+      if (stats[i]) {
+        for (let n in NTIPAliasStat) {
+          let val;
+          
+          if (NTIPAliasStat.hasOwnProperty(n)) {
+            switch (typeof NTIPAliasStat[n]) {
+            case "number":
+              if (NTIPAliasStat[n] === i) {
+                switch (NTIPAliasStat[n]) {
+                case sdk.stats.ToBlock:
+                case sdk.stats.MinDamage:
+                case sdk.stats.MaxDamage:
+                case sdk.stats.SecondaryMinDamage:
+                case sdk.stats.SecondaryMaxDamage:
+                case sdk.stats.Defense:
+                case sdk.stats.AddClassSkills:
+                case sdk.stats.AddSkillTab:
+                case sdk.stats.ThrowMinDamage:
+                case sdk.stats.ThrowMaxDamage:
+                  val = item.getStatEx(NTIPAliasStat[n]);
+
+                  if (val) {
+                    dump[n] = val;
+                  }
+
+                  break;
+                // poison damage stuff
+                case sdk.stats.PoisonMinDamage:
+                case sdk.stats.PoisonMaxDamage:
+                case sdk.stats.PoisonLength:
+                case sdk.stats.PoisonCount:
+                  if (!dump.hasOwnProperty("poisondamage")) {
+                    val = item.getStatEx(sdk.stats.PoisonMinDamage, 1);
+
+                    if (val) {
+                      dump.poisondamage = val;
+                    }
+                  }
+
+                  break;
+                case sdk.stats.SkillOnAttack:
+                case sdk.stats.SkillOnStrike:
+                case sdk.stats.ChargedSkill:
+                  if (stats[i]) {
+                    dump[n] = stats[i].skill;
+                  }
+
+                  break;
+                default:
+                  if (stats[i][0]) {
+                    dump[n] = stats[i][0];
+                  }
+
+                  break;
+                }
+              }
+
+              break;
+            case "object":
+              val = item.getStatEx(NTIPAliasStat[n][0], NTIPAliasStat[n][1]);
+              if (val) {
+                dump[n] = val;
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    return dump;
+  },
+
+  /**
    * Log kept item stats in the manager.
    * @param {ItemUnit} unit 
    * @param {boolean} [logIlvl] 
@@ -119,7 +192,7 @@ const MuleLogger = {
     includeIfNotIncluded("core/misc.js");
 
     let header = "";
-    let name = (
+    const name = (
       unit.itemType + "_"
       + unit.fname
         .split("\n")
@@ -128,18 +201,47 @@ const MuleLogger = {
         .replace(/(y|ÿ)c[0-9!"+<:;.*]|\/|\\/g, "")
         .trim()
     );
+    const color = unit.getColor();
+    const code = Item.getItemCode(unit);
+    const sock = unit.getItemsEx();
+    const { btoa } = require("../../modules/external/base64");
+    const itemInfo = {
+      id: unit.classid,
+      code: unit.code,
+      name: name,
+      prefix: unit.prefix,
+      suffix: unit.suffix,
+      prefixes: unit.prefixes,
+      suffixes: unit.suffixes,
+      prefixnum: unit.prefixnum,
+      suffixnum: unit.suffixnum,
+      prefixnums: unit.prefixnums,
+      suffixnums: unit.suffixnums,
+      itemType: unit.itemType,
+      itemClass: unit.itemclass,
+      quality: unit.quality,
+      sockets: unit.sockets,
+      gfx: unit.gfx,
+      color: color,
+      ilvl: unit.ilvl,
+      lvlreq: unit.lvlreq,
+      strreq: unit.strreq,
+      dexreq: unit.dexreq,
+      flags: unit.getFlags(),
+      ethereal: unit.getFlag(sdk.items.flags.Ethereal),
+      runeword: unit.getFlag(sdk.items.flags.Runeword),
+      stats: MuleLogger.dumpItemStats(unit)
+    };
+    
     let desc = (
       Item.getItemDesc(unit, logIlvl) + "$"
       + unit.gid + ":"
       + unit.classid + ":"
       + unit.location + ":"
       + unit.x + ":"
-      + unit.y
-      + (unit.getFlag(sdk.items.flags.Ethereal) ? ":eth" : "")
+      + unit.y + ":"
+      + btoa(JSON.stringify(itemInfo)) + ":"
     );
-    let color = unit.getColor();
-    let code = Item.getItemCode(unit);
-    let sock = unit.getItemsEx();
 
     if (sock.length) {
       for (let i = 0; i < sock.length; i += 1) {
@@ -174,6 +276,7 @@ const MuleLogger = {
     // Dropper handler, todo figure out another way to do this
     if (isIncluded("systems/dropper/ItemDB.js") || include("systems/dropper/ItemDB.js")) {
       /** @typedef {import("../dropper/ItemDB")} */
+      // @ts-ignore
       while (!ItemDB.init(false)) {
         delay(1000);
       }
@@ -182,7 +285,8 @@ const MuleLogger = {
     let items = me.getItemsEx();
     if (!items.length) return;
 
-    let folder, realm = me.realm || "Single Player";
+    const realm = me.realm || "Single Player";
+    let folder;
     let finalString = "";
 
     if (!FileTools.exists("mules/" + realm)) {

@@ -19,17 +19,19 @@
     }
 
     // Stupid reference thing
-    // eslint-disable-next-line no-unused-vars
-    const test = original(-1);
+    const _test = original(-1);
 
-    let [first] = args, second = args.length >= 2 ? args[1] : undefined;
-
+    const [first, second] = args;
     const ret = original.apply(this, args);
 
     // deal with bug
-    if (first === 1 && typeof second === "string" && ret
-      && ((me.act === 1 && ret.classid === sdk.monsters.Dummy1)
-      || me.act === 2 && ret.classid === sdk.monsters.Dummy2)) {
+    if (
+      (first === sdk.unittype.Monster && typeof second === "string" && ret)
+      && (
+        (me.act === 1 && ret.classid === sdk.monsters.Dummy1)
+        || (me.act === 2 && ret.classid === sdk.monsters.Dummy2)
+      )
+    ) {
       return null;
     }
 
@@ -79,8 +81,14 @@ Object.defineProperties(Unit.prototype, {
     },
   },
   isNPC: {
+    /** @this {Monster | NPCUnit} */
     get: function () {
-      return this.type === sdk.unittype.Monster && this.getStat(sdk.stats.Alignment) === 2;
+      const mercClassids = [sdk.mercs.Rogue, sdk.mercs.Guard, sdk.mercs.IronWolf, sdk.mercs.A5Barb];
+      return (
+        this.type === sdk.unittype.Monster
+        && !mercClassids.includes(this.classid)
+        && this.getStat(sdk.stats.Alignment) === 2
+      );
     },
   },
   // todo - monster types
@@ -187,17 +195,37 @@ Object.defineProperties(Unit.prototype, {
       return getBaseStat("monstats", this.classid, "MonType") === sdk.monsters.type.Scarab;
     },
   },
+  isDruidVine: {
+    /** @this {Unit} */
+    get: function () {
+      return [
+        sdk.monsters.PoisonCreeper, sdk.monsters.CarrionVine, sdk.monsters.SolarCreeper,
+      ].includes(this.classid);
+    }
+  },
+  isEnchantable: {
+    /** @this {Monster} */
+    get: function () {
+      if (this.type > sdk.unittype.Monster) {
+        throw new Error("Unit.isEnchantable: Must be used with monster units.");
+      }
+      return (this.isMonster && !this.isNPC && !this.isDruidVine && this.classid !== sdk.monsters.Raven);
+    },
+  },
   isWalking: {
+    /** @this {Monster} */
     get: function () {
       return (this.mode === sdk.monsters.mode.Walking && (this.targetx !== this.x || this.targety !== this.y));
     }
   },
   isRunning: {
+    /** @this {Monster} */
     get: function () {
       return (this.mode === sdk.monsters.mode.Running && (this.targetx !== this.x || this.targety !== this.y));
     }
   },
   isMoving: {
+    /** @this {Monster} */
     get: function () {
       return (this.isWalking || this.isRunning);
     },
@@ -358,10 +386,19 @@ Object.defineProperties(Unit.prototype, {
   },
   idle: {
     get: function () {
-      if (this.type > sdk.unittype.Player) throw new Error("Unit.idle: Must be used with player units.");
-      // Dead is pretty idle too
-      return (this.mode === sdk.player.mode.StandingOutsideTown
-        || this.mode === sdk.player.mode.StandingInTown || this.mode === sdk.player.mode.Dead);
+      if (this.type > sdk.unittype.Monster) {
+        throw new Error("Unit.idle: Must be used with Player or Monster units.");
+      }
+      switch (this.type) {
+      case sdk.unittype.Player:
+        // Dead is pretty idle too
+        return (this.mode === sdk.player.mode.StandingOutsideTown
+          || this.mode === sdk.player.mode.StandingInTown || this.mode === sdk.player.mode.Idle);
+      case sdk.unittype.Monster:
+        return (this.mode === sdk.monsters.mode.Standing);
+      default:
+        return false;
+      }
     }
   },
   gold: {
@@ -389,6 +426,19 @@ Object.defineProperties(Unit.prototype, {
     get: function () {
       if (this.type > sdk.unittype.Player) throw new Error("Unit.inTown: Must be used with player units.");
       return sdk.areas.Towns.includes(this.area);
+    }
+  },
+  size: {
+    /** @this {Monster | Player} */
+    get: function () {
+      if (this.type > sdk.unittype.Monster) {
+        throw new Error("Unit.size: Must be used with monster or player units.");
+      }
+      const baseId = getBaseStat("monstats", this.classid, "baseid");
+      const size = getBaseStat("monstats2", baseId, "sizex");
+
+      // in case base stat returns something outrageous
+      return (typeof size !== "number" || size < 1 || size > 3) ? 3 : size;
     }
   }
 });
@@ -936,6 +986,9 @@ Unit.prototype.toCursor = function (usePacket = false) {
         clickItem(sdk.clicktypes.click.item.Left, this);
       }
     } catch (e) {
+      if ((e instanceof ScriptError)) {
+        throw e;
+      }
       return false;
     }
 
@@ -1121,7 +1174,7 @@ Unit.prototype.checkItem = function (itemInfo) {
 /**
  * @description Returns first item given by itemInfo
  * @param {ItemInfo} itemInfo
- * @returns {ItemUnit[]}
+ * @returns {{ have: boolean, item: ItemUnit }}
  */
 Unit.prototype.findFirst = function (itemInfo = []) {
   if (this === undefined || this.type > 1) return { have: false, item: null };
@@ -2026,6 +2079,8 @@ Unit.prototype.castChargedSkill = function (...args) {
       // The result of "successfully" casted is different, so we cant wait for it here. We have to assume it worked
 
       return true;
+    } else {
+      throw new Error("No valid charged skills found on this item");
     }
   }
 

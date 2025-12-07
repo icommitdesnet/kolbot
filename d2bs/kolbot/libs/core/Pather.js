@@ -5,6 +5,8 @@
 *
 */
 
+includeIfNotIncluded("manualplay/hooks/ShrineHooks.js");
+
 /**
  * @constructor
  * @param {number} x 
@@ -14,6 +16,33 @@ function PathNode (x, y) {
   this.x = x;
   this.y = y;
 }
+
+/**
+ * Distance from unit to node
+ * @param {Unit} unit 
+ * @returns {number}
+ */
+PathNode.prototype.distanceTo = function (unit) {
+  return !me.gameReady ? NaN : (getDistance.apply(null, [unit, this]));
+};
+
+PathNode.prototype.getWalkDistance = function () {
+  return (getPath(me.area, me.x, me.y, this.x, this.y, 0, Pather.walkDistance) || [])
+    .map(function (e, i, s) {
+      return i && getDistance(s[i - 1], e) || 0;
+    })
+    .reduce(function (acc, cur) {
+      return acc + cur;
+    }, 0) || Infinity;
+};
+
+/**
+ * @param {{ x?: number, y?: number }} node
+ */
+PathNode.prototype.update = function (node) {
+  if (typeof node.x === "number") this.x = node.x;
+  if (typeof node.y === "number") this.y = node.y;
+};
 
 /**
  * Perform certain actions after moving to each node
@@ -85,6 +114,18 @@ const NodeAction = {
   },
 
   /**
+   * Pick items while pathing
+   * @param {Pick<clearSettings, "clearPath">} arg
+   */
+  pickItems: function (arg = {}) {
+    const pickSettings = Object.assign({}, {
+      allowPicking: true,
+    }, arg);
+    if (!pickSettings.allowPicking) return;
+    Pickit.pickItems(Config.PickRange / 2);
+  },
+  
+  /**
    * Open chests while pathing
    */
   popChests: function () {
@@ -98,7 +139,7 @@ const NodeAction = {
    */
   getShrines: function () {
     if (Config.AutoShriner) {
-      Misc.shriner();
+      Misc.shriner(this.shrinesToIgnore);
     } else if (Config.ScanShrines.length > 0) {
       Misc.scanShrines(null, this.shrinesToIgnore);
     }
@@ -106,33 +147,40 @@ const NodeAction = {
 };
 
 const PathDebug = {
-  /** @type {Line[]} */
-  hooks: [],
   enableHooks: false,
+  /** @type {Map<number, Line[]} */
+  paths: new Map(),
 
   /**
    * Draw our path on the screen
+   * @param {number} id
    * @param {PathNode[]} path
    * @returns {void}
    */
-  drawPath: function (path) {
+  drawPath: function (id, path) {
     if (!this.enableHooks) return;
-
-    this.removeHooks();
-
+    this.removeHooks(id);
     if (path.length < 2) return;
+    const color = Pather.recursion ? 0x84 : 0x9B;
+    const pathHooks = [];
 
     for (let i = 0; i < path.length - 1; i += 1) {
-      this.hooks.push(new Line(path[i].x, path[i].y, path[i + 1].x, path[i + 1].y, 0x84, true));
+      pathHooks.push(new Line(path[i].x, path[i].y, path[i + 1].x, path[i + 1].y, color, true));
     }
+    this.paths.set(id, pathHooks);
   },
 
-  removeHooks: function () {
-    for (let i = 0; i < this.hooks.length; i += 1) {
-      PathDebug.hooks[i].remove();
+  /**
+   * @param {number} id 
+   */
+  removeHooks: function (id) {
+    const pathHooks = this.paths.get(id);
+    if (!pathHooks || !pathHooks.length) return;
+    
+    for (let hook of pathHooks) {
+      hook.remove();
     }
-
-    PathDebug.hooks = [];
+    this.paths.delete(id);
   },
 
   /**
@@ -199,6 +247,8 @@ const Pather = {
     sdk.areas.FrozenTundra, sdk.areas.AncientsWay, sdk.areas.WorldstoneLvl2
   ],
   nextAreas: {},
+  /** @type {PathNode[]} */
+  currentWalkingPath: [],
 
   /** @param {{ type: string, data: number[] }} msg */
   cacheListener: function (msg) {
@@ -282,6 +332,43 @@ const Pather = {
   },
 
   /**
+   * @param {PathNode} node
+   * @param {number} distance - desired distance from node
+   * @param {number} [maxAttempts=16] - number of angles to try
+   * @returns {PathNode | false}
+   */
+  findSpotAtDistance: function (node, distance, maxAttempts = 16) {
+    if (!node) return false;
+  
+    const angleStep = 360 / maxAttempts;
+  
+    for (let i = 0; i < maxAttempts; i++) {
+      let angle = (i * angleStep) * Math.PI / 180;
+      let x = Math.round(node.x + Math.cos(angle) * distance);
+      let y = Math.round(node.y + Math.sin(angle) * distance);
+    
+      if (Pather.checkSpot(x, y, sdk.collision.BlockWalk)) {
+        return new PathNode(x, y);
+      }
+    }
+  
+    // If no exact distance spot found, try to find nearest walkable spot around the target distance
+    for (let radius = distance - 2; radius <= distance + 2; radius++) {
+      for (let i = 0; i < maxAttempts; i++) {
+        let angle = (i * angleStep) * Math.PI / 180;
+        let x = Math.round(node.x + Math.cos(angle) * radius);
+        let y = Math.round(node.y + Math.sin(angle) * radius);
+      
+        if (Pather.checkSpot(x, y, sdk.collision.BlockWalk)) {
+          return new PathNode(x, y);
+        }
+      }
+    }
+  
+    return false;
+  },
+
+  /**
    * @typedef {object} pathSettings
    * @property {boolean} [allowNodeActions]
    * @property {boolean} [allowTeleport]
@@ -299,6 +386,7 @@ const Pather = {
    * @property {boolean} [clearSettings.clearPath]
    * @property {number} [clearSettings.range]
    * @property {number} [clearSettings.specType]
+   * @property {boolean} [clearSettings.allowPicking]
    * @property {Function} [clearSettings.sort]
    *
    * @param {PathNode | Unit | PresetUnit} target
@@ -331,6 +419,7 @@ const Pather = {
       clearPath: false,
       range: 10,
       specType: 0,
+      allowPicking: settings.allowPicking,
       sort: Attack.sortMonsters,
     }, settings.clearSettings);
     // set settings.clearSettings equal to the now properly asssigned clearSettings
@@ -370,6 +459,7 @@ const Pather = {
     const whirled = new PathAction();
     const cleared = new PathAction();
     const primarySlot = Attack.getPrimarySlot(); // for tele-switch
+    const PATH_DEBUG_ID = Date.now() + Math.floor(Math.random() * 1000);
 
     for (let i = 0; i < this.cancelFlags.length; i += 1) {
       getUIFlag(this.cancelFlags[i]) && me.cancel();
@@ -396,13 +486,36 @@ const Pather = {
     );
     if (!path) throw new Error("move: Failed to generate path.");
 
-    if (settings.retry <= 3 && target.distance > useTeleport ? 120 : 60) {
+    // Failed to generate path, maybe coords are invalid? Lets try to find a walkable node
+    // if (!path.length && getDistance(me, node.x, node.y) > 5) {
+    //   console.debug(path, "move: Failed to generate path, trying to find a walkable node. Current distance: " + getDistance(me, node.x, node.y), " node: ", node);
+    //   let adjustedNode = Pather.getNearestWalkable(node.x, node.y, 5, 1, sdk.collision.BlockWalk);
+    //   if (!adjustedNode) {
+    //     throw new Error("move: Failed to generate path.");
+    //   }
+    //   let [tmpX, tmpY] = adjustedNode;
+    //   path = getPath(
+    //     me.area,
+    //     tmpX, tmpY,
+    //     me.x, me.y,
+    //     useTeleport ? 1 : 0,
+    //     useTeleport ? (annoyingArea ? 30 : this.teleDistance) : this.walkDistance
+    //   );
+      
+    //   if (!path || !path.length) {
+    //     throw new Error("move: Failed to generate path.");
+    //   }
+    //   node.x = tmpX;
+    //   node.y = tmpY;
+    // }
+
+    if (settings.retry <= 3 && target.distance > (useTeleport ? 120 : 60)) {
       settings.retry = 10;
     }
 
     path.reverse();
     settings.pop && path.pop();
-    PathDebug.drawPath(path);
+    PathDebug.drawPath(PATH_DEBUG_ID, path);
     useTeleport && Config.TeleSwitch && path.length > 5 && me.switchWeapons(primarySlot ^ 1);
 
     while (path.length > 0) {
@@ -415,12 +528,14 @@ const Pather = {
         if (getUIFlag(this.cancelFlags[i])) me.cancel();
       }
 
+      Config.DebugMode.Shrines && ShrineHooks.check();
+      
       node = path.shift();
 
       if (typeof settings.callback === "function" && settings.callback()) {
         console.debug("Callback function passed. Ending path.");
         useTeleport && Config.TeleSwitch && me.switchWeapons(primarySlot);
-        PathDebug.removeHooks();
+        PathDebug.removeHooks(PATH_DEBUG_ID);
         return true;
       }
 
@@ -531,7 +646,7 @@ const Pather = {
           if (!path) throw new Error("move: Failed to generate path.");
 
           path.reverse();
-          PathDebug.drawPath(path);
+          PathDebug.drawPath(PATH_DEBUG_ID, path);
           settings.pop && path.pop();
 
           if (fail > 0) {
@@ -551,7 +666,8 @@ const Pather = {
     }
 
     useTeleport && Config.TeleSwitch && me.switchWeapons(primarySlot);
-    PathDebug.removeHooks();
+    PathDebug.removeHooks(PATH_DEBUG_ID);
+    Config.DebugMode.Shrines && ShrineHooks.flush();
 
     return getDistance(me, node.x, node.y) < 5;
   },
@@ -1291,6 +1407,12 @@ const Pather = {
       );
     }
 
+    // There might be multiple stairs with the same class id nearby.
+    // Given we've walked to the stairs, pick the closest one.
+    if (type === sdk.unittype.Stairs) {
+      unit = getUnits(type, id).sort(Sort.units).first() || unit;
+    }
+
     return unit.useUnit(targetArea);
   },
 
@@ -1462,16 +1584,16 @@ const Pather = {
 
           while (getTickCount() - tick < Math.max(Math.round((i + 1) * 1000 / (i / 5 + 1)), pingDelay * 2)) {
             if (me.area === targetArea) {
-              delay(1500);
+              nativeDelay(1500);
 
               break MainLoop;
             }
 
-            delay(20);
+            nativeDelay(20);
           }
 
           while (!me.gameReady) {
-            delay(1000);
+            nativeDelay(1000);
           }
 
           // In case lag causes the wp menu to stay open
